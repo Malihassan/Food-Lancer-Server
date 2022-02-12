@@ -1,4 +1,4 @@
-const mongo = require("mongoose");
+const mongoose = require("mongoose");
 
 const buyerSchema = mongo.Schema(
   {

@@ -1,0 +1,86 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Food-Lancer",
+		"_postman_id": "5e98214a-7d61-e3f9-3cfa-65e14b2550fc",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "seller",
+			"description": "",
+			"item": [
+				{
+					"name": "add Seller",
+					"request": {
+						"url": "http://localhost:3000/addSeller",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"userName\": \"MomenAlhendawy\",\n    \"firstName\": \"momen\",\n    \"lastName\": \"zakaia\",\n    \"password\": \"123\",\n    \"phone\": \"01012457889\",\n    \"email\": \"momen@gmail.com\",\n    \"gender\": \"male\"\n\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "buyer",
+			"description": "",
+			"item": [
+				{
+					"name": "add buyer",
+					"request": {
+						"url": "",
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "product",
+			"description": "",
+			"item": [
+				{
+					"name": "add product",
+					"request": {
+						"url": "",
+						"method": "POST",
+						"header": [],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "category",
+			"description": "",
+			"item": []
+		},
+		{
+			"name": "address",
+			"description": "",
+			"item": []
+		},
+		{
+			"name": "order",
+			"description": "",
+			"item": []
+		}
+	]
+}
