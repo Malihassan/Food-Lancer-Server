@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const sellerSchema = mongo.Schema(
+const sellerSchema = mongoose.Schema(
   {
     userName: {
       type: String,
@@ -47,12 +47,18 @@ const sellerSchema = mongo.Schema(
         "Please fill a valid email address",
       ],
     },
-    rate: Number,
-    token: String,
+    rate: {
+        type:Number,
+        default:0,
+    },
+    token: {
+        type:String,
+        default:""
+    },
     address: {
-      type: mongo.SchemaTypes.ObjectId,
+      type: mongoose.SchemaTypes.ObjectId,
       ref: "address",
-    // must be required but stell not add address collection
+      required:true
     },
     status: {
       type: String,
@@ -68,5 +74,5 @@ const sellerSchema = mongo.Schema(
   { timestamps: true }
 );
 
-const sellerModel = mongo.model("seller", sellerSchema);
+const sellerModel = mongoose.model("seller", sellerSchema);
 module.exports = sellerModel;

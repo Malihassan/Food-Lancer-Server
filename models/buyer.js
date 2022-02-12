@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const buyerSchema = mongo.Schema(
+const buyerSchema = mongoose.Schema(
   {
     userName: {
       type: String,
@@ -49,7 +49,7 @@ const buyerSchema = mongo.Schema(
     },
     token: String,
     address: {
-      type: mongo.SchemaTypes.ObjectId,
+      type: mongoose.SchemaTypes.ObjectId,
       ref: "address",
     },
     status: {
@@ -64,9 +64,9 @@ const buyerSchema = mongo.Schema(
     },
     reviews: [
       {
-        _id: mongo.SchemaTypes.ObjectId,
+        _id: mongoose.SchemaTypes.ObjectId,
         sellerId: {
-          type: mongo.SchemaTypes.ObjectId,
+          type: mongoose.SchemaTypes.ObjectId,
           ref: "seller",
           required: true,
         },
@@ -81,10 +81,10 @@ const buyerSchema = mongo.Schema(
         },
       },
     ],
-    fav: [mongo.SchemaTypes.ObjectId],
+    fav: [mongoose.SchemaTypes.ObjectId],
   },
   { timestamps: true }
 );
 
-const buyerModel = mongo.model("buyer", buyerSchema);
+const buyerModel = mongoose.model("buyer", buyerSchema);
 module.exports = buyerModel;
