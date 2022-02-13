@@ -29,7 +29,7 @@ const productSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
-    /*addOns: [
+    addOns: [
       {
         _id: mongoose.SchemaTypes.ObjectId,
         des: {
@@ -48,7 +48,7 @@ const productSchema = mongoose.Schema(
           trim: true,
         },
       },
-    ],*/
+    ],
     reviews: [
       {
         _id: mongoose.SchemaTypes.ObjectId,
