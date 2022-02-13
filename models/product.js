@@ -1,59 +1,54 @@
 const mongoose = require("mongoose");
-const productSchema = mongoose.Schema({
-  categoryId: {
-    type: mongoose.SchemaTypes.ObjectId,
-    ref: "category",
-    required: true,
-  },
-  sellerId: {
-    type: mongoose.SchemaTypes.ObjectId,
-    ref: "seller",
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-   /* image: [
-    {
-      name: String,
-    desc: String,
-    img:
-    {
-        data: Buffer,
-        contentType: String
-    }
-      
-    }
-    maxLenght:5
-    
-  ] , */
-  price: {
-    type: Number,
-    required: true,
-  },
-  
-    addOns: [
+const productSchema = mongoose.Schema(
+  {
+    categoryId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "category",
+      required: true,
+    },
+    sellerId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "seller",
+      required: true,
+    },
+
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    image: [
+      {
+        url: String
+      },
+    ],
+
+    ////maxLenght
+
+    price: {
+      type: Number,
+      required: true,
+    },
+    /*addOns: [
       {
         _id: mongoose.SchemaTypes.ObjectId,
         des: {
           type: String,
           required: true,
-          trim: true
+          trim: true,
         },
         name: {
           type: String,
           required: true,
-          trim: true
+          trim: true,
         },
         price: {
           type: Number,
           required: true,
-          trim: true
-        }
-      }
-    ],
+          trim: true,
+        },
+      },
+    ],*/
     reviews: [
       {
         _id: mongoose.SchemaTypes.ObjectId,
@@ -72,23 +67,24 @@ const productSchema = mongoose.Schema({
             message: {
               type: "String",
               required: true,
-              trim: true
-            }
-            /* ,
+              trim: true,
+            },
+
             createdAt: {
-              type:Date,
-              Default:new Date,
-              required: true
-            }  */
-          },{timeStamp:true}
+              type: Date,
+              default: new Date(),
+            },
+          },
         ],
-        rate: Number
-      }
+        rate: Number,
+      },
     ],
-    avgRate: Number
-},{timeStamp:true});
-
-const ProductModel = mongoose.model("product",productSchema)
-module.exports = ProductModel
-//productModel.create({categoryId:23234242424,sellerId:321323234,description:"wdsdfsdfsdfsdfs",price:344,reviews:[{buyerId:23424,sellerId:321323234,comment:"erfefrererrge"}]})
-
+    avgRate: Number,
+  },
+  { timeStamp: true }
+);
+const ProductModel = mongoose.model("product", productSchema);
+productSchema.path('image')
+    .validate((img) => img.length < 5,  'Must have maxmum 5 images');
+module.exports = ProductModel;
+//productModel.create({ price: 3434 });
