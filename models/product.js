@@ -11,7 +11,11 @@ const productSchema = mongoose.Schema(
       ref: "seller",
       required: true,
     },
-
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     description: {
       type: String,
       required: true,
@@ -19,12 +23,9 @@ const productSchema = mongoose.Schema(
     },
     image: [
       {
-        url: String
+        url: String,
       },
     ],
-
-    ////maxLenght
-
     price: {
       type: Number,
       required: true,
@@ -69,7 +70,6 @@ const productSchema = mongoose.Schema(
               required: true,
               trim: true,
             },
-
             createdAt: {
               type: Date,
               default: new Date(),
@@ -81,10 +81,10 @@ const productSchema = mongoose.Schema(
     ],
     avgRate: Number,
   },
-  { timeStamp: true }
+  { timestamps: true }
 );
 const ProductModel = mongoose.model("product", productSchema);
-productSchema.path('image')
-    .validate((img) => img.length < 5,  'Must have maxmum 5 images');
+productSchema
+  .path("image")
+  .validate((img) => img.length < 5, "Must have maxmum 5 images");
 module.exports = ProductModel;
-//productModel.create({ price: 3434 });
