@@ -6,7 +6,8 @@ const coverageAreaSchema = mongoose.Schema(
             type: String,
             default: "Assiut",
             trim: true,
-            enum: ["Assiut"]
+            enum: ["Assiut"],
+            unique:true
         },
         regionName:
             [

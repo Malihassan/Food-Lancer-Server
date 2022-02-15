@@ -11,7 +11,6 @@ mongoose.connect(process.env.ATLS_URL, () => {
 app.use(cors());
 app.use(express.json());
 
-
 app.listen(process.env.PORT, () => {
   console.log(`listen on port ${process.env.PORT}`);
 });
