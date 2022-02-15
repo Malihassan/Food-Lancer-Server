@@ -5,7 +5,8 @@ const categorySchema = mongoose.Schema(
         name: {
             type: String,
             trim: true,
-            required: true
+            required: true,
+            unique:true
         },
         categoryImg: {
             type: String,
@@ -16,4 +17,5 @@ const categorySchema = mongoose.Schema(
 );
 
 const categoryModel = mongoose.model("category", categorySchema);
+
 module.exports = categoryModel;

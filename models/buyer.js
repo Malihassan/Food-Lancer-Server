@@ -47,10 +47,17 @@ const buyerSchema = mongoose.Schema(
         "Please fill a valid email address",
       ],
     },
-    token: String,
+    token: {
+      type: String,
+      default: "",
+    },
     address: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: "address",
+      type: String,
+      required: true,
+    },
+    confirmationCode: {
+      type: Number,
+      default: 0,
     },
     status: {
       type: String,
@@ -62,7 +69,9 @@ const buyerSchema = mongoose.Schema(
       required: true,
       enum: ["male", "female"],
     },
-    fav: [mongoose.SchemaTypes.ObjectId],
+    fav: [
+      { type: mongoose.SchemaTypes.ObjectId, ref: "category", required: true },
+    ],
   },
   { timestamps: true }
 );

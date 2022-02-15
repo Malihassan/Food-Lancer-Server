@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const chatSchema = mongoose.Schema(
 	{
 		buyerId: {
-			type: mongoose.SchemaTypes.ObjectId,
+			type: mongo.SchemaTypes.ObjectId,
 			ref: "buyer",
 			required: true,
 		},
 		sellerId: {
-			type: mongoose.SchemaTypes.ObjectId,
+			type: mongo.SchemaTypes.ObjectId,
 			ref: "seller",
 			required: true,
 		},
@@ -25,9 +25,14 @@ const chatSchema = mongoose.Schema(
 				},
 			},
 		],
+		productId: {
+			type: mongo.SchemaTypes.ObjectId,
+			ref: "product",
+			required: true,
+		},
 	},
 	{ timeStamp: true }
 );
 
-const ChatModel = mongoose.model("Chat", chatSchema);
+const ChatModel = mongo.model("Chat", chatSchema);
 module.exports = ChatModel;

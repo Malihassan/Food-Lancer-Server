@@ -8,11 +8,11 @@ const app = express();
 mongoose.connect(process.env.ATLS_URL, () => {
   console.log("connected to database");
 });
-
 app.use(cors());
 app.use(express.json());
-app.use('/',routers)
-app.use(errorHandler)
-app.listen(process.env.PORT,()=>{
-    console.log(`listen on port ${process.env.PORT}`);
-})
+
+app.listen(process.env.PORT, () => {
+  console.log(`listen on port ${process.env.PORT}`);
+});
+
+

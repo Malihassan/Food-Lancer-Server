@@ -11,7 +11,11 @@ const productSchema = mongoose.Schema(
       ref: "seller",
       required: true,
     },
-
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     description: {
       type: String,
       required: true,
@@ -19,12 +23,9 @@ const productSchema = mongoose.Schema(
     },
     image: [
       {
-        url: String
+        url: String,
       },
     ],
-
-    ////maxLenght
-
     price: {
       type: Number,
       required: true,
@@ -69,7 +70,6 @@ const productSchema = mongoose.Schema(
               required: true,
               trim: true,
             },
-
             createdAt: {
               type: Date,
               default: new Date(),
@@ -81,10 +81,26 @@ const productSchema = mongoose.Schema(
     ],
     avgRate: Number,
   },
-  { timeStamp: true }
+  { timestamps: true }
 );
 const ProductModel = mongoose.model("product", productSchema);
-productSchema.path('image')
-    .validate((img) => img.length < 5,  'Must have maxmum 5 images');
+productSchema
+  .path("image")
+  .validate((img) => img.length < 5, "Must have maxmum 5 images");
 module.exports = ProductModel;
-//productModel.create({ price: 3434 });
+
+ 
+/*const productmodel=require("./models/product")
+ app.post("/add",(req,res)=>{
+  console.log(req.body);
+const {categoryId,sellerId,description,image,price,addOns,reviews,avgRate}= req.body
+productmodel.create({categoryId,sellerId,description,image,price,addOns,reviews,avgRate});
+res.json("done")
+=======
+app.use('/',routers)
+app.use(errorHandler)
+app.listen(process.env.PORT,()=>{
+    console.log(`listen on port ${process.env.PORT}`);
+>>>>>>> 58c53ab0aaa55764d69f00d7103b4aa743b7b2ba
+})
+ */
