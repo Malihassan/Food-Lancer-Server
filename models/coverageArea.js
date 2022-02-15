@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const addressSchema = mongoose.Schema(
+const coverageAreaSchema = mongoose.Schema(
     {
         governorateName:
         {
@@ -24,5 +24,6 @@ const addressSchema = mongoose.Schema(
     { timestamps: true }
 );
 
-const addressModel = mongoose.model("address", addressSchema);
-module.exports = addressModel;
+
+const coverageAreaModel = mongoose.model("coverageArea", coverageAreaSchema);
+module.exports = coverageAreaModel;
