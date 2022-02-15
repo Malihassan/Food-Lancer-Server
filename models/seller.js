@@ -65,6 +65,10 @@ const sellerSchema = mongoose.Schema(
       default: "pending",
       enum: ["active", "pending", "blocked"],
     },
+    confirmationCode:{
+      type:Number,
+      default:0
+    },
     gender: {
       type: String,
       required: true,
