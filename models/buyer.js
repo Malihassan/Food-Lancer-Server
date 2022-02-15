@@ -62,25 +62,6 @@ const buyerSchema = mongoose.Schema(
       required: true,
       enum: ["male", "female"],
     },
-    reviews: [
-      {
-        _id: mongoose.SchemaTypes.ObjectId,
-        sellerId: {
-          type: mongoose.SchemaTypes.ObjectId,
-          ref: "seller",
-          required: true,
-        },
-        message: {
-          type: String,
-          trim: true,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
     fav: [mongoose.SchemaTypes.ObjectId],
   },
   { timestamps: true }

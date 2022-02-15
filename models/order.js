@@ -6,11 +6,6 @@ const orderSchema = mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: "buyer",
         required: true
-      },
-    sellerId: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: "seller",
-        required: true
     },
     products: [
     {
