@@ -1,15 +1,21 @@
 const productModel = require("../../models/product");
 const categoryModel = require("../../models/category");
+//const AppError = require("../../helpers/ErrorClass");
 //////////add product
+///1-get category id by category name || creat new category       (NOT NOW)
+///2-add product by the seller -[(categryid=>by developer),(seller id=>by developer),(reviews),(avg rate)]
+///3-sellerid => the token || database
+///3-the reviews=> get seller id , get buyer id ,buyer comment (by buyer)
+///4-avg rate => the reviews rate
 const addProduct = async (body, categoryName) => {
-  ////1-get category id using category name
   const category = await categoryModel.findOne({ name: categoryName }).exec();
-  console.log(category);
   if (!category) {
-    return category;
+    return category
   }
   const { name, description, image, price, addOns } = body;
-  return productModel.create({
+  if (!validPass) throw new AppError("InvalidPassword"); 
+try {
+  await productModel.create({
     categoryId: category._id,
     sellerId: "620840ad4d1be856d21f29f7",
     name,
@@ -18,17 +24,21 @@ const addProduct = async (body, categoryName) => {
     price,
     addOns,
     reviews: [],
-    avgRate: "4.5"
-  });
+    avgRate: "0"
+  })
+} catch (error) {
+  
+}
+  return productModel.find()
 };
-///1-get category id by category name || creat new category
-///2-add product by the seller -[(categryid=>by developer),(seller id=>by developer),(reviews),(avg rate)]
-///3-sellerid => the token || database
-///3-the reviews=> get seller id , get buyer id ,buyer comment
-///4-avg rate => the reviews rate
-const deleteProduct = (id) => {
+const deleteProduct = async (id) => {
   const productId = id;
-  return productModel.findByIdAndDelete(productId).catch(e);
+  const deletedProduct = await productModel.findByIdAndDelete(productId).exec();
+  console.log(deletedProduct);
+    if (!deletedProduct){
+      return deletedProduct
+    }
+    return productModel.find()
 };
 module.exports = {
   addProduct,

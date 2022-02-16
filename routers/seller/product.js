@@ -1,26 +1,24 @@
 const express = require("express");
-const productController = require("../../controllers/seller/product");
 const router = express.Router();
-
+const productController = require("../../controllers/seller/product");
+const AppError = require("../../helpers/ErrorClass");
 /////////////add product=>body+category
-router.post("/product/addProduct",(req,res,next)=>{
+router.post("/addProduct",(req,res,next)=>{
   const body = req.body
-  productController.addProduct(body,`Pizza`).then(data=>{
-    console.log(data);
-    if (!data) {
-     return res.status(404).json("category not found" )
+  productController.addProduct(body,`Pizza`).then(products=>{
+    if (!products) {
+      return next(new AppError("categoryNotFound"));
     }
-    res.json(data)
+    res.json({products:products})
   }) 
 })
-router.delete("/product/:id",(req,res,next)=>{
+router.delete("/:id",(req,res,next)=>{
   const {id}=req.params
-  productController.deleteProduct(id).then(data=>{
-    console.log(data);
-    if (!data || data =="undefind") {
-      return res.status(404).json({ error: "ID not found" });
-    }
-    res.json("done")
+  productController.deleteProduct(id).then(products=>{
+if (!products) {
+  return next(new AppError("accountNotFound"));
+}
+    res.json({products:products})
   })
 })
 module.exports = router

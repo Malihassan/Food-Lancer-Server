@@ -22,6 +22,9 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'allFieldsRequired') {
     return res.status(400).json({ error: "All fields are required !" });
   }
+  if (err.name === 'categoryNotFound') {
+    return res.status(404).json({ error: "Category not available !" });
+  }
   
 }
 module.exports = errorHandler;
