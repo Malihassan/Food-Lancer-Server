@@ -7,17 +7,16 @@ const categoryModel = require("../../models/category");
 ///3-sellerid => the token || database
 ///3-the reviews=> get seller id , get buyer id ,buyer comment (by buyer)
 ///4-avg rate => the reviews rate
-const addProduct = async (body, categoryName) => {
+const addProduct = async (body, categoryName,idSeller) => {
   const category = await categoryModel.findOne({ name: categoryName }).exec();
   if (!category) {
     return category
   }
   const { name, description, image, price, addOns } = body;
-  if (!validPass) throw new AppError("InvalidPassword"); 
-try {
+  const sellerId = idSeller
   await productModel.create({
     categoryId: category._id,
-    sellerId: "620840ad4d1be856d21f29f7",
+    sellerId: sellerId,
     name,
     description,
     image,
@@ -26,21 +25,29 @@ try {
     reviews: [],
     avgRate: "0"
   })
-} catch (error) {
-  
-}
   return productModel.find()
 };
-const deleteProduct = async (id) => {
+const deleteProduct =  async (id,idSeller) => {
   const productId = id;
-  const deletedProduct = await productModel.findByIdAndDelete(productId).exec();
+  const sellerId = idSeller
+  //const deletedProduct = await productModel.findByIdAndDelete(productId).exec();
+  const deletedProduct = await productModel.findOneAndDelete({id:productId,sellerId:sellerId}).exec();
   console.log(deletedProduct);
     if (!deletedProduct){
       return deletedProduct
     }
     return productModel.find()
 };
+const getProductsForSpecifcSeller = async (id) => {
+  return await productModel.find({ sellerId: id });
+}
+const updateProductForSpecifcSeller = async (idProduct ,data) => {
+  const { name, description, image, price, addOns } = data;
+  return await productModel.findOneAndUpdate({ _id: idProduct }, { name: name, description, image , price, addOns},{new: true ,runValidators: true});
+}
 module.exports = {
   addProduct,
   deleteProduct,
+  getProductsForSpecifcSeller,
+  updateProductForSpecifcSeller
 };
