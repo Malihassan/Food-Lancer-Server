@@ -27,22 +27,19 @@ async function updateSeller(
 	lastName,
 	coverageArea
 ) {
-	const seller = await sellerModel.findById(id);
-	if (!seller) {
+	const user = await sellerModel.findById(id);
+	if (!user) {
 		return;
 	}
-	if (phone) {
-		user.phone = phone;
-	}
-	if (password) {
-		user.password = password;
-	}
-	if (firstName) {
-		user.firstName = firstName;
-	}
-	if (lastName) {
-		user.lastName = lastName;
-	}
+
+	user.phone = phone || user.phone;
+
+	user.password = password || user.password;
+
+	user.firstName = firstName || user.firstName;
+
+	user.lastName = lastName || user.lastName;
+
 	if (coverageArea) {
 		const newArea = await coverageAreaModel.findById(coverageArea);
 		if (!newArea) {
