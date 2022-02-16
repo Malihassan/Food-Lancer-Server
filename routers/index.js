@@ -7,8 +7,6 @@ router.use('/seller', seller);
 
 
 router.get('/', (req, res) => {
-
-  
   res.status(200).json({ message: 'Connected!' });
 });
 
