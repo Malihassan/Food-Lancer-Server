@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 
 const buyerSchema = mongoose.Schema(
@@ -75,6 +76,13 @@ const buyerSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-
+buyerSchema.pre("save", function (next) {
+  this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+  next();
+});
+buyerSchema.methods.comparePassword = function (password) {
+  const that = this;
+  return bcrypt.compareSync(password, that.password);
+};
 const buyerModel = mongoose.model("buyer", buyerSchema);
 module.exports = buyerModel;
