@@ -12,7 +12,7 @@ router.post("/login", async (req, res, next) => {
     const token = await accountController.login(email, password);
     res.json({ token });
   } catch (error) {
-    res.status(500).send(error.message)
+    next(error);
   }
 });
 
