@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
-const addressSchema = mongoose.Schema(
+const coverageAreaSchema = mongoose.Schema(
     {
         governorateName:
         {
             type: String,
             default: "Assiut",
             trim: true,
-            enum: ["Assiut"]
+            enum: ["Assiut"],
+            unique:true
         },
         regionName:
             [
@@ -24,5 +25,6 @@ const addressSchema = mongoose.Schema(
     { timestamps: true }
 );
 
-const addressModel = mongoose.model("address", addressSchema);
-module.exports = addressModel;
+
+const coverageAreaModel = mongoose.model("coverageArea", coverageAreaSchema);
+module.exports = coverageAreaModel;

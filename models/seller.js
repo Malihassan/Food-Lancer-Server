@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 
 const sellerSchema = mongoose.Schema(
@@ -26,6 +27,8 @@ const sellerSchema = mongoose.Schema(
     },
     password: {
       type: String,
+      minLength: [3, "Must be at least 3"],
+      maxLength: [10, "Must be at latest 10"],
       required: true,
       trim: true,
     },
@@ -48,22 +51,26 @@ const sellerSchema = mongoose.Schema(
       ],
     },
     rate: {
-        type:Number,
-        default:0,
+      type: Number,
+      default: 0,
     },
     token: {
-        type:String,
-        default:""
+      type: String,
+      default: "",
     },
     "coverage area": {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "coverage areas",
-      required:true
+      required: true,
     },
     status: {
       type: String,
       default: "pending",
       enum: ["active", "pending", "blocked"],
+    },
+    confirmationCode: {
+      type: Number,
+      default: 0,
     },
     gender: {
       type: String,
@@ -73,6 +80,13 @@ const sellerSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-
+sellerSchema.pre("save", function (next) {
+  this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+  next();
+});
+sellerSchema.methods.comparePassword = function (password) {
+  const that = this;
+  return bcrypt.compareSync(password, that.password);
+};
 const sellerModel = mongoose.model("seller", sellerSchema);
 module.exports = sellerModel;

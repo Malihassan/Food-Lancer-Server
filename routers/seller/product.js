@@ -8,9 +8,9 @@ router.post("/product/addProduct",(req,res,next)=>{
   productController.addProduct(body,`Pizza`).then(data=>{
     console.log(data);
     if (!data) {
-      res.status(404).json("err")
+     return res.status(404).json("category not found" )
     }
-    resjson(data)
+    res.json(data)
   }) 
 })
 router.delete("/product/:id",(req,res,next)=>{
@@ -18,7 +18,7 @@ router.delete("/product/:id",(req,res,next)=>{
   productController.deleteProduct(id).then(data=>{
     console.log(data);
     if (!data || data =="undefind") {
-      res.json("invalid id")
+      return res.status(404).json({ error: "ID not found" });
     }
     res.json("done")
   })

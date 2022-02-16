@@ -25,6 +25,11 @@ const chatSchema = mongoose.Schema(
 				},
 			},
 		],
+		productId: {
+			type: mongoose.SchemaTypes.ObjectId,
+			ref: "product",
+			required: true,
+		},
 	},
 	{ timeStamp: true }
 );
