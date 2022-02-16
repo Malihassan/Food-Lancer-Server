@@ -26,11 +26,23 @@ const addProduct = async (body, categoryName) => {
 ///3-sellerid => the token || database
 ///3-the reviews=> get seller id , get buyer id ,buyer comment
 ///4-avg rate => the reviews rate
+
+
 const deleteProduct = (id) => {
   const productId = id;
   return productModel.findByIdAndDelete(productId).catch(e);
 };
+
+const getProductsForSpecifcSeller = async (id) => {
+  return await productModel.find({ sellerId: id });
+}
+const updateProductForSpecifcSeller = async (idProduct ,data) => {
+  const { name, description, image, price, addOns } = data;
+  return await productModel.findOneAndUpdate({ _id: idProduct }, { name: name, description, image , price, addOns},{new: true ,runValidators: true});
+}
 module.exports = {
   addProduct,
   deleteProduct,
+  getProductsForSpecifcSeller,
+  updateProductForSpecifcSeller
 };

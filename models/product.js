@@ -32,7 +32,6 @@ const productSchema = mongoose.Schema(
     },
     addOns: [
       {
-        _id: mongoose.SchemaTypes.ObjectId,
         des: {
           type: String,
           required: true,

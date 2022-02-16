@@ -7,11 +7,11 @@ async function sellerAuth(req, res, next) {
   try {
     const { token } = req.headers;
     const payload = jwt.verify(token, process.env.SECRETKEY);
-    const user = await sellerModel.findById(payload.id);
-    if (!user) {
+    const seller = await sellerModel.findById(payload.id);
+    if (!seller) {
       return next(new AppError("accountNotFound"));
     }
-    req.user = user;
+    req.seller = seller;
     next();
   } catch (error) {
     next(new AppError('JsonWebTokenError'));
