@@ -12,7 +12,7 @@ async function login(email, password) {
 
   const token = jwt.sign({ id: user._id }, process.env.SECRETKEY, { expiresIn: "1d" });
   // save new token
-  sellerModel.findByIdAndUpdate(user.id,token)
+  await sellerModel.findByIdAndUpdate(user.id,{token},{new: true})
   return token
 }
 
