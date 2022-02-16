@@ -1,7 +1,5 @@
 const express = require("express");
 
-const productRouter = require("./routers/seller/product")
-
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
@@ -13,11 +11,9 @@ mongoose.connect(process.env.ATLS_URL, () => {
 });
 app.use(cors());
 app.use(express.json());
-app.use("/seller",productRouter)
- app.use(errorHandler)
-/*app.use((err,req,res,next)=>{
-  return res.status(500).json(err);
- })  */
+app.use(routers)
+app.use(errorHandler)
+
  
 
 
