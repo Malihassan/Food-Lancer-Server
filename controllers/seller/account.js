@@ -32,13 +32,13 @@ async function updateSeller(
 		return;
 	}
 
-	user.phone = phone || user.phone;
+	user.phone = phone ? phone : user.phone;
 
-	user.password = password || user.password;
+	user.password = password ? password : user.password;
 
-	user.firstName = firstName || user.firstName;
+	user.firstName = firstName ? firstName : user.firstName;
 
-	user.lastName = lastName || user.lastName;
+	user.lastName = lastName ? lastName : user.lastName;
 
 	if (coverageArea) {
 		const newArea = await coverageAreaModel.findById(coverageArea);
