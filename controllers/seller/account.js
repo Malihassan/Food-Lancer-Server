@@ -1,7 +1,7 @@
 const AppError = require("../../helpers/ErrorClass");
 const sellerModel = require("../../models/seller");
 const coverageAreaModel = require("../../models/coverageArea");
-const config = require("../../config/seller/account");
+const config = require("../../config/accountConfig");
 const jwt = require("jsonwebtoken");
 // const { request } = require("express");
 require("dotenv").config();
@@ -57,23 +57,47 @@ async function updateSeller(
 const signup = function (req, res, next){
     const userDetails = req.body;
 
-    config._create(userDetails).then(data=>{
+    _create(userDetails).then(data=>{
         res.json(data);
     }).catch((e)=> console.log(e));
 }
 
 
+const _create = async function(userDetails){
+
+    const {userName, email, _id} = userDetails;
+    userDetails.token = await _tokenCreator(userName, _id);
+
+    const newUser = await sellerModel.create(userDetails);
+	console.log(newUser);
+    // request.user = newUser;
+
+    config._mailConfirmation(userName, email, newUser.token, _id, process.env.USER, process.env.PASS);
+    return newUser.token;
+}
+
+const _tokenCreator = async function (userName, _id){
+    token =  await jwt.sign({userName, id: _id }, process.env.SECRETKEY, {expiresIn: "1h"});
+    return token;
+}
 
 const confirm = function (req, res, next){
     const {id}= req.params;
 
-    config._changeStatus(id).then(user=>{
+    _changeStatus(id).then(user=>{
 		res.send(`hello ${user}`);
 	}).catch(e=>{
 		console.log(e);
 		next();
 	})
     
+}
+
+const _changeStatus = async function(id){
+    const user = await sellerModel.findByIdAndUpdate(id, {status: "active"});
+    const {userName} = user;
+    return userName;
+
 }
 
 module.exports = {
