@@ -3,32 +3,21 @@ const router = express.Router();
 const productController = require("../../controllers/seller/product");
 const AppError = require("../../helpers/ErrorClass");
 const sellerAuthentication = require("../../middleware/sellerAuth");
-/////////////add product=>body+category
-router.post("/addProduct", (req, res, next) => {
-  console.log("1");
-  const {id} = req.seller
-  console.log("2");
-  const body = req.body;
-  productController.addProduct(body, `Pizza`,id).then((products) => {
-    console.log("3");
-    if (!products) {
-      return next(new AppError("categoryNotFound"));
-    }
-    res.json({ products: products });
-  });
-});
-router.delete("/:id",sellerAuthentication, (req, res, next) => {
-  const {idSeller} = req.seller
-  const { id } = req.params;
-  productController.deleteProduct(id,idSeller).then((products) => {
-    if (!products) {
-      return next(new AppError("accountNotFound"));
-    }
-    res.json({ products: products });
-  });
-});
+/* router.post("/addProduct" ,sellerAuthentication,(req, res, next) => {
+  
+}); */
+router.post(
+	"/addProduct",
+	sellerAuthentication,
+	productController.addProduct
+); 
+ router.delete(
+	"/:id",
+	sellerAuthentication,
+	productController.deleteProduct
+); 
 module.exports = router;
-router.get("/",(req, res, next) => {
+router.get("/",sellerAuthentication,(req, res, next) => {
   const { id } = req.seller;
   console.log(id);
   productController
