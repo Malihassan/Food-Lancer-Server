@@ -1,7 +1,9 @@
 const AppError = require("../../helpers/ErrorClass");
 const sellerModel = require("../../models/seller");
 const coverageAreaModel = require("../../models/coverageArea");
+const config = require("../../config/seller/account");
 const jwt = require("jsonwebtoken");
+// const { request } = require("express");
 require("dotenv").config();
 
 async function login(email, password) {
@@ -52,7 +54,31 @@ async function updateSeller(
 	return user;
 }
 
+const signup = function (req, res, next){
+    const userDetails = req.body;
+
+    config._create(userDetails).then(data=>{
+        res.json(data);
+    }).catch((e)=> console.log(e));
+}
+
+
+
+const confirm = function (req, res, next){
+    const {id}= req.params;
+
+    config._changeStatus(id).then(user=>{
+		res.send(`hello ${user}`);
+	}).catch(e=>{
+		console.log(e);
+		next();
+	})
+    
+}
+
 module.exports = {
 	login,
 	updateSeller,
+	signup,
+	confirm
 };
