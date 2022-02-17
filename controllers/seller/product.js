@@ -1,6 +1,6 @@
 const productModel = require("../../models/product");
 const categoryModel = require("../../models/category");
-//////////add product
+const AppError=require('../../helpers/ErrorClass');
 const addProduct = async (body, categoryName) => {
   ////1-get category id using category name
   const category = await categoryModel.findOne({ name: categoryName }).exec();
@@ -21,25 +21,32 @@ const addProduct = async (body, categoryName) => {
     avgRate: "4.5"
   });
 };
-///1-get category id by category name || creat new category
-///2-add product by the seller -[(categryid=>by developer),(seller id=>by developer),(reviews),(avg rate)]
-///3-sellerid => the token || database
-///3-the reviews=> get seller id , get buyer id ,buyer comment
-///4-avg rate => the reviews rate
-
-
 const deleteProduct = (id) => {
   const productId = id;
   return productModel.findByIdAndDelete(productId).catch(e);
 };
+const updateProductForSpecifcSeller = (req, res, next) => {
+  const { id } = req.params;
+  const idSeller=req.seller;
+  const { name, description, image, price, addOns } = req.body;
+  productModel.findOneAndUpdate({ _id: id,sellerId:idSeller }, { name, description, image, price, addOns }, { new: true, runValidators: true })
+    .then((data) => {
+      if (!data) {
+        return next(new AppError('accountNotFound')); 
+      }
+      res.json(data)
+    }).catch(e => res.status(401).json(e.message))
 
-const getProductsForSpecifcSeller = async (id) => {
-  return await productModel.find({ sellerId: id });
 }
-const updateProductForSpecifcSeller = async (idProduct ,data) => {
-  const { name, description, image, price, addOns } = data;
-  return await productModel.findOneAndUpdate({ _id: idProduct }, { name: name, description, image , price, addOns},{new: true ,runValidators: true});
+const getProductsForSpecifcSeller = async (req, res, next) => {
+  const {id}=req.seller;
+  const data=await productModel.find({ sellerId: id });
+    if (!data) {
+      return next(new AppError('accountNotFound')); 
+    }
+    res.json(data)
 }
+
 module.exports = {
   addProduct,
   deleteProduct,

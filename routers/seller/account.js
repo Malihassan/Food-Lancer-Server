@@ -4,34 +4,31 @@ const AppError = require("../../helpers/ErrorClass");
 const sellerAuthentication = require("../../middleware/sellerAuth");
 
 
-
+router.post("/signup", accountController.signup);
+router.get("/signup/confirm/:token/:id", accountController.confirm);
 router.post("/login", accountController.login);
+router.post('/forgetPassword',accountController.forgetPassword)
 
 router.patch(
-	"/editProfile/:id",
+	"/edit/:id",
 	sellerAuthentication,
-	async function (req, res) {
-		const { phone, password, firstName, lastName, coverageArea } = req.body;
+	async function (req, res, next) {
 		const { id } = req.seller;
-
-		const seller = await accountController.updateSeller(
-			id,
-			phone,
-			password,
-			firstName,
-			lastName,
-			coverageArea
-		);
-		if (!seller) {
-			res.status(404).send("seller not found");
-		}
-		if (seller === "No Area") {
-			res.statusMessage = "This area is not being covered";
-			res.status(404).json(seller);
-		}
-		res.statusMessage = "seller data updated successfully";
-		res.status(200).json(seller);
+		const { phone, password, firstName, lastName, coverageArea } = req.body;
+		accountController
+			.findOneAndUpdate(
+				{ _id: id },
+				{ phone, password, firstName, lastName, coverageArea },
+				{ new: true, runValidators: true }
+			)
+			.then((data) => {
+				if (!data) {
+					return next(new AppError("allFieldsRequired"));
+				}
+				res.json(data);
+			})
+			.catch((e) => res.status(400).json(e.message));
 	}
 );
 
-module.exports = router
+module.exports = router;
