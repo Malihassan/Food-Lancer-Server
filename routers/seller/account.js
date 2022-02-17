@@ -5,18 +5,7 @@ const sellerAuthentication = require("../../middleware/sellerAuth");
 
 
 
-router.post("/login", async (req, res, next) => {
-	const { email, password } = req.body;
-	try {
-		if (!email) return next(new AppError("allFieldsRequired"));
-		if (!password) return next(new AppError("allFieldsRequired"));
-
-		const token = await accountController.login(email, password);
-		res.json({ token });
-	} catch (error) {
-		next(error);
-	}
-});
+router.post("/login", accountController.login);
 
 router.patch(
 	"/editProfile/:id",
