@@ -28,7 +28,7 @@ const sellerSchema = mongoose.Schema(
     password: {
       type: String,
       minLength: [3, "Must be at least 3"],
-      maxLength: [10, "Must be at latest 10"],
+      maxLength: [30, "Must be at latest 30"],
       required: true,
       trim: true,
     },

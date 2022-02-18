@@ -22,7 +22,6 @@ const addProduct = async (req,res,next) => {
   }).then((data)=>{
 console.log(data);
   }).catch((err)=>{
-    console.log(err);
     //return next(new AppError({ 401: err.message }));
     res.status(401).json(err.message) //////////custome error
   })
@@ -41,6 +40,13 @@ const deleteProduct = (req,res,next) => {
       res.json(data)
     } 
    ) */
+   /* 
+    .then((deleted) => {
+      if (!deleted) {
+        return next(new AppError('accountNotFound')); 
+      }
+      res.json(deleted)
+    }).catch(e => res.status(401).json(e.message)) */
    productModel.findByIdAndDelete(id,(err,data)=>{
 if (err) {
   return next(new AppError('accountNotFound')); 
@@ -48,13 +54,29 @@ if (err) {
 return res.json("done delete")
    })
 };
-const getProductsForSpecifcSeller = async (id) => {
-  return await productModel.find({ sellerId: id });
+
+const updateProductForSpecifcSeller = (req, res, next) => {
+  const { id } = req.params;
+  const idSeller=req.seller;
+  const { name, description, image, price, addOns } = req.body;
+  productModel.findOneAndUpdate({ _id: id,sellerId:idSeller }, { name, description, image, price, addOns }, { new: true, runValidators: true })
+    .then((data) => {
+      if (!data) {
+        return next(new AppError('accountNotFound')); 
+      }
+      res.json(data)
+    }).catch(e => res.status(401).json(e.message))
+
 }
-const updateProductForSpecifcSeller = async (idProduct ,data) => {
-  const { name, description, image, price, addOns } = data;
-  return await productModel.findOneAndUpdate({ _id: idProduct }, { name: name, description, image , price, addOns},{new: true ,runValidators: true});
+const getProductsForSpecifcSeller = async (req, res, next) => {
+  const {id}=req.seller;
+  const data=await productModel.find({ sellerId: id });
+    if (!data) {
+      return next(new AppError('accountNotFound')); 
+    }
+    res.json(data)
 }
+
 module.exports = {
   addProduct,
   deleteProduct,
