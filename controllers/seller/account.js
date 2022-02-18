@@ -6,114 +6,106 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 async function login(req, res, next) {
-  const { email, password } = req.body
-  if (!validatorLoginRequestBody(email, password)) {
-    return next(new AppError('allFieldsRequired'))
-  }
+	const { email, password } = req.body;
+	if (!validatorLoginRequestBody(email, password)) {
+		return next(new AppError("allFieldsRequired"));
+	}
 
-  const user = await sellerModel.findOne({ email });
-  if (!user) return next(new AppError("emailNotFound"));
+	const user = await sellerModel.findOne({ email });
+	if (!user) return next(new AppError("emailNotFound"));
 
-  const validPass = await user.comparePassword(password);
-  if (!validPass) return next(new AppError("InvalidPassword"));
+	const validPass = await user.comparePassword(password);
+	if (!validPass) return next(new AppError("InvalidPassword"));
 
-  const token =await _tokenCreator (user.userName,user.id)
-  // save new token
-  sellerModel.findByIdAndUpdate(user.id, token);
-  res.json({ token });
+	const token = await _tokenCreator(user.userName, user.id);
+	// save new token
+	sellerModel.findByIdAndUpdate(user.id, token);
+	res.json({ token });
 }
 
-function validatorLoginRequestBody(email, password) {  
-  if (!email || email.length == 0 || !password || password.length == 0) {
-    return false
-  }
-  return true
+function validatorLoginRequestBody(email, password) {
+	if (!email || email.length == 0 || !password || password.length == 0) {
+		return false;
+	}
+	return true;
 }
-async function forgetPassword(req, res, next) {
-  
-}
+async function forgetPassword(req, res, next) {}
 
-async function updateSeller(
-  id,
-  phone,
-  password,
-  firstName,
-  lastName,
-  coverageArea
-) {
-  const user = await sellerModel.findById(id);
-  if (!user) {
-    return;
-  }
-
-	user.phone = phone ? phone : user.phone;
-
-	user.password = password ? password : user.password;
-
-	user.firstName = firstName ? firstName : user.firstName;
-
-	user.lastName = lastName ? lastName : user.lastName;
-
-  if (coverageArea) {
-    const newArea = await coverageAreaModel.findById(coverageArea);
-    if (!newArea) {
-      return "No Area";
-    }
-    user.coverageArea = newArea;
-  }
-
-  user.save();
-  return user;
+async function updateSeller(req, res, next) {
+	const { id } = req.seller;
+	const { phone, firstName, lastName, coverageArea } = req.body;
+	sellerModel
+		.findOneAndUpdate(
+			{ _id: id },
+			{ phone, firstName, lastName, coverageArea },
+			{ new: true, runValidators: true }
+		)
+		.then((data) => {
+			if (!data) {
+				return next(new AppError("allFieldsRequired"));
+			}
+			res.send("Profile Updated Successfully");
+		})
+		.catch((e) => res.status(400).json(e.message));
 }
 
-const signup = function (req, res, next){
-    const userDetails = req.body;
+const signup = function (req, res, next) {
+	const userDetails = req.body;
 
-    _create(userDetails).then(data=>{
-        res.json(data);
-    }).catch((e)=> console.log(e));
-}
+	_create(userDetails)
+		.then((data) => {
+			res.json(data);
+		})
+		.catch((e) => console.log(e));
+};
 
+const _create = async function (userDetails) {
+	const { userName, email, _id } = userDetails;
+	userDetails.token = await _tokenCreator(userName, _id);
 
-const _create = async function(userDetails){
+	const newUser = await sellerModel.create(userDetails);
 
-    const {userName, email, _id} = userDetails;
-    userDetails.token = await _tokenCreator(userName, _id);
+	config._mailConfirmation(
+		userName,
+		email,
+		newUser.token,
+		_id,
+		process.env.USER,
+		process.env.PASS
+	);
+	return newUser.token;
+};
 
-    const newUser = await sellerModel.create(userDetails);
+const _tokenCreator = async function (userName, _id) {
+	token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
+		expiresIn: "1d",
+	});
+	return token;
+};
 
-    config._mailConfirmation(userName, email, newUser.token, _id, process.env.USER, process.env.PASS);
-    return newUser.token;
-}
+const confirm = function (req, res, next) {
+	const { id } = req.params;
 
-const _tokenCreator = async function (userName, _id){
-    token =  await jwt.sign({userName, id: _id }, process.env.SECRETKEY, {expiresIn: "1d"});
-    return token;
-}
+	_changeStatus(id)
+		.then((user) => {
+			res.send(`hello ${user}`);
+		})
+		.catch((e) => {
+			console.log(e);
+			next();
+		});
+};
 
-const confirm = function (req, res, next){
-    const {id}= req.params;
-
-    _changeStatus(id).then(user=>{
-		res.send(`hello ${user}`);
-	}).catch(e=>{
-		console.log(e);
-		next();
-	})
-    
-}
-
-const _changeStatus = async function(id){
-    const user = await sellerModel.findByIdAndUpdate(id, {status: "active"});
-    const {userName} = user;
-    return userName;
-
-}
+const _changeStatus = async function (id) {
+	const user = await sellerModel.findByIdAndUpdate(id, { status: "active" });
+	const { userName } = user;
+	return userName;
+};
 
 module.exports = {
 	login,
-  forgetPassword,
+	forgetPassword,
 	updateSeller,
 	signup,
-	confirm
+	confirm,
 };
