@@ -36,6 +36,10 @@ const adminSchema = mongoose.Schema(
 			required: true,
 			match: [/^01[0125]\d{1,8}/g, "Please fill a valid Phone Number"],
 		},
+		token: {
+			type: String,
+			default: "",
+		},
 		email: {
 			type: String,
 			trim: true,

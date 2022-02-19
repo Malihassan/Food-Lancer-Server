@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../../controllers/seller/product");
-const AppError = require("../../helpers/ErrorClass");
 const sellerAuthentication = require("../../middleware/sellerAuth");
 
 router.post("/addProduct", sellerAuthentication, productController.addProduct);
