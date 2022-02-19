@@ -1,4 +1,4 @@
-const buyerModel = require("../../models/buyer");
+// const buyerModel = require("../../models/buyer");
 const orderModel = require("../../models/order");
 const AppError = require("../../helpers/ErrorClass");
 
