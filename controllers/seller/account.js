@@ -1,6 +1,5 @@
 const AppError = require("../../helpers/ErrorClass");
 const sellerModel = require("../../models/seller");
-const coverageAreaModel = require("../../models/coverageArea");
 const config = require("../../config/accountConfig");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();

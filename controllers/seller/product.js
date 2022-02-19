@@ -35,29 +35,15 @@ const addProduct = async (req, res, next) => {
   });
 };
 const deleteProduct = (req, res, next) => {
-  const { id } = req.params;
-  const sellerId = req.seller;
-  console.log(id);
-  console.log(sellerId.id);
-  /*   productModel.findOneAndDelete({id:id},(err,data)=>{
-      console.log(data);
-     console.log(err);
-      res.json(data)
-    } 
-   ) */
-  /* 
+  productModel
+    .findOneAndDelete({ _id: req.params.id, sellerId: sellerId.id })
     .then((deleted) => {
       if (!deleted) {
-        return next(new AppError('accountNotFound')); 
+        return next(new AppError("accountNotFound"));
       }
-      res.json(deleted)
-    }).catch(e => res.status(401).json(e.message)) */
-  productModel.findByIdAndDelete(id, (err, data) => {
-    if (err) {
-      return next(new AppError("accountNotFound"));
-    }
-    return res.json("done delete");
-  });
+      res.json("deleted done successfully");
+    })
+    .catch((e) => res.status(401).json(e.message));
 };
 const updateProductForSpecifcSeller = (req, res, next) => {
   const { id } = req.params;
@@ -105,9 +91,23 @@ const getAllProducts = async (req, res, next) => {
     res.status(400);
   }
 };
-const updateStatus =async (req,res,next)=>{
-
-}
+const updateStatus = async (req, res, next) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    const updated = await productModel.findOneAndUpdate(
+      { _id: id },
+      { status },
+      { new: true, runValidators: true }
+    );
+    if (!updated) {
+      return next(new AppError('accountNotFound'))
+    }
+    res.json({messgae:'product updated'})
+  } catch (error) {
+    res.status(401).json(error.message)
+  }
+};
 
 module.exports = {
   addProduct,
@@ -115,5 +115,5 @@ module.exports = {
   deleteProduct,
   getProductsForSpecifcSeller,
   updateProductForSpecifcSeller,
-  updateStatus
+  updateStatus,
 };

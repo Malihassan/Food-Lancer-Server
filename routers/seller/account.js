@@ -7,7 +7,6 @@ router.post("/signup", accountController.signup);
 router.get("/signup/confirm/:token/:id", accountController.confirm);
 router.post("/login", accountController.login);
 router.post("/forgetPassword", accountController.forgetPassword);
-
 router.patch("/edit", sellerAuthentication, accountController.updateSeller);
 
 module.exports = router;
