@@ -11,6 +11,9 @@ const productSchema = mongoose.Schema(
       default: "pending",
       enum: ["active", "pending", "blocked"],
     },
+    reasonOfCancellation:{
+      type: String
+    },
     sellerId: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "seller",
