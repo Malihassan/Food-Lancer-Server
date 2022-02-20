@@ -15,21 +15,39 @@ async function login(req, res, next) {
 	const validPass = await user.comparePassword(password);
 	if (!validPass) return next(new AppError("InvalidPassword"));
 
-	res.send("Logged in Successfully");
-
-	const token = await _tokenCreator(user.userName, user.id);
+	const token = await tokenCreator(user.userName, user.id);
 	// save new token
 	AdminModel.findByIdAndUpdate(user.id, token);
 	res.json({ token });
 }
 
-const _tokenCreator = async function (userName, _id) {
+const tokenCreator = async function (userName, _id) {
 	token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
 		expiresIn: "1d",
 	});
 	return token;
 };
 
+const signup = function (req, res) {
+	create(req.body)
+		.then(() => {
+			res.status(201).send("Account Created Successfully");
+		})
+		.catch((e) => {
+			res.status(400).json(e);
+		});
+};
+
+const create = async function (adminDetails) {
+	const { userName, _id } = adminDetails;
+	adminDetails.token = await tokenCreator(userName, _id);
+
+	const newAdmin = await AdminModel.create(adminDetails);
+
+	return newAdmin.token;
+};
+
 module.exports = {
 	login,
+	signup,
 };
