@@ -63,6 +63,12 @@ adminSchema.pre("save", function (next) {
 	next();
 });
 
+adminSchema.pre("findOneAndUpdate", function (next) {
+	this._update.password = bcrypt.hashSync(this._update.password, bcrypt.genSaltSync(10));
+	this.password = this._update.password;
+	next();
+});
+
 adminSchema.methods.comparePassword = function (password) {
 	const that = this;
 	return bcrypt.compareSync(password, that.password);

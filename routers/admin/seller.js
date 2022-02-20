@@ -7,4 +7,7 @@ router.get(
   adminAuthentication, 
   sellerController.getSeller
 );
+
+router.patch('/:id', sellerController.updateSeller);
+
 module.exports = router;
