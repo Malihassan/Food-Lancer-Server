@@ -51,7 +51,7 @@ const update = function(req, res, next){
     const { id } = req.params;
     const editedData = req.body;
     const userId = req.admin.id;
- 
+
     _editAdmin(userId, id, editedData).then(()=>{
         res.send('edited successfully');
     }).catch(()=>{
