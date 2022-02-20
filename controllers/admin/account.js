@@ -62,7 +62,7 @@ const update = function(req, res, next){
 const _editAdmin = function(userID, id, editedData){
     if(userID === id){
         const options = {runValidators: true, new: true};
-        return adminModel.findOneAndUpdate({_id:id}, editedData, options).exec();
+        return AdminModel.findOneAndUpdate({_id:id}, editedData, options).exec();
     } else{
         throw "UN_AUTH";
     }

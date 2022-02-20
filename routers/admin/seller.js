@@ -8,6 +8,6 @@ router.get(
   sellerController.getSeller
 );
 
-router.patch('/:id', sellerController.updateSeller);
+router.patch('/update/:id', sellerController.updateSeller);
 
 module.exports = router;
