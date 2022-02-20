@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const adminSchema = mongoose.Schema(
 	{
@@ -26,6 +27,8 @@ const adminSchema = mongoose.Schema(
 		},
 		password: {
 			type: String,
+			minLength: [3, "Must be at least 3"],
+			maxLength: [30, "Must be at latest 30"],
 			required: true,
 			trim: true,
 		},
@@ -54,6 +57,16 @@ const adminSchema = mongoose.Schema(
 	},
 	{ timestamps: true }
 );
+
+adminSchema.pre("save", function (next) {
+	this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+	next();
+});
+
+adminSchema.methods.comparePassword = function (password) {
+	const that = this;
+	return bcrypt.compareSync(password, that.password);
+};
 
 const AdminModel = mongoose.model("Admin", adminSchema);
 module.exports = AdminModel;
