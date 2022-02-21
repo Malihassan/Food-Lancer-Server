@@ -1,15 +1,21 @@
-// const buyerModel = require("../../models/buyer");
 const orderModel = require("../../models/order");
 const AppError = require("../../helpers/ErrorClass");
 
-const getOrdersForSpecifcBuyer = async (req, res, next) => {
+const getOrdersForSpecifcBuyer = (req, res, next) => {
     const {id}=req.params;
-    // const buyerID= await buyerModel.findOne({userName:userName});
-    const data=await orderModel.find({ buyerId:id });
+    orderModel.find({ buyerId:id }).populate({path:'sellerId',select:'userName firstName lastName phone email status gender -_id'}).populate({
+      path: "products", 
+      populate: {
+         path: "_id" ,
+         select:'name description image price addOns reviews avgRate status -_id'
+      }
+   })
+    .then(data=>{
       if (!data) {
         return next(new AppError('accountNotFound')); 
       }
       res.json(data)
+      })
   }
   
   module.exports = {

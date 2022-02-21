@@ -4,20 +4,19 @@ const coverageAreaSchema = mongoose.Schema(
         governorateName:
         {
             type: String,
-            default: "Assiut",
             trim: true,
-            enum: ["Assiut"],
-            unique:true
+            unique: true,
+            required: true
         },
         regionName:
             [
                 {
-                    _id: mongoose.SchemaTypes.ObjectId,
                     name: {
                         type: String,
-                        required: true,
                         trim: true,
-                        lowercase: true
+                        unique: true,
+                        lowercase: true,
+                        required: true
                     },
                 }
             ]
