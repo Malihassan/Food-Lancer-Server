@@ -6,6 +6,14 @@ const productSchema = mongoose.Schema(
       ref: "category",
       required: true,
     },
+    status:{
+      type: String,
+      default: "pending",
+      enum: ["active", "pending", "blocked"],
+    },
+    reasonOfCancellation:{
+      type: String
+    },
     sellerId: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "seller",

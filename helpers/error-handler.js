@@ -25,6 +25,9 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'categoryNotFound') {
     return res.status(404).json({ error: "Category not available !" });
   }
+  if (err.name === 'noSellerFound') {
+    return res.status(404).json({ error: "Sellers not found !" });
+  }
   
 }
 module.exports = errorHandler;
