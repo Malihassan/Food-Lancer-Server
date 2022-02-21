@@ -75,9 +75,12 @@ const getAllProducts = async (req, res, next) => {
   try {
     const products = await productModel.find({}).populate({
       path: "sellerId",
-      // populate: {
-      //   path: "coverage area",
-      // },
+      populate: {
+        path: 'coverage-area',
+        populate:{
+          path:'_id'
+        }       
+      } ,
       select: {
         password: 0,
         token: 0,
@@ -88,7 +91,7 @@ const getAllProducts = async (req, res, next) => {
     });
     res.json(products);
   } catch (error) {
-    res.status(400);
+    res.status(400).send();
   }
 };
 const updateStatus = async (req, res, next) => {
