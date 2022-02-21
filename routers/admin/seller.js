@@ -5,6 +5,23 @@ const adminAuthentication = require("../../middleware/adminAuth")
 router.get(
   "/:status",
   adminAuthentication, 
-  sellerController.getSeller
+  sellerController.getSellers
 );
+/* updateProductForSpecifcSeller */
+router.get(
+  "/s/:id",
+  adminAuthentication, 
+  sellerController.getSpecificSeller
+);
+router.get(
+  "/:id/products",
+  adminAuthentication, 
+  sellerController.getProductsForSpecificSeller
+);
+
+router.get(
+  "/:id/products/:productId",
+  adminAuthentication, 
+  sellerController.getSpecifcProductForSpecificSeller
+); 
 module.exports = router;
