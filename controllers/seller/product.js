@@ -109,11 +109,27 @@ const updateStatus = async (req, res, next) => {
   }
 };
 
+const getOneProduct = function(req, res, next){
+  const {id} = req.params;
+  productModel.findOne({_id: id}).then(data=>{
+
+    res.json(data)
+
+  }).catch(()=>{
+
+    next(new AppError("noProductFound"));
+
+  });
+}
+
+
+
 module.exports = {
-  addProduct,
-  getAllProducts,
-  deleteProduct,
-  getProductsForSpecifcSeller,
-  updateProductForSpecifcSeller,
-  updateStatus,
+addProduct,
+getAllProducts,
+deleteProduct,
+getProductsForSpecifcSeller,
+updateProductForSpecifcSeller,
+updateStatus,
+getOneProduct
 };
