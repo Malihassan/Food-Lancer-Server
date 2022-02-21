@@ -24,4 +24,7 @@ router.get(
   adminAuthentication, 
   sellerController.getSpecifcProductForSpecificSeller
 ); 
+
+router.patch('/update/:id', sellerController.updateSeller);
+
 module.exports = router;

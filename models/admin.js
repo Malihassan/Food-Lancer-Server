@@ -28,7 +28,7 @@ const adminSchema = mongoose.Schema(
 		password: {
 			type: String,
 			minLength: [3, "Must be at least 3"],
-			maxLength: [30, "Must be at latest 30"],
+			maxLength: [60, "Must be at latest 60"],
 			required: true,
 			trim: true,
 		},
@@ -60,6 +60,12 @@ const adminSchema = mongoose.Schema(
 
 adminSchema.pre("save", function (next) {
 	this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+	next();
+});
+
+adminSchema.pre("findOneAndUpdate", function (next) {
+	this._update.password = bcrypt.hashSync(this._update.password, bcrypt.genSaltSync(10));
+	this.password = this._update.password;
 	next();
 });
 

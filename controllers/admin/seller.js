@@ -33,8 +33,25 @@ const getSpecifcProductForSpecificSeller = async (req, res, next) => {
   }
   res.json(products);
 };
+
+const updateSeller = function(req, res, next){
+  const {id} = req.params;
+  const {status} = req.body;
+  _editSeller(id, status).then(() =>{
+      res.send('edited successfuly');
+  }).catch(()=>{
+      next(new AppError('UnauthorizedError'));
+  })
+}
+
+const _editSeller = function(id, status){
+  const options = {runValidators: true, new: true};
+  return sellerModel.findOneAndUpdate({_id: id}, {status}, options);
+}
+
 module.exports = {
   getSellers,
+  updateSeller,
   getSpecificSeller,
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
