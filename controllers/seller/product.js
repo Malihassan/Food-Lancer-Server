@@ -75,9 +75,12 @@ const getAllProducts = async (req, res, next) => {
   try {
     const products = await productModel.find({}).populate({
       path: "sellerId",
-      // populate: {
-      //   path: "coverage area",
-      // },
+      populate: {
+        path: 'coverage-area',
+        populate:{
+          path:'_id'
+        }       
+      } ,
       select: {
         password: 0,
         token: 0,
@@ -88,7 +91,7 @@ const getAllProducts = async (req, res, next) => {
     });
     res.json(products);
   } catch (error) {
-    res.status(400);
+    res.status(400).send();
   }
 };
 const updateStatus = async (req, res, next) => {
@@ -109,11 +112,27 @@ const updateStatus = async (req, res, next) => {
   }
 };
 
+const getOneProduct = function(req, res, next){
+  const {id} = req.params;
+  productModel.findOne({_id: id}).then(data=>{
+
+    res.json(data)
+
+  }).catch(()=>{
+
+    next(new AppError("noProductFound"));
+
+  });
+}
+
+
+
 module.exports = {
-  addProduct,
-  getAllProducts,
-  deleteProduct,
-  getProductsForSpecifcSeller,
-  updateProductForSpecifcSeller,
-  updateStatus,
+addProduct,
+getAllProducts,
+deleteProduct,
+getProductsForSpecifcSeller,
+updateProductForSpecifcSeller,
+updateStatus,
+getOneProduct
 };

@@ -55,7 +55,7 @@ const signup = function (req, res, next) {
 		.then((data) => {
 			res.json(data);
 		})
-		.catch((e) => console.log(e));
+		.catch((e) => res.status(400).send(e.message));
 };
 
 const _create = async function (userDetails) {

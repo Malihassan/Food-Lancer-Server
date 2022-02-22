@@ -28,6 +28,9 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'noSellerFound') {
     return res.status(404).json({ error: "Sellers not found !" });
   }
+  if (err.name === 'noProductFound') {
+    return res.status(404).json({ error: "Product not found !" });
+  }
   
 }
 module.exports = errorHandler;
