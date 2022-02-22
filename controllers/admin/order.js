@@ -3,6 +3,7 @@ const AppError = require("../../helpers/ErrorClass");
 
 const getOrdersForSpecifcBuyer = (req, res, next) => {
 	const { id } = req.params;
+
 	orderModel
 		.find({ buyerId: id })
 		.populate({
@@ -25,6 +26,62 @@ const getOrdersForSpecifcBuyer = (req, res, next) => {
 		});
 };
 
+function getAllOrders(req, res, next) {
+	orderModel
+		.find()
+		.populate({
+			path: "sellerId",
+			select: "userName firstName lastName phone email status gender -_id",
+		})
+		.populate({
+			path: "buyerId",
+			select: "userName firstName lastName phone email status gender -_id",
+		})
+		.populate({
+			path: "products",
+			populate: {
+				path: "_id",
+				select:
+					"name description image price addOns reviews avgRate status -_id",
+			},
+		})
+		.then((data) => {
+			if (!data) {
+				return next(new AppError("accountNotFound"));
+			}
+			res.json(data);
+		});
+}
+function getOrdersForSpecificParams(req, res, next) {
+	console.log(req.query);
+	orderModel
+		.find()
+		.populate({
+			path: "sellerId",
+			select: "userName firstName lastName phone email status gender -_id",
+		})
+		.populate({
+			path: "buyerId",
+			select: "userName firstName lastName phone email status gender -_id",
+		})
+		.populate({
+			path: "products",
+			populate: {
+				path: "_id",
+				select:
+					"name description image price addOns reviews avgRate status -_id",
+			},
+		})
+		.then((data) => {
+			if (!data) {
+				return next(new AppError("accountNotFound"));
+			}
+			console.log(data);
+			res.json(data);
+		});
+}
+
 module.exports = {
 	getOrdersForSpecifcBuyer,
+	getAllOrders,
 };
