@@ -53,9 +53,16 @@ function getAllOrders(req, res, next) {
 		});
 }
 function getOrdersForSpecificParams(req, res, next) {
-	console.log(req.query);
+	const { minPrice, maxPrice, orderStatus } = req.query;
+
+	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
+	const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
+	const orderStatusQuery = orderStatus ? { status: orderStatus } : {};
+
 	orderModel
-		.find()
+		.find({
+			$and: [minPriceQuery, maxPriceQuery, orderStatusQuery],
+		})
 		.populate({
 			path: "sellerId",
 			select: "userName firstName lastName phone email status gender -_id",
@@ -76,7 +83,6 @@ function getOrdersForSpecificParams(req, res, next) {
 			if (!data) {
 				return next(new AppError("accountNotFound"));
 			}
-			console.log(data);
 			res.json(data);
 		});
 }
@@ -84,4 +90,5 @@ function getOrdersForSpecificParams(req, res, next) {
 module.exports = {
 	getOrdersForSpecifcBuyer,
 	getAllOrders,
+	getOrdersForSpecificParams,
 };
