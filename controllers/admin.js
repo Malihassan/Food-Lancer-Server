@@ -47,29 +47,35 @@ const create = async function (adminDetails) {
 	return newAdmin.token;
 };
 
-const update = function(req, res, next){
-    const { id } = req.params;
-    const editedData = req.body;
-    const userId = req.admin.id;
+const update = function (req, res, next) {
+	const { id } = req.params;
+	const editedData = req.body;
+	const userId = req.admin.id;
 
-    _editAdmin(userId, id, editedData).then(()=>{
-        res.send('edited successfully');
-    }).catch(()=>{
-        next(new AppError('UnauthorizedError'));
-    })
-}
+	_editAdmin(userId, id, editedData)
+		.then(() => {
+			res.send("edited successfully");
+		})
+		.catch(() => {
+			next(new AppError("UnauthorizedError"));
+		});
+};
 
-const _editAdmin = function(userID, id, editedData){
-    if(userID === id){
-        const options = {runValidators: true, new: true};
-        return AdminModel.findOneAndUpdate({_id:id}, editedData, options).exec();
-    } else{
-        throw "UN_AUTH";
-    }
-}
+const _editAdmin = function (userID, id, editedData) {
+	if (userID === id) {
+		const options = { runValidators: true, new: true };
+		return AdminModel.findOneAndUpdate(
+			{ _id: id },
+			editedData,
+			options
+		).exec();
+	} else {
+		throw "UN_AUTH";
+	}
+};
 
 module.exports = {
 	login,
 	signup,
-	update
+	update,
 };
