@@ -1,12 +1,12 @@
 const router = require("express").Router();
-const accountController = require("../../controllers/seller/account");
-const AppError = require("../../helpers/ErrorClass");
 const sellerAuthentication = require("../../middleware/sellerAuth");
 
-router.post("/signup", accountController.signup);
-router.get("/signup/confirm/:token/:id", accountController.confirm);
-router.post("/login", accountController.login);
-router.post("/forgetPassword", accountController.forgetPassword);
-router.patch("/edit", sellerAuthentication, accountController.updateSeller);
+const sellerController = require('../../controllers/seller')
+
+router.post("/login", sellerController.login);
+router.post("/signup", sellerController.signup);
+router.get("/signup/confirm/:token/:id", sellerController.confirm);
+router.post("/forgetPassword",sellerAuthentication, sellerController.forgetPassword);
+router.patch("/edit", sellerAuthentication, sellerController.updateSeller);
 
 module.exports = router;

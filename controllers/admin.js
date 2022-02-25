@@ -1,5 +1,5 @@
-const AppError = require("../../helpers/ErrorClass");
-const AdminModel = require("../../models/admin");
+const AppError = require("../helpers/ErrorClass");
+const AdminModel = require("../models/admin");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 

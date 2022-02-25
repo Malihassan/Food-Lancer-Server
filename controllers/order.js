@@ -1,5 +1,5 @@
-const orderModel = require("../../models/order");
-const AppError = require("../../helpers/ErrorClass");
+const orderModel = require("../models/order");
+const AppError = require("../helpers/ErrorClass");
 
 const getOrdersForSpecifcBuyer = (req, res, next) => {
     const {id}=req.params;

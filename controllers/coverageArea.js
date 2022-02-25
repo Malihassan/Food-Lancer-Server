@@ -1,4 +1,4 @@
-const coverageAreaModule = require('../../models/coverageArea');
+const coverageAreaModule = require('../models/coverageArea');
 const create = (req, res, next) => {
     coverageAreaModule.create(req.body)
     .then((data) => {

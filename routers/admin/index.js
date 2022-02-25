@@ -5,6 +5,7 @@ const orderRouter = require("./order");
 const buyerRouter = require('./buyer')
 const accountRouter = require("./account");
 const sellerRouter = require("./seller");
+
 router.use("/product", product);
 router.use("/category", category);
 // router.use("/buyer", orderRouter);
