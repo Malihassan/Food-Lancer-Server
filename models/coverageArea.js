@@ -5,6 +5,7 @@ const coverageAreaSchema = mongoose.Schema(
       type: String,
       trim: true,
       required: true,
+      lowercase:true
     },
     regionName: {
       type: String,
