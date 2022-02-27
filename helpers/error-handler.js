@@ -1,4 +1,3 @@
-
 function errorHandler(err, req, res, next) {
   if (Object.keys(err).every((e) => ["status","message"].includes(e))) {
     // custom application error
