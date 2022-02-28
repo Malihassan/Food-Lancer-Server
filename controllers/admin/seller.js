@@ -1,7 +1,13 @@
 const sellerModel = require("../../models/seller");
 const productModel = require("../../models/product");
 const AppError = require("../../helpers/ErrorClass");
-const getSellers = async (req, res, next) => {
+const getallSellers = async (req, res, next) => {
+  const data = await sellerModel.find();
+  if (data.length === 0) {
+    return next(new AppError("noSellerFound"));
+  }
+}
+const getSellersByStatus = async (req, res, next) => {
   const { status } = req.params;
   const data = await sellerModel.find({ status });
   if (data.length === 0) {
@@ -15,7 +21,8 @@ const getSpecificSeller = async (req, res, next) => {
   if (!seller) {
     return next(new AppError("accountNotFound"));
   }
-  res.json(seller);
+  res.json(seller); 
+  res.json("done")
 };
 const getProductsForSpecificSeller = async (req, res, next) => {
   const { id } = req.params;
@@ -50,7 +57,8 @@ const _editSeller = function(id, status){
 }
 
 module.exports = {
-  getSellers,
+  getSellersByStatus,
+  getallSellers,
   updateSeller,
   getSpecificSeller,
   getProductsForSpecificSeller,
