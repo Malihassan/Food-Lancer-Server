@@ -1,37 +1,34 @@
 const express = require("express");
 const router = express.Router();
-const sellerController = require("../../controllers/admin/seller");
-//const adminAuthentication = require("../../middleware/adminAuth")
-
+const sellerController = require("../../controllers/seller");
+const productController = require('../../controllers/product')
+const adminAuthentication = require("../../middleware/adminAuth");
+router.get(
+  "/allSellers",
+  adminAuthentication, 
+  sellerController.getallSellers
+);
+/* updateProductForSpecifcSeller */
+router.get(
+  "/all/:status",
+  adminAuthentication, 
+  sellerController.getSellersByStatus
+);
 router.get(
   "/:id",
-  //adminAuthentication, 
+  adminAuthentication, 
   sellerController.getSpecificSeller
 );
 router.get(
-  "/allSellers",
-  //adminAuthentication, 
-  sellerController.getallSellers
-);
-router.get(
-  "/all/:status",
- // adminAuthentication, 
-  sellerController.getSellersByStatus
-);
-/* updateProductForSpecifcSeller */
-
-router.get(
   "/:id/products",
-  //adminAuthentication, 
-  sellerController.getProductsForSpecificSeller
+  adminAuthentication,
+  productController.getProductsForSpecificSeller
 );
-
 router.get(
   "/:id/products/:productId",
-  //adminAuthentication, 
-  sellerController.getSpecifcProductForSpecificSeller
-); 
-
-router.patch('/update/:id', sellerController.updateSeller);
+  adminAuthentication,
+  productController.getSpecifcProductForSpecificSeller
+);
+router.patch("/update/:id", sellerController.updateSeller);
 
 module.exports = router;

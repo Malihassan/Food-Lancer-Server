@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const productController = require("../../controllers/seller/product");
+// const productController = require("../../controllers/seller/product");
+const productController = require('../../controllers/product')
 const sellerAuthentication = require("../../middleware/sellerAuth");
 const cloudinary = require("../../config/cloudinaryConfig");
 const multer = require("../../middleware/multer")

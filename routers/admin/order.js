@@ -1,8 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const orderController = require("../../controllers/admin/order");
-router.get(
-	"/orders/:id",
-	orderController.getOrdersForSpecifcBuyer
-);
+const router = require("express").Router();
+const orderController = require("../../controllers/order");
+
+router.get("/allOrders", orderController.getAllOrders);
+router.get("/filteredOrders", orderController.getOrdersForSpecificQuery);
+
 module.exports = router;

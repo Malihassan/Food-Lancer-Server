@@ -43,6 +43,9 @@ const adminSchema = mongoose.Schema(
 			type: String,
 			default: "",
 		},
+		image:{
+			url: String,
+		  },
 		email: {
 			type: String,
 			trim: true,
