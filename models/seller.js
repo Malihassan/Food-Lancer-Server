@@ -58,7 +58,7 @@ const sellerSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-    "coverage-area": {
+    "coverageArea": {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "coverageArea",
       required: true,

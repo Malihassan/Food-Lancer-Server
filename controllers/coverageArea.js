@@ -5,6 +5,7 @@ const create = (req, res, next) => {
         res.json(data)
       }).catch(e => res.status(401).json(e.message))
 }
+
 module.exports = {
     create
 }

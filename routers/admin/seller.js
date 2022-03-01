@@ -5,7 +5,7 @@ const productController = require('../../controllers/product')
 const adminAuthentication = require("../../middleware/adminAuth");
 
 
-
+router.get('/allSellers',adminAuthentication,sellerController.getAllSellers)
 router.get("/:status", adminAuthentication, sellerController.getSellers);
 /* updateProductForSpecifcSeller */
 router.get("/s/:id", adminAuthentication, sellerController.getSpecificSeller);
@@ -14,13 +14,15 @@ router.get(
   adminAuthentication,
   productController.getProductsForSpecificSeller
 );
-
 router.get(
   "/:id/products/:productId",
   adminAuthentication,
   productController.getSpecifcProductForSpecificSeller
-);
+  );
+  
+  //route for update product for specific seller seller/:id/product/:id
+// router.patch("/update/:id", sellerController.updateSeller);
 
-router.patch("/update/:id", sellerController.updateSeller);
+//   /:id/orders
 
 module.exports = router;
