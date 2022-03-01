@@ -133,6 +133,14 @@ const getSellers = async (req, res, next) => {
   }
   res.json(data);
 };
+const getSellersByStatus = async (req, res, next) => {
+  const { status } = req.params;
+  const data = await sellerModel.find({ status });
+  if (data.length === 0) {
+    return next(new AppError("noSellerFound"));
+  }
+  res.json(data);
+};
 
 const getOrdersForSpecificSeller = (req, res, next) => {
   const {id} = req.params;
@@ -198,6 +206,8 @@ module.exports = {
   updateSeller,
   updateSellerStatus,
   getSellers,
+  getSellersByStatus,
+  getSpecificSeller,
   signup,
   confirm,
   getSpecificSeller,
