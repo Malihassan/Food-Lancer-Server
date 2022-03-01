@@ -61,26 +61,27 @@ const signup = function (req, res, next) {
 };
 
 const _create = async function (userDetails) {
-  const { userName, email, _id } = userDetails;
-  userDetails.token = await _tokenCreator(userName, _id);
-
   const newUser = await sellerModel.create(userDetails);
+  const { userName, email, _id } = newUser;
+
+  const token = await _tokenCreator(userName, _id);
 
   config._mailConfirmation(
     userName,
     email,
-    newUser.token,
+    token,
     _id,
     process.env.USER,
     process.env.PASS
   );
-  return newUser.token;
+  return token;
 };
 
 const _tokenCreator = async function (userName, _id) {
   token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
     expiresIn: "1d",
   });
+  await sellerModel.findOneAndUpdate({ _id }, { token });
   return token;
 };
 
