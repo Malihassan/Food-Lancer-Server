@@ -8,7 +8,7 @@ const sellerRouter = require("./seller");
 
 router.use("/product", product);
 router.use("/category", category);
-router.use("/buyer", orderRouter);
+router.use("/order", orderRouter);
 router.use("/buyer", buyerRouter);
 router.use("/account", accountRouter);
 router.use("/seller", sellerRouter);

@@ -20,7 +20,9 @@ router.get(
   adminAuthentication,
   productController.getSpecifcProductForSpecificSeller
 );
+router.patch("/update/:id", adminAuthentication,sellerController.updateSeller);
 
-router.patch("/update/:id", sellerController.updateSeller);
-
+router.get("/:id/orders", adminAuthentication,sellerController.getOrdersForSpecificSeller);
+router.get("/:sellerId/orders/:orderId",adminAuthentication,sellerController.getSpecificOrderForSpecificSeller);
+router.patch('/:sellerId/products/:productId',sellerController.updateSpecificProductForSpecificSeller);
 module.exports = router;

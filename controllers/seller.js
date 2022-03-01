@@ -1,6 +1,8 @@
 const AppError = require("../helpers/ErrorClass");
 const sellerModel = require("../models/seller");
 const config = require("../config/accountConfig");
+const orderModel = require('../models/order');
+const productModel=require('../models/product');
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -28,7 +30,7 @@ function validatorLoginRequestBody(email, password) {
   }
   return true;
 }
-async function forgetPassword(req, res, next) {}
+async function forgetPassword(req, res, next) { }
 
 async function updateSeller(req, res, next) {
   const { id } = req.seller;
@@ -132,6 +134,64 @@ const getSellers = async (req, res, next) => {
   res.json(data);
 };
 
+const getOrdersForSpecificSeller = (req, res, next) => {
+  const {id} = req.params;
+  orderModel.find({sellerId:id}).populate(
+    { path: 'buyerId', select: "userName firstName lastName phone email status gender -_id" }
+  ).populate(
+    {
+      path: 'products',
+      populate: {
+        path: "_id",
+        select:
+          "name description image price addOns reviews avgRate status -_id",
+      },
+    }
+  ).then((data) => {
+    if (!data) {
+      return next(new AppError("accountNotFound"));
+    }
+    res.json(data);
+  });
+}
+const getSpecificOrderForSpecificSeller = (req, res, nex) => {
+	const { sellerId, orderId } = req.params;
+	orderModel.find({ _id: orderId, sellerId: sellerId }).populate(
+		{ path: 'buyerId', select: "userName firstName lastName phone email status gender -_id" }
+	).populate(
+		{
+			path: 'products',
+			populate: {
+				path: "_id",
+				select:
+					"name description image price addOns reviews avgRate status -_id",
+			},
+		}
+	).then(data => {
+		if (!data) {
+			return next(new AppError("accountNotFound"));
+		}
+		res.json(data);
+	})
+}
+const updateSpecificProductForSpecificSeller=(req,res,next)=>{
+  const {sellerId,productId}=req.params;
+  const { status, reasonOfCancellation } = req.body;
+  productModel
+  .findOneAndUpdate(
+    { _id: productId, sellerId: sellerId },
+    { reasonOfCancellation, status},
+    { new: true, runValidators: true }
+  )
+  .then((data) => {
+    if (!data) {
+      return next(new AppError("accountNotFound"));
+    }
+    res.json(data);
+  })
+  .catch((e) => res.status(400).json(e.message));
+
+}
 module.exports = {
   login,
   forgetPassword,
@@ -141,4 +201,7 @@ module.exports = {
   signup,
   confirm,
   getSpecificSeller,
+  getOrdersForSpecificSeller,
+  getSpecificOrderForSpecificSeller,
+  updateSpecificProductForSpecificSeller
 };
