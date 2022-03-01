@@ -6,6 +6,11 @@ const productModel=require('../models/product');
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+async function CountOfSellerModules() {
+return await sellerModel.count({})
+}
+
+
 async function login(req, res, next) {
   const { email, password } = req.body;
   if (!validatorLoginRequestBody(email, password)) {
@@ -126,6 +131,26 @@ const getSpecificSeller = async (req, res, next) => {
   }
   res.json(seller);
 };
+const getAllSellers = async (req, res, next) => {
+  const {page} = req.query
+  const pageSize =20
+  const allSellers = await sellerModel
+    .find({}, { userName: 1, email: 1, rate: 1, status: 1 })
+    .populate({
+      path: "coverageArea",
+      select: { governorateName: 1, regionName: 1 },
+    })
+    .skip(pageSize * page)
+    .limit(pageSize)
+    .catch((error) => {
+      res.status(400).send(error.message);
+    });
+  if (allSellers.length === 0) {
+    return next(new AppError("noSellerFound"));
+  }
+  count=await CountOfSellerModules()
+  res.json({countOfSeller:count,sellers:allSellers});
+};
 const getSellers = async (req, res, next) => {
   const { status } = req.params;
   const data = await sellerModel.find({ status });
@@ -207,6 +232,7 @@ module.exports = {
   updateSeller,
   updateSellerStatus,
   getSellers,
+  getAllSellers,
   getSellersByStatus,
   getSpecificSeller,
   signup,
