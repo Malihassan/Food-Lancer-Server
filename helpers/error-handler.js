@@ -1,4 +1,3 @@
-
 function errorHandler(err, req, res, next) {
   if (Object.keys(err).every((e) => ["status","message"].includes(e))) {
     // custom application error
@@ -30,6 +29,9 @@ function errorHandler(err, req, res, next) {
   }
   if (err.name === 'noProductFound') {
     return res.status(404).json({ error: "Product not found !" });
+  } 
+  if (err.name === 'noCoverageAreaFound') {
+    return res.status(404).json({ error: "coverageAreas is Empty !" });
   }
   
 }
