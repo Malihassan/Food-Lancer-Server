@@ -30,6 +30,9 @@ const buyerSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
+    image:{
+			url: String,
+		  },
     phone: {
       type: String,
       trim: true,

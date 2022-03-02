@@ -57,13 +57,10 @@ const signup = function (req, res, next) {
     })
     .catch((e) => res.status(400).send(e.message));
 };
-
 const _create = async function (userDetails) {
   const { userName, email, _id } = userDetails;
   userDetails.token = await _tokenCreator(userName, _id);
-
   const newUser = await sellerModel.create(userDetails);
-
   config._mailConfirmation(
     userName,
     email,
@@ -84,7 +81,6 @@ const _tokenCreator = async function (userName, _id) {
 
 const confirm = function (req, res, next) {
   const { id } = req.params;
-
   _changeStatus(id)
     .then((user) => {
       res.send(`hello ${user}`);
@@ -123,9 +119,8 @@ const getSpecificSeller = async (req, res, next) => {
   }
   res.json(seller);
 };
-const getSellers = async (req, res, next) => {
-  const { status } = req.params;
-  const data = await sellerModel.find({ status });
+const getallSellers = async (req, res, next) => {
+  const data = await sellerModel.find();
   if (data.length === 0) {
     return next(new AppError("noSellerFound"));
   }
@@ -145,10 +140,9 @@ module.exports = {
   forgetPassword,
   updateSeller,
   updateSellerStatus,
-  getSellers,
+  getallSellers,
   getSellersByStatus,
   getSpecificSeller,
   signup,
   confirm,
-  
 };

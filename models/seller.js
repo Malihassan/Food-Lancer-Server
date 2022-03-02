@@ -25,6 +25,9 @@ const sellerSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
+    image:{
+			url: String,
+		  },
     password: {
       type: String,
       minLength: [3, "Must be at least 3"],

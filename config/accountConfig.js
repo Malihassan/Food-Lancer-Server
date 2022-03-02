@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-
 const _mailConfirmation = function(username, email, token, id, sender, password){
     const transport = nodemailer.createTransport({
         service: "Gmail",
@@ -9,7 +8,6 @@ const _mailConfirmation = function(username, email, token, id, sender, password)
             pass: password
         }
     })
-
     transport.sendMail({
         from: sender,
         to: email,

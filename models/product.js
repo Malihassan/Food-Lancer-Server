@@ -11,7 +11,10 @@ const productSchema = mongoose.Schema(
       default: "pending",
       enum: ["active", "pending", "blocked"],
     },
-    reasonOfCancellation:{
+    reasonOfBlock:{
+      type: String
+    },
+    pendingMessage:{
       type: String
     },
     sellerId: {
@@ -31,7 +34,8 @@ const productSchema = mongoose.Schema(
     },
     image: [
       {
-        url: String,
+        _id:String,
+        url: String
       },
     ],
     price: {
