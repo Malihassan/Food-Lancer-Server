@@ -1,15 +1,14 @@
 const orderModel = require("../models/order");
 const AppError = require("../helpers/ErrorClass");
+const { path } = require("express/lib/application");
+const { json } = require("express/lib/response");
 
 const getOrdersForSpecifcBuyer = (req, res, next) => {
 	const { id } = req.params;
-
-	orderModel
-		.find({ buyerId: id })
-		.populate({
-			path: "sellerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
+	orderModel.find({ buyerId: id }).populate({
+		path: "sellerId",
+		select: "userName firstName lastName phone email status gender -_id",
+	})
 		.populate({
 			path: "products",
 			populate: {
@@ -86,9 +85,31 @@ function getOrdersForSpecificQuery(req, res, next) {
 			res.json(data);
 		});
 }
-
+const getSpecificOrder = (req, res, next) => {
+	const { id } = req.params;
+	orderModel.findOne({ _id: id }).populate({
+		path: "buyerId",
+		select: "userName firstName lastName phone email status gender -_id",
+	}).populate({
+		path: "sellerId",
+		select: "userName firstName lastName phone email status gender -_id",
+	}).populate({
+		path: "products",
+		populate: {
+			path: "_id",
+			select:
+				"name description image price addOns reviews avgRate status -_id",
+		},
+	}).then((data) => {
+		if (!data) {
+			return next(new AppError("accountNotFound"));
+		}
+		res.json(data);
+	});
+}
 module.exports = {
 	getOrdersForSpecifcBuyer,
 	getAllOrders,
 	getOrdersForSpecificQuery,
+	getSpecificOrder
 };

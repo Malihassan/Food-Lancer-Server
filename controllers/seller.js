@@ -1,8 +1,15 @@
 const AppError = require("../helpers/ErrorClass");
 const sellerModel = require("../models/seller");
 const config = require("../config/accountConfig");
+const orderModel = require('../models/order');
+const productModel=require('../models/product');
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+
+async function CountOfSellerModules() {
+return await sellerModel.count({})
+}
+
 
 async function login(req, res, next) {
   const { email, password } = req.body;
@@ -28,7 +35,7 @@ function validatorLoginRequestBody(email, password) {
   }
   return true;
 }
-async function forgetPassword(req, res, next) {}
+async function forgetPassword(req, res, next) { }
 
 async function updateSeller(req, res, next) {
   const { id } = req.seller;
@@ -58,24 +65,27 @@ const signup = function (req, res, next) {
     .catch((e) => res.status(400).send(e.message));
 };
 const _create = async function (userDetails) {
-  const { userName, email, _id } = userDetails;
-  userDetails.token = await _tokenCreator(userName, _id);
   const newUser = await sellerModel.create(userDetails);
+  const { userName, email, _id } = newUser;
+
+  const token = await _tokenCreator(userName, _id);
+
   config._mailConfirmation(
     userName,
     email,
-    newUser.token,
+    token,
     _id,
     process.env.USER,
     process.env.PASS
   );
-  return newUser.token;
+  return token;
 };
 
 const _tokenCreator = async function (userName, _id) {
   token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
     expiresIn: "1d",
   });
+  await sellerModel.findOneAndUpdate({ _id }, { token });
   return token;
 };
 
@@ -119,8 +129,29 @@ const getSpecificSeller = async (req, res, next) => {
   }
   res.json(seller);
 };
-const getallSellers = async (req, res, next) => {
-  const data = await sellerModel.find();
+const getAllSellers = async (req, res, next) => {
+  const {page} = req.query
+  const pageSize =20
+  const allSellers = await sellerModel
+    .find({}, { userName: 1, email: 1, rate: 1, status: 1 })
+    .populate({
+      path: "coverageArea",
+      select: { governorateName: 1, regionName: 1 },
+    })
+    .skip(pageSize * page)
+    .limit(pageSize)
+    .catch((error) => {
+      res.status(400).send(error.message);
+    });
+  if (allSellers.length === 0) {
+    return next(new AppError("noSellerFound"));
+  }
+  count=await CountOfSellerModules()
+  res.json({countOfSeller:count,sellers:allSellers});
+};
+const getSellers = async (req, res, next) => {
+  const { status } = req.params;
+  const data = await sellerModel.find({ status });
   if (data.length === 0) {
     return next(new AppError("noSellerFound"));
   }
@@ -135,14 +166,77 @@ const getSellersByStatus = async (req, res, next) => {
   res.json(data);
 };
 
+const getOrdersForSpecificSeller = (req, res, next) => {
+  const {id} = req.params;
+  orderModel.find({sellerId:id}).populate(
+    { path: 'buyerId', select: "userName firstName lastName phone email status gender -_id" }
+  ).populate(
+    {
+      path: 'products',
+      populate: {
+        path: "_id",
+        select:
+          "name description image price addOns reviews avgRate status -_id",
+      },
+    }
+  ).then((data) => {
+    if (!data) {
+      return next(new AppError("accountNotFound"));
+    }
+    res.json(data);
+  });
+}
+const getSpecificOrderForSpecificSeller = (req, res, nex) => {
+	const { sellerId, orderId } = req.params;
+	orderModel.find({ _id: orderId, sellerId: sellerId }).populate(
+		{ path: 'buyerId', select: "userName firstName lastName phone email status gender -_id" }
+	).populate(
+		{
+			path: 'products',
+			populate: {
+				path: "_id",
+				select:
+					"name description image price addOns reviews avgRate status -_id",
+			},
+		}
+	).then(data => {
+		if (!data) {
+			return next(new AppError("accountNotFound"));
+		}
+		res.json(data);
+	})
+}
+const updateSpecificProductForSpecificSeller=(req,res,next)=>{
+  const {sellerId,productId}=req.params;
+  const { status, reasonOfCancellation } = req.body;
+  productModel
+  .findOneAndUpdate(
+    { _id: productId, sellerId: sellerId },
+    { reasonOfCancellation, status},
+    { new: true, runValidators: true }
+  )
+  .then((data) => {
+    if (!data) {
+      return next(new AppError("accountNotFound"));
+    }
+    res.json(data);
+  })
+  .catch((e) => res.status(400).json(e.message));
+
+}
 module.exports = {
   login,
   forgetPassword,
   updateSeller,
   updateSellerStatus,
-  getallSellers,
+  getSellers,
+  getAllSellers,
   getSellersByStatus,
   getSpecificSeller,
   signup,
   confirm,
+  getSpecificSeller,
+  getOrdersForSpecificSeller,
+  getSpecificOrderForSpecificSeller,
+  updateSpecificProductForSpecificSeller
 };

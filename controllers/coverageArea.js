@@ -22,6 +22,7 @@ const displayAllCoverageArea= async(req,res,next)=>{
       }
       res.json(coverageAreas);
 }
+
 module.exports = {
     createCoverageArea,
     deleteCoverageArea,
