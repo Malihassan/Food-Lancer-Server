@@ -12,5 +12,4 @@ router.use("/order", orderRouter);
 router.use("/buyer", buyerRouter);
 router.use("/account", accountRouter);
 router.use("/seller", sellerRouter);
-
 module.exports = router;
