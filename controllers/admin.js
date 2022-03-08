@@ -22,9 +22,10 @@ async function login(req, res, next) {
 }
 
 const tokenCreator = async function (userName, _id) {
-	token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
+	const token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
 		expiresIn: "1d",
 	});
+	await AdminModel.findByIdAndUpdate(_id, {token});
 	return token;
 };
 
@@ -34,15 +35,16 @@ const signup = function (req, res) {
 			res.status(201).send("Account Created Successfully");
 		})
 		.catch((e) => {
+			console.log(e);
 			res.status(400).json(e);
 		});
 };
 
 const create = async function (adminDetails) {
-	const { userName, _id } = adminDetails;
-	adminDetails.token = await tokenCreator(userName, _id);
-
 	const newAdmin = await AdminModel.create(adminDetails);
+	const { userName, _id } = newAdmin;
+
+	await tokenCreator(userName, _id);
 
 	return newAdmin.token;
 };

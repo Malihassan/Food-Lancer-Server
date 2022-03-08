@@ -1,22 +1,38 @@
 const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
 
+async function CountOfBuyerModules() {
+  return await buyerModel.count({})
+  }
+
+const signup = async (req, res, next) => {
+  try {
+    await buyerModel.create(req.body);
+    res.status(201).send("created");
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
 const allBuyers = async (req, res, next) => {
+  const { page } = req.query;
+  const pageSize = 4;
   try {
     const buyers = await buyerModel
       .find(
         {},
         {
-          password: 0,
-          token: 0,
-          confirmationCode: 0,
-          status: 0,
-          createdAt: 0,
-          updatedAt: 0,
+          userName: 1,
+          email: 1,
+          address: 1,
+          phone: 1,
+          status: 1,
         }
       )
-      .populate({ path: "fav", select: "name" });
-    res.json(buyers);
+      .skip(pageSize * (page - 1))
+      .limit(pageSize);
+    // .populate({ path: "fav", select: "name" });
+    const count = await CountOfBuyerModules()
+    res.json({countOfBuyer:count ,buyers});
   } catch (error) {
     res.status(400).json(error.message);
   }
@@ -78,6 +94,7 @@ const getOrdersForSpecifcBuyer = (req, res, next) => {
 };
 
 module.exports = {
+  signup,
   updateStatus,
   allBuyers,
   buyerById,
