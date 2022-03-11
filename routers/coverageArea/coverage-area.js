@@ -4,8 +4,7 @@ const adminAuthentication = require("../../middleware/adminAuth");
 const coverageController = require("../../controllers/coverageArea");
 router.post(
 	"/",
-	adminAuthentication
-	,
+	adminAuthentication,
 	coverageController.createCoverageArea
 );
 router.delete(
@@ -15,8 +14,7 @@ router.delete(
 );
 router.get(
 	"/",
-	adminAuthentication
-	,
+	adminAuthentication,
 	coverageController.displayAllCoverageArea
 );
 module.exports = router;
