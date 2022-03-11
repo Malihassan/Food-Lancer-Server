@@ -9,7 +9,7 @@ const coverageArea = require("./coverage-area");
 
 router.use("/product", product);
 router.use("/category", category);
-router.use('/coverageArea',coverageArea);
+router.use('/coverageArea',coverageArea)
 
 router.use("/order", orderRouter);
 router.use("/buyer", buyerRouter);
