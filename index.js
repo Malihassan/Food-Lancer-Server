@@ -7,7 +7,7 @@ require("dotenv").config();
 const routers = require("./routers/index");
 const errorHandler = require("./helpers/error-handler");
 const app = express();
-mongoose.connect(process.env.ATLS_URL, () => {
+mongoose.connect('mongodb+srv://Food-Lancer:Food-Lancer2022@clusterfood-lancer.dpas6.mongodb.net/Food-Lancer?retryWrites=true&w=majority', () => {
 	console.log("connected to database");
 });
 app.use(cors());
