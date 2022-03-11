@@ -8,6 +8,6 @@ router.use("/seller", seller);
 router.use('/buyer',buyer);
 
 router.get("/", (req, res) => {
-	res.status(200).json({ message: "Welcome to Food Lancer" });
+	res.status(200).json({ message: "welcome to Food Lancer" });
 });
 module.exports = router;
