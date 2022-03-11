@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
 const productSchema = mongoose.Schema(
   {
     categoryId: {
@@ -94,6 +95,7 @@ const productSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+productSchema.plugin(mongoosePaginate)
 const ProductModel = mongoose.model("product", productSchema);
 productSchema
   .path("image")
