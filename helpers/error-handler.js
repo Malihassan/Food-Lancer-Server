@@ -33,6 +33,8 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'noCoverageAreaFound') {
     return res.status(404).json({ error: "coverageAreas is Empty !" });
   }
-  
+  if (err.name === 'noBuyerFound') {
+    return res.status(404).json({ error: "Buyers not found !" });
+  }
 }
 module.exports = errorHandler;
