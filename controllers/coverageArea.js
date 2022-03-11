@@ -25,6 +25,7 @@ const displayAllCoverageArea = async (req, res, next) => {
   const coverageAreas = await coverageAreaModule.find()
   .skip(pageSize * (page - 1))
   .limit(pageSize);
+  console.log(coverageAreas);
   if (coverageAreas.length === 0) {
     return next(new AppError("noCoverageAreaFound"));
   }
