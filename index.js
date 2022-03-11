@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(routers);
 app.use(errorHandler);
-
-app.listen(process.env.PORT, () => {
+const port  = process.env.PORT || 3000
+app.listen(port, () => {
 	console.log(`listen on port ${process.env.PORT}`);
 });
