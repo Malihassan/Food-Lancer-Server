@@ -43,9 +43,9 @@ const adminSchema = mongoose.Schema(
 			type: String,
 			default: "",
 		},
-		image:{
-			url: String
-		  },
+		image: {
+			url: String,
+		},
 		email: {
 			type: String,
 			trim: true,
@@ -67,7 +67,9 @@ adminSchema.pre("save", function (next) {
 });
 
 adminSchema.pre("findOneAndUpdate", function (next) {
-	this._update.password = this._update.password? bcrypt.hashSync(this._update.password, bcrypt.genSaltSync(10)): this.password;
+	this._update.password = this._update.password
+		? bcrypt.hashSync(this._update.password, bcrypt.genSaltSync(10))
+		: this.password;
 	this.password = this._update.password;
 	next();
 });
