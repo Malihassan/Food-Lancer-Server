@@ -5,6 +5,7 @@ const config = require("../config/pendingConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
+  console.log("blaaaaaaaaaah");
   const body = req.body;
   const { name, description, price, addOns } = body;
   categoryName = "Pizza";
