@@ -16,5 +16,5 @@ app.use(routers);
 app.use(errorHandler);
 const port  = process.env.PORT || 3000
 app.listen(port, () => {
-	console.log(`listen on port ${process.env.PORT}`);
+	console.log(`listen on port ${port}`);
 });
