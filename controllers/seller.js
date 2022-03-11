@@ -129,20 +129,26 @@ const getSpecificSeller = async (req, res, next) => {
   res.json(seller);
 };
 const getSellers = async (req, res, next) => {
-  let { page, email, status } = req.query;
+  let { page = 1, status, email, rate } = req.query;
+  status = status ? { status } : {};
+  email = email ? { email } : {};
+  rate = rate ? JSON.parse(rate) : [];
+  if (rate.length !==0) {
+    rate = rate.map((item, index) => {
+      switch (item) {
+        case ">=2":
+          return (item = { $lte: 2 });
+        case "2<=4":
+          return (item = { $gte: 2, $lte: 4 });
+        case "4<=5":
+          return (item = { $gte: 4, $lte: 5 });
+      }
+    });
+    rate = rate.map((item) => ({ rate: item }));
+  } else {
+    rate = [{ rate: { $gte: 0 } }];
+  }
   const pageSize = 4;
-  // const allSellers = await sellerModel
-  //   .find({email,rate}, { userName: 1, email: 1, rate: 1, status: 1 })
-  //   .populate({
-  //     path: "coverageArea",
-  //     select: { governorateName: 1, regionName: 1 },
-  //   })
-  //   .skip(pageSize * (page-1))
-  //   .limit(pageSize)
-  //   .catch((error) => {
-  //     res.status(400).send(error.message);
-  //   });
-
   const option = {
     page: page,
     limit: pageSize,
@@ -152,10 +158,12 @@ const getSellers = async (req, res, next) => {
     },
     select: "userName email rate status",
   };
-  const allSellers = await sellerModel.paginate({ $or: [{status},{email}] }, option);
-  if (allSellers.length === 0) {
-    return next(new AppError("noSellerFound"));
-  }
+  const allSellers = await sellerModel.paginate(
+    {
+      $and: [status, email, { $or: rate }],
+    },
+    option
+  );
   res.json(allSellers);
 };
 

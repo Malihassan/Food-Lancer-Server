@@ -2,8 +2,8 @@ const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
 
 async function CountOfBuyerModules() {
-  return await buyerModel.count({})
-  }
+  return await buyerModel.count({});
+}
 
 const signup = async (req, res, next) => {
   try {
@@ -14,25 +14,21 @@ const signup = async (req, res, next) => {
   }
 };
 const allBuyers = async (req, res, next) => {
-  const { page } = req.query;
+  let { page = 1, status , email  } = req.query;
+  status = status ? { status } : {};
+  email = email ? { email } : {};
   const pageSize = 4;
   try {
-    const buyers = await buyerModel
-      .find(
-        {},
-        {
-          userName: 1,
-          email: 1,
-          address: 1,
-          phone: 1,
-          status: 1,
-        }
-      )
-      .skip(pageSize * (page - 1))
-      .limit(pageSize);
-    // .populate({ path: "fav", select: "name" });
-    const count = await CountOfBuyerModules()
-    res.json({countOfBuyer:count ,buyers});
+    const option = {
+      page: page,
+      limit: pageSize,
+      select: "userName email address phone status",
+    };
+    const allBuyers = await buyerModel.paginate(
+      { $and: [status, email] },
+      option
+    );
+    res.json(allBuyers);
   } catch (error) {
     res.status(400).json(error.message);
   }

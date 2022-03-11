@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const buyerSchema = mongoose.Schema(
   {
@@ -79,6 +80,9 @@ const buyerSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+buyerSchema.plugin(mongoosePaginate);
+
 buyerSchema.pre("save", function (next) {
   this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
   next();
