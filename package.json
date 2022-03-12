@@ -12,6 +12,7 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "cloudinary": "^1.28.1",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
@@ -30,6 +31,5 @@
     "url": "https://github.com/Malihassan/Food-Lancer-Server/issues"
   },
   "homepage": "https://github.com/Malihassan/Food-Lancer-Server#readme",
-  "devDependencies": {},
   "description": ""
 }

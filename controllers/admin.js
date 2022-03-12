@@ -20,14 +20,13 @@ async function login(req, res, next) {
   const token = await tokenCreator(user.userName, user.id);
   // save new token
   AdminModel.findByIdAndUpdate(user.id, token);
-  res.json({ token });
+  res.cookie('token', token, {expire: 60*60 + Date.now()}).send('cookie set');
 }
 
 const tokenCreator = async function (userName, _id) {
   const token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
     expiresIn: "1d",
   });
-  await AdminModel.findByIdAndUpdate(_id, { token });
   return token;
 };
 
