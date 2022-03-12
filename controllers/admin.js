@@ -43,15 +43,6 @@ const signup = function (req, res) {
 };
 
 const create = async function (adminDetails) {
-	// const {userName,firstName,lastName,password,phone,email}=adminDetails;
-  // const result = await cloudinary.uploader.upload(req.file.path);
-  // {userName,
-  // firstName,
-  // lastName,
-  // image:result.secure_url
-  // password,
-  // phone,
-  // email}
   const newAdmin = await AdminModel.create(adminDetails);
   const { userName, _id } = newAdmin;
 
