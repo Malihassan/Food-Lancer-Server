@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const cors = require("cors");
 require("dotenv").config();
+const cookieParser = require('cookie-parser');
 
 const routers = require("./routers/index");
 const errorHandler = require("./helpers/error-handler");
@@ -13,6 +14,7 @@ mongoose.connect(process.env.ATLS_URL, () => {
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(routers);
 app.use(errorHandler);
 const port = process.env.PORT || 3000;
