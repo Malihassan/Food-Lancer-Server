@@ -5,7 +5,7 @@ const adminAuth = require('../../middleware/adminAuth')
 
 router.get("/allBuyers",adminAuth, buyerController.allBuyers);
 router.get("/:id", buyerController.buyerById);
-router.patch("/:id/status", buyerController.updateStatus);
+router.patch("/Buyerstatus/:id", buyerController.updateStatus);
 router.get("/:id/orders", buyerController.getOrdersForSpecifcBuyer);
 
 module.exports = router;
