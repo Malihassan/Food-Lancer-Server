@@ -108,9 +108,10 @@ const _changeStatus = async function (id) {
 const updateSellerStatus = function (req, res, next) {
   const { id } = req.params;
   const { status } = req.body;
+  console.log(id,status);
   _editSeller(id, status)
-    .then(() => {
-      res.send("edited successfuly");
+    .then((result) => {
+      res.status(200).json({updatedStatus:result.status});
     })
     .catch(() => {
       next(new AppError("UnauthorizedError"));
@@ -240,17 +241,17 @@ const updateSpecificProductForSpecificSeller = (req, res, next) => {
     .catch((e) => res.status(400).json(e.message));
 };
 module.exports = {
+  signup,
+  confirm,
   login,
   forgetPassword,
-  updateSeller,
-  updateSellerStatus,
   getSellers,
   getSellersByStatus,
   getSpecificSeller,
-  signup,
-  confirm,
   getSpecificSeller,
   getOrdersForSpecificSeller,
   getSpecificOrderForSpecificSeller,
   updateSpecificProductForSpecificSeller,
+  updateSeller,
+  updateSellerStatus,
 };

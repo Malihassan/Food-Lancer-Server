@@ -17,22 +17,31 @@ const deleteCoverageArea = async (req, res, next) => {
   res.json("Deleted Sucseefuly");
 };
 async function CountOfCoverageAreaModules() {
-    return await coverageAreaModule.count({})
-    }
+  return await coverageAreaModule.count({});
+}
 const displayAllCoverageArea = async (req, res, next) => {
-  const {page} = req.query;
+  const { page, searchValue} = req.query;
+  let coverageAreas;
+  let count;
   const pageSize = 6;
-  const coverageAreas = await coverageAreaModule.find()
-  .skip(pageSize * (page - 1))
-  .limit(pageSize);
-  console.log(coverageAreas);
-  if (coverageAreas.length === 0) {
-    return next(new AppError("noCoverageAreaFound"));
+  if (searchValue) {
+    coverageAreas = await coverageAreaModule
+      .find({$or: [
+        { 'governorateName': searchValue },
+        { 'regionName': searchValue }
+      ]})
+      .skip(pageSize * (page - 1))
+      .limit(pageSize);
+  count = coverageAreas.length;
+  } else {
+    coverageAreas = await coverageAreaModule
+      .find()
+      .skip(pageSize * (page - 1))
+      .limit(pageSize);
+      count = await CountOfCoverageAreaModules();
   }
-  const count=await CountOfCoverageAreaModules();
-  res.json({coverageAreas,countOfCoveragArea:count});
+  res.json({ coverageAreas, countOfCoveragArea: count });
 };
-
 module.exports = {
   createCoverageArea,
   deleteCoverageArea,

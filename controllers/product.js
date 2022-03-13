@@ -15,33 +15,31 @@ const addProduct = async (req, res, next) => {
   try {
     const result = await cloudinary.uploader.upload(req.file.path);
     await productModel
-    .create({
-      categoryId: category._id,
-      sellerId: id,
-      name,
-      description,
-      image:[{url:result.secure_url,_id:result.public_id}],
-      price,
-      addOns,
-      reviews: [],
-      avgRate: "0",
-      status: "pending",
-    })
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((err) => {
-      //return next(new AppError({ 401: err.message }));
-      res.status(401).json(err.message); //////////custome error
-    });
+      .create({
+        categoryId: category._id,
+        sellerId: id,
+        name,
+        description,
+        image: [{ url: result.secure_url, _id: result.public_id }],
+        price,
+        addOns,
+        reviews: [],
+        avgRate: "0",
+        status: "pending",
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        //return next(new AppError({ 401: err.message }));
+        res.status(401).json(err.message); //////////custome error
+      });
     await productModel.find().then((products) => {
       res.json(products);
     });
-
   } catch (error) {
     console.log(error);
-  } 
- 
+  }
 };
 const deleteProduct = (req, res, next) => {
   productModel
@@ -81,29 +79,43 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-  try {
-    const products = await productModel.find({}).populate({
-      path: "sellerId",
-      // populate: {
-      //   path: "coverage-area",
-      //   model: "coverageArea",
-      // },
-      select: {
-        userName: 1,
-        firstName: 1,
-        lastName: 1,
-        phone: 1,
-        email: 1,
-        rate: 1,
-        status: 1,
-        gender: 1,
-        "coverage-area": 1,
+  const { page } = req.query;
+  const pageSize = 4;
+  const options = {
+    page: page,
+    limit: pageSize,
+    populate: [
+      {
+        path: "sellerId",
+        select: {
+          userName: 1,
+          firstName: 1,
+          lastName: 1,
+          phone: 1,
+          email: 1,
+          rate: 1,
+          status: 1,
+          gender: 1,
+          "coverage-area": 1,
+        },
       },
-    });
-    res.json(products);
+      {
+        path: "categoryId",
+        select: "name",
+      },
+    ],
+  };
+  try {
+    const products = await productModel.paginate({}, options); 
+    res.json(products)
+    if (products.length === 0) {
+      return next(new AppError("noProductFound"));
+    }
+    res.json(allSellers);
   } catch (error) {
-    res.status(400).send();
+    return error
   }
+ 
 };
 const getOneProduct = function (req, res, next) {
   const { id } = req.params;
@@ -174,7 +186,6 @@ const pendingMessage = async (req, res, next) => {
   res.json(userEmail);
   config.sendPendingMessage(pendingMessage, userEmail);
 };
-
 module.exports = {
   addProduct,
   getAllProducts,
