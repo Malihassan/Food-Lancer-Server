@@ -3,8 +3,8 @@ const AppError = require("../helpers/ErrorClass");
 const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
-const getOrdersForSpecifcBuyer = (req, res, next) => {
-	const { id } = req.params;
+const getOrdersForSpecificBuyer = (req, res, next) => {
+	const { id } = req.query;
 	orderModel
 		.find({ buyerId: id })
 		.populate({
@@ -125,7 +125,7 @@ function getOrders(req, res, next) {
 // 		});
 // };
 module.exports = {
-	getOrdersForSpecifcBuyer,
+	getOrdersForSpecificBuyer,
 	getOrders,
 	// getOrdersForSpecificQuery,
 	// getSpecificOrder,
