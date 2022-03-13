@@ -4,5 +4,5 @@ const adminAuth = require("../../middleware/adminAuth");
 
 router.get("/orders", orderController.getOrders);
 router.get("/filteredOrders", orderController.getOrdersForSpecificQuery);
-router.get("/:id", adminAuth, orderController.getSpecificOrder);
+// router.get("/:id", adminAuth, orderController.getSpecificOrder);
 module.exports = router;
