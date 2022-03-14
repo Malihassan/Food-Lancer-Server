@@ -20,7 +20,8 @@ async function login(req, res, next) {
   const token = await tokenCreator(user.userName, user.id);
   // save new token
   AdminModel.findByIdAndUpdate(user.id, token);
-  res.cookie('token', token, {expire: 60*60 + Date.now()}).send('cookie set');
+  // res.cookie('token', token, {expire: 60*60 + Date.now()}).send('cookie set');
+  res.json({token:token})
 }
 
 const tokenCreator = async function (userName, _id) {
