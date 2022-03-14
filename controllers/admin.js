@@ -1,7 +1,5 @@
 const AppError = require("../helpers/ErrorClass");
 const AdminModel = require("../models/admin");
-// const config = require("../config/pendingConfig");
-// const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
