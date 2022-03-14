@@ -28,16 +28,29 @@ const getOrdersForSpecificBuyer = (req, res, next) => {
 };
 
 function getOrders(req, res, next) {
-	const { minPrice, maxPrice, orderStatus, id } = req.query;
+	const { minPrice, maxPrice, orderStatus, id, buyerId, sellerId, page } =
+		req.query;
+
+	var count;
+	const pageSize = 1;
 
 	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
 	const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
 	const orderStatusQuery = orderStatus ? { status: orderStatus } : {};
 	const orderIdQuery = id ? { _id: id } : {};
+	const buyerIdQuery = buyerId ? { buyerId } : {};
+	const sellerIdQuery = sellerId ? { sellerId } : {};
 
 	orderModel
 		.find({
-			$and: [minPriceQuery, maxPriceQuery, orderStatusQuery, orderIdQuery],
+			$and: [
+				minPriceQuery,
+				maxPriceQuery,
+				orderStatusQuery,
+				orderIdQuery,
+				buyerIdQuery,
+				sellerIdQuery,
+			],
 		})
 		.populate({
 			path: "sellerId",
@@ -55,11 +68,31 @@ function getOrders(req, res, next) {
 					"name description image price addOns reviews avgRate status -_id",
 			},
 		})
-		.then((data) => {
+		.skip(pageSize * (page - 1))
+		.limit(pageSize)
+		.then(async (data) => {
+			if (
+				minPriceQuery == {} ||
+				maxPriceQuery == {} ||
+				orderStatusQuery == {} ||
+				orderIdQuery == {} ||
+				buyerIdQuery == {} ||
+				sellerIdQuery == {}
+			) {
+				count = data.length;
+				console.log(count, "count");
+				console.log(data, "data");
+			} else {
+				// console.log(data.length);
+				count = await orderModel.count({});
+				console.log(count, "count");
+				console.log(data, "data");
+			}
+
 			if (!data) {
 				return next(new AppError("accountNotFound"));
 			}
-			res.json(data);
+			res.json({ data, countOfOrders: count });
 		});
 }
 
