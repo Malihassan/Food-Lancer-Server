@@ -3,8 +3,8 @@ const AppError = require("../helpers/ErrorClass");
 const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
-const getOrdersForSpecifcBuyer = (req, res, next) => {
-	const { id } = req.params;
+const getOrdersForSpecificBuyer = (req, res, next) => {
+	const { id } = req.query;
 	orderModel
 		.find({ buyerId: id })
 		.populate({
@@ -28,15 +28,16 @@ const getOrdersForSpecifcBuyer = (req, res, next) => {
 };
 
 function getOrders(req, res, next) {
-	const { minPrice, maxPrice, orderStatus } = req.query;
+	const { minPrice, maxPrice, orderStatus, id } = req.query;
 
 	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
 	const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
 	const orderStatusQuery = orderStatus ? { status: orderStatus } : {};
+	const orderIdQuery = id ? { _id: id } : {};
 
 	orderModel
 		.find({
-			$and: [minPriceQuery, maxPriceQuery, orderStatusQuery],
+			$and: [minPriceQuery, maxPriceQuery, orderStatusQuery, orderIdQuery],
 		})
 		.populate({
 			path: "sellerId",
@@ -61,70 +62,71 @@ function getOrders(req, res, next) {
 			res.json(data);
 		});
 }
-function getOrdersForSpecificQuery(req, res, next) {
-	const { minPrice, maxPrice, orderStatus } = req.query;
 
-	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
-	const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
-	const orderStatusQuery = orderStatus ? { status: orderStatus } : {};
+// function getOrdersForSpecificQuery(req, res, next) {
+// 	const { minPrice, maxPrice, orderStatus } = req.query;
 
-	orderModel
-		.find({
-			$and: [minPriceQuery, maxPriceQuery, orderStatusQuery],
-		})
-		.populate({
-			path: "sellerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "buyerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "products",
-			populate: {
-				path: "_id",
-				select:
-					"name description image price addOns reviews avgRate status -_id",
-			},
-		})
-		.then((data) => {
-			if (!data) {
-				return next(new AppError("accountNotFound"));
-			}
-			res.json(data);
-		});
-}
-const getSpecificOrder = (req, res, next) => {
-	const { id } = req.params;
-	orderModel
-		.findOne({ _id: id })
-		.populate({
-			path: "buyerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "sellerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "products",
-			populate: {
-				path: "_id",
-				select:
-					"name description image price addOns reviews avgRate status -_id",
-			},
-		})
-		.then((data) => {
-			if (!data) {
-				return next(new AppError("accountNotFound"));
-			}
-			res.json(data);
-		});
-};
+// 	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
+// 	const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
+// 	const orderStatusQuery = orderStatus ? { status: orderStatus } : {};
+
+// 	orderModel
+// 		.find({
+// 			$and: [minPriceQuery, maxPriceQuery, orderStatusQuery],
+// 		})
+// 		.populate({
+// 			path: "sellerId",
+// 			select: "userName firstName lastName phone email status gender -_id",
+// 		})
+// 		.populate({
+// 			path: "buyerId",
+// 			select: "userName firstName lastName phone email status gender -_id",
+// 		})
+// 		.populate({
+// 			path: "products",
+// 			populate: {
+// 				path: "_id",
+// 				select:
+// 					"name description image price addOns reviews avgRate status -_id",
+// 			},
+// 		})
+// 		.then((data) => {
+// 			if (!data) {
+// 				return next(new AppError("accountNotFound"));
+// 			}
+// 			res.json(data);
+// 		});
+// }
+// const getSpecificOrder = (req, res, next) => {
+// 	const { id } = req.params;
+// 	orderModel
+// 		.findOne({ _id: id })
+// 		.populate({
+// 			path: "buyerId",
+// 			select: "userName firstName lastName phone email status gender -_id",
+// 		})
+// 		.populate({
+// 			path: "sellerId",
+// 			select: "userName firstName lastName phone email status gender -_id",
+// 		})
+// 		.populate({
+// 			path: "products",
+// 			populate: {
+// 				path: "_id",
+// 				select:
+// 					"name description image price addOns reviews avgRate status -_id",
+// 			},
+// 		})
+// 		.then((data) => {
+// 			if (!data) {
+// 				return next(new AppError("accountNotFound"));
+// 			}
+// 			res.json(data);
+// 		});
+// };
 module.exports = {
-	getOrdersForSpecifcBuyer,
+	getOrdersForSpecificBuyer,
 	getOrders,
-	getOrdersForSpecificQuery,
-	getSpecificOrder,
+	// getOrdersForSpecificQuery,
+	// getSpecificOrder,
 };
