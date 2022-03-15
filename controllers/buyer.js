@@ -49,8 +49,8 @@ const buyerById = async (req, res, next) => {
 };
 
 const updateStatus = async (req, res, next) => {
-  const { status } = req.body;
   const { id } = req.params;
+  const { status } = req.body;
   try {
     const updated = await buyerModel.findOneAndUpdate(
       { _id: id },
