@@ -32,7 +32,7 @@ function getOrders(req, res, next) {
 		req.query;
 
 	var count;
-	const pageSize = 1;
+	const pageSize = 2;
 
 	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
 	const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
@@ -80,13 +80,13 @@ function getOrders(req, res, next) {
 				sellerIdQuery == {}
 			) {
 				count = data.length;
-				console.log(count, "count");
-				console.log(data, "data");
+				// console.log(count, "count");
+				// console.log(data, "data");
 			} else {
 				// console.log(data.length);
 				count = await orderModel.count({});
-				console.log(count, "count");
-				console.log(data, "data");
+				// console.log(count, "count");
+				// console.log(data, "data");
 			}
 
 			if (!data) {
