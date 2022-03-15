@@ -36,5 +36,8 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'noBuyerFound') {
     return res.status(404).json({ error: "Buyers not found !" });
   }
+  if (err.name === 'CategoryMustUniqe') {
+    return res.status(404).json({ error: "category must be unique" });
+  }
 }
 module.exports = errorHandler;
