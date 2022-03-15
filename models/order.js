@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const mongoosePaginate = require('mongoose-paginate-v2');
 const orderSchema = mongoose.Schema(
 	{
 		buyerId: {
@@ -37,7 +37,7 @@ const orderSchema = mongoose.Schema(
 	},
 	{ timestamps: true }
 );
-
+orderSchema.plugin(mongoosePaginate);
 const OrderModel = mongoose.model("order", orderSchema);
 
 module.exports = OrderModel;
