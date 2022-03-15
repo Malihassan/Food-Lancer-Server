@@ -79,8 +79,13 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-  const { page } = req.query;
-  const pageSize = 4;
+  console.log("1");
+  let {page=1,status} = req.query;
+  console.log("2",status);
+  status = status ? { status } : {};
+  console.log("3",status);
+ //console.log(proStatus);
+  const pageSize = 12;
   const options = {
     page: page,
     limit: pageSize,
@@ -105,16 +110,16 @@ const getAllProducts = async (req, res, next) => {
       },
     ],
   };
-  try {
-    const products = await productModel.paginate({}, options); 
-    res.json(products)
+
+    console.log("4");
+    const products = await productModel.paginate(status,options); 
+    console.log("5",products);
     if (products.length === 0) {
       return next(new AppError("noProductFound"));
     }
-    res.json(allSellers);
-  } catch (error) {
-    return error
-  }
+    console.log("6",page,status);
+    res.json(products);
+  
  
 };
 const getOneProduct = function (req, res, next) {
@@ -164,7 +169,7 @@ const updateStatus = async (req, res, next) => {
     if (!updated) {
       return next(new AppError("accountNotFound"));
     }
-    res.json({ messgae: "product Accepted" });
+    res.json({ messgae: updated.status});
   } catch (error) {
     res.status(401).json(error.message);
   }
@@ -186,6 +191,14 @@ const pendingMessage = async (req, res, next) => {
   res.json(userEmail);
   config.sendPendingMessage(pendingMessage, userEmail);
 };
+/* const getProductsByStatus = async (req, res, next) => {
+  const { status } = req.params;
+  const productsByStatus = await productModel.find({ status });
+  if (productsByStatus.length === 0) {
+    return next(new AppError("noProductFound"));
+  }
+  res.json(productsByStatus); 
+}; */
 module.exports = {
   addProduct,
   getAllProducts,
@@ -197,4 +210,5 @@ module.exports = {
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
   pendingMessage,
+ // getProductsByStatus,
 };

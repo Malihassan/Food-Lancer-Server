@@ -6,11 +6,20 @@ router.get(
   //adminAuthentication,
   productController.getAllProducts
 );
-router.patch("/:id", adminAuthentication, productController.updateStatus);
+router.patch("/:id", 
+//adminAuthentication,
+ productController.updateStatus);
 router.patch(
   "/:id/pending",
-  adminAuthentication,
+  //adminAuthentication,
   productController.pendingMessage
 );
-router.get("/:id", adminAuthentication, productController.getOneProduct);
+router.get("/:id", 
+//adminAuthentication,
+ productController.getOneProduct);
+/* router.get(
+  "/all/:status",
+  //adminAuthentication,
+  productController.getProductsByStatus
+); */
 module.exports = router;
