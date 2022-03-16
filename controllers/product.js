@@ -78,11 +78,11 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-  //console.log("1");
+  console.log("1");
   let {page=1,status,categoryId} = req.query;
-  //console.log("2",status,categoryId);
+  console.log("2",status,categoryId);
   status = status ? { status } : {};
- // categoryId = categoryId ? { categoryId } : {};
+ categoryId = categoryId ? { categoryId } : {};
   const pageSize = 12;
   const options = {
     page: page,
@@ -108,7 +108,7 @@ const getAllProducts = async (req, res, next) => {
       },
     ]
   };
-    //console.log("4",categoryId);
+    console.log("4",categoryId);
     const products = await productModel.paginate(
        { $or:[
          {status} ,
@@ -116,11 +116,11 @@ const getAllProducts = async (req, res, next) => {
     , options,(res)=>{
 console.log(res);
     }); 
-   // console.log("5",products);
+    console.log("5",products);
     if (products.length === 0) {
       return next(new AppError("noProductFound"));
     }
-    //console.log("6",page,status);
+    console.log("6",page,status);
     //res.json(products.docs.categoryId.name,"jjjj")
     res.json(products);
 };
