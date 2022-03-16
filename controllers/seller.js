@@ -125,9 +125,9 @@ const _editSeller = function (id, status) {
 };
 const getSpecificSeller = async (req, res, next) => {
   const { id } = req.params;
-  const seller = await sellerModel.findById(id);
+  const seller = await sellerModel.findById(id).populate('coverageArea');
   if (!seller) {
-    return next(new AppError("accountNotFound")).populate('coverageArea');
+    return next(new AppError("accountNotFound"));
   }
   res.json(seller);
 };
