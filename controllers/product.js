@@ -31,7 +31,6 @@ const addProduct = async (req, res, next) => {
         console.log(data);
       })
       .catch((err) => {
-        //return next(new AppError({ 401: err.message }));
         res.status(401).json(err.message); //////////custome error
       });
     await productModel.find().then((products) => {
@@ -79,12 +78,11 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-  console.log("1");
-  let {page=1,status} = req.query;
-  console.log("2",status);
+  //console.log("1");
+  let {page=1,status,categoryId} = req.query;
+  //console.log("2",status,categoryId);
   status = status ? { status } : {};
-  console.log("3",status);
- //console.log(proStatus);
+ // categoryId = categoryId ? { categoryId } : {};
   const pageSize = 12;
   const options = {
     page: page,
@@ -106,21 +104,25 @@ const getAllProducts = async (req, res, next) => {
       },
       {
         path: "categoryId",
-        select: "name",
+        select: "name"
       },
-    ],
+    ]
   };
-
-    console.log("4");
-    const products = await productModel.paginate(status,options); 
-    console.log("5",products);
+    //console.log("4",categoryId);
+    const products = await productModel.paginate(
+       { $or:[
+         {status} ,
+        {categoryId}]}
+    , options,(res)=>{
+console.log(res);
+    }); 
+   // console.log("5",products);
     if (products.length === 0) {
       return next(new AppError("noProductFound"));
     }
-    console.log("6",page,status);
+    //console.log("6",page,status);
+    //res.json(products.docs.categoryId.name,"jjjj")
     res.json(products);
-  
- 
 };
 const getOneProduct = function (req, res, next) {
   const { id } = req.params;
