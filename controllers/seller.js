@@ -4,7 +4,7 @@ const config = require("../config/accountConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
 const jwt = require("jsonwebtoken");
-const cloudinary = require("../config/cloudinaryConfig");
+// const cloudinary = require("../config/cloudinaryConfig");
 require("dotenv").config();
 
 async function CountOfSellerModules() {
@@ -57,7 +57,7 @@ async function updateSeller(req, res, next) {
 
 const signup = function (req, res, next) {
   const userDetails = req.body;
-  const result = await cloudinary.uploader.upload(req.file.path);
+  // const result = await cloudinary.uploader.upload(req.file.path);
 
   _create({image: [{ url: result.secure_url, _id: result.public_id }], ...userDetails})
     .then((data) => {
@@ -125,9 +125,9 @@ const _editSeller = function (id, status) {
 };
 const getSpecificSeller = async (req, res, next) => {
   const { id } = req.params;
-  const seller = await sellerModel.findById(id).populate('coverageArea');
+  const seller = await sellerModel.findById(id);
   if (!seller) {
-    return next(new AppError("accountNotFound"));
+    return next(new AppError("accountNotFound")).populate('coverageArea');
   }
   res.json(seller);
 };
