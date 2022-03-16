@@ -1,5 +1,6 @@
 const AppError = require("../helpers/ErrorClass");
 const coverageAreaModule = require("../models/coverageArea");
+
 const createCoverageArea = (req, res, next) => {
   coverageAreaModule
     .create(req.body)
@@ -8,6 +9,7 @@ const createCoverageArea = (req, res, next) => {
     })
     .catch((e) => res.status(400).json(e.message));
 };
+
 const deleteCoverageArea = async (req, res, next) => {
   const { id } = req.params;
   const elemDeleted = await coverageAreaModule.findOneAndDelete({ _id: id });
@@ -16,9 +18,11 @@ const deleteCoverageArea = async (req, res, next) => {
   }
   res.json("Deleted Sucseefuly");
 };
+
 async function CountOfCoverageAreaModules() {
   return await coverageAreaModule.count({});
 }
+
 const displayAllCoverageArea = async (req, res, next) => {
   const { page, searchValue} = req.query;
   let coverageAreas;
@@ -42,6 +46,7 @@ const displayAllCoverageArea = async (req, res, next) => {
   }
   res.json({ coverageAreas, countOfCoveragArea: count });
 };
+
 module.exports = {
   createCoverageArea,
   deleteCoverageArea,
