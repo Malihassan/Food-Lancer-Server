@@ -188,6 +188,10 @@ const getOrdersForSpecificSeller = (req, res, next) => {
       select: "userName firstName lastName phone email status gender -_id",
     })
     .populate({
+      path: "sellerId",
+      select: "userName firstName lastName phone email status gender -_id",
+    })
+    .populate({
       path: "products",
       populate: {
         path: "_id",
