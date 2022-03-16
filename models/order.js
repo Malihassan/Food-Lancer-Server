@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 const orderSchema = mongoose.Schema(
 	{
 		buyerId: {
@@ -32,7 +32,7 @@ const orderSchema = mongoose.Schema(
 		status: {
 			type: String,
 			default: "in progress",
-			enum: ["in progress", "done", "cancel"],
+			enum: ["in progress", "delivered", "canceled"],
 		},
 	},
 	{ timestamps: true }
