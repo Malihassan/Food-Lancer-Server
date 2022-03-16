@@ -37,7 +37,7 @@ const getOrders = async (req, res, next) => {
 		sellerId,
 		page = 1,
 	} = req.query;
-	const pageSize = 1;
+	const pageSize = 6;
 
 	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
 	const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
@@ -52,20 +52,18 @@ const getOrders = async (req, res, next) => {
 		populate: [
 			{
 				path: "sellerId",
-				select:
-					"userName firstName lastName phone email status gender -_id",
+				select: "userName firstName lastName phone email status gender _id",
 			},
 			{
 				path: "buyerId",
-				select:
-					"userName firstName lastName phone email status gender -_id",
+				select: "userName firstName lastName phone email status gender _id",
 			},
 			{
 				path: "products",
 				populate: {
 					path: "_id",
 					select:
-						"name description image price addOns reviews avgRate status -_id",
+						"name description image price addOns reviews avgRate status _id",
 				},
 			},
 		],
