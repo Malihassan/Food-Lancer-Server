@@ -4,6 +4,7 @@ const config = require("../config/accountConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
 const jwt = require("jsonwebtoken");
+// const cloudinary = require("../config/cloudinaryConfig");
 require("dotenv").config();
 
 async function CountOfSellerModules() {
@@ -56,8 +57,9 @@ async function updateSeller(req, res, next) {
 
 const signup = function (req, res, next) {
   const userDetails = req.body;
+  // const result = await cloudinary.uploader.upload(req.file.path);
 
-  _create(userDetails)
+  _create({image: [{ url: result.secure_url, _id: result.public_id }], ...userDetails})
     .then((data) => {
       res.json(data);
     })
@@ -123,7 +125,7 @@ const _editSeller = function (id, status) {
 };
 const getSpecificSeller = async (req, res, next) => {
   const { id } = req.params;
-  const seller = await sellerModel.findById(id);
+  const seller = await sellerModel.findById(id).populate('coverageArea');
   if (!seller) {
     return next(new AppError("accountNotFound"));
   }
@@ -159,6 +161,7 @@ const getSellers = async (req, res, next) => {
     },
     select: "userName email rate status",
   };
+  console.log(status, email);
   const allSellers = await sellerModel.paginate(
     {
       $and: [status, email, { $or: rate }],
@@ -183,6 +186,10 @@ const getOrdersForSpecificSeller = (req, res, next) => {
     .find({ sellerId: id })
     .populate({
       path: "buyerId",
+      select: "userName firstName lastName phone email status gender -_id",
+    })
+    .populate({
+      path: "sellerId",
       select: "userName firstName lastName phone email status gender -_id",
     })
     .populate({
