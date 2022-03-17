@@ -102,6 +102,9 @@ const getAllProducts = async (req, res, next) => {
       {
         path: "categoryId",
         select: "name",
+        match:{
+          name:''
+        }
       },
     ],
   };

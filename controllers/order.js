@@ -80,13 +80,11 @@ function getOrders(req, res, next) {
 				sellerIdQuery == {}
 			) {
 				count = data.length;
-				console.log(count, "count");
-				console.log(data, "data");
+
 			} else {
 				// console.log(data.length);
 				count = await orderModel.count({});
-				console.log(count, "count");
-				console.log(data, "data");
+
 			}
 
 			if (!data) {
