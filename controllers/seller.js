@@ -161,6 +161,7 @@ const getSellers = async (req, res, next) => {
     },
     select: "userName email rate status",
   };
+  console.log(status, email);
   const allSellers = await sellerModel.paginate(
     {
       $and: [status, email, { $or: rate }],

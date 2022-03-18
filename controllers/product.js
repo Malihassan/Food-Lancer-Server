@@ -78,12 +78,9 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-  //const category = "Sandwich"
-  console.log("1");
   let { page = 1, status, categoryId } = req.query;
-  console.log("2", status, categoryId);
-  status = status ? status  : "";
-  categoryId = categoryId ? categoryId : "";
+  status = status ? { status } : {};
+  categoryId = categoryId ? { categoryId } : {};
   const pageSize = 12;
   const options = {
     page: page,
@@ -106,19 +103,19 @@ const getAllProducts = async (req, res, next) => {
       {
         path: "categoryId",
         select: "name",
-  
       },
     ],
   };
-   await productModel.paginate({status,categoryId}, options).then((result)=>{
-    if (result.length === 0) {
-      return next(new AppError("noProductFound"));
-    }
-    res.json(result); 
-  })
-
- 
-  
+  const products = await productModel.paginate(
+    {
+      $and: [status,categoryId],
+    },
+    options
+  );
+  if (products.length === 0) {
+    return next(new AppError("noProductFound"));
+  }
+  res.json(products);
 };
 const getOneProduct = function (req, res, next) {
   const { id } = req.params;
@@ -200,5 +197,4 @@ module.exports = {
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
   pendingMessage,
-  // getProductsByStatus,
 };

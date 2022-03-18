@@ -15,7 +15,7 @@ const addCategory = async (req, res, next) => {
 };
 const updateCategory = async (req, res, next) => {
   const { id } = req.params;
-  const { name, categoryImg } = req.body;
+  const { name, categoryImg='test' } = req.body;
   try {
     const category = await categoryModel.findOneAndUpdate(
       { _id: id },
@@ -36,7 +36,6 @@ const getCategories = async (req, res, next) => {
 };
 const getSpecificCategory = async (req,res,next)=>{
   const category = await categoryModel.findById(req.params.id)
-  console.log(category);
   if (!category) {
     return next(new AppError("accountNotFound"));
   }
