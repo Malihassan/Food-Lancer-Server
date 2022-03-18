@@ -78,10 +78,12 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
+  //const category = "Sandwich"
   console.log("1");
-  let {page=1,status} = req.query;
-  console.log("2",status);
-  status = status ?  status : [];
+  let { page = 1, status, categoryId } = req.query;
+  console.log("2", status, categoryId);
+  status = status ? status  : "";
+  categoryId = categoryId ? categoryId : "";
   const pageSize = 12;
   const options = {
     page: page,
@@ -103,20 +105,20 @@ const getAllProducts = async (req, res, next) => {
       },
       {
         path: "categoryId",
-        select: "name"
+        select: "name",
+  
       },
-    ]
+    ],
   };
-    console.log("4",status,categoryId);
-    const products = await productModel.paginate(
-     {status}
-    , options); 
-    console.log("5",products);
-    if (products.length === 0) {
+   await productModel.paginate({status,categoryId}, options).then((result)=>{
+    if (result.length === 0) {
       return next(new AppError("noProductFound"));
     }
-    console.log("6",page,status);
-    res.json(products);
+    res.json(result); 
+  })
+
+ 
+  
 };
 const getOneProduct = function (req, res, next) {
   const { id } = req.params;
@@ -165,7 +167,7 @@ const updateStatus = async (req, res, next) => {
     if (!updated) {
       return next(new AppError("accountNotFound"));
     }
-    res.json({ messgae: updated.status});
+    res.json({ messgae: updated.status });
   } catch (error) {
     res.status(401).json(error.message);
   }
@@ -187,14 +189,6 @@ const pendingMessage = async (req, res, next) => {
   res.json(userEmail);
   config.sendPendingMessage(pendingMessage, userEmail);
 };
-/* const getProductsByStatus = async (req, res, next) => {
-  const { status } = req.params;
-  const productsByStatus = await productModel.find({ status });
-  if (productsByStatus.length === 0) {
-    return next(new AppError("noProductFound"));
-  }
-  res.json(productsByStatus); 
-}; */
 module.exports = {
   addProduct,
   getAllProducts,
@@ -206,5 +200,5 @@ module.exports = {
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
   pendingMessage,
- // getProductsByStatus,
+  // getProductsByStatus,
 };
