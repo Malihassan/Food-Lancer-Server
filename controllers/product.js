@@ -3,10 +3,11 @@ const categoryModel = require("../models/category");
 const AppError = require("../helpers/ErrorClass");
 const config = require("../config/pendingConfig");
 const cloudinary = require("../config/cloudinaryConfig");
+const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
   const body = req.body;
-  const { name, description, price, addOns } = body;
+  const { name, description, price, addOns/* , image, reviews */ } = body;
   categoryName = "Pizza";
   const category = await categoryModel.findOne({ name: categoryName }).exec();
   if (!category) {
@@ -21,9 +22,12 @@ const addProduct = async (req, res, next) => {
         name,
         description,
         image: [{ url: result.secure_url, _id: result.public_id }],
+        //image:[],
         price,
         addOns,
-        reviews: [],
+        //reviews: [],
+        //image,
+        //reviews,
         avgRate: "0",
         status: "pending",
       })
@@ -108,11 +112,11 @@ const getAllProducts = async (req, res, next) => {
   };
   const products = await productModel.paginate(
     {
-      $and: [status,categoryId],
+      $and: [status, categoryId],
     },
     options
   );
-  if (products.length === 0) {
+  if (products.docs.length === 0) {
     return next(new AppError("noProductFound"));
   }
   res.json(products);
@@ -121,13 +125,17 @@ const getOneProduct = function (req, res, next) {
   const { id } = req.params;
   productModel
     .findOne({ _id: id })
-    .populate({
+     .populate({
       path: "sellerId",
       select: "email userName",
     })
     .populate({
       path: "categoryId",
       select: "name",
+    })  
+    .populate({
+      path: "reviews.buyerId",
+      select: "email userName",
     })
     .then((data) => {
       res.json(data);
