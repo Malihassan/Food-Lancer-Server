@@ -3,6 +3,16 @@ const AdminModel = require("../models/admin");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+const logout=async(req,res,next)=>{
+   const admin=req.admin;
+   await AdminModel
+   .findOneAndUpdate(
+     { _id: admin._id },
+     { token:""},
+     { new: true, runValidators: true }
+   )
+}
+
 async function login(req, res, next) {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -18,7 +28,6 @@ async function login(req, res, next) {
   const token = await tokenCreator(user.userName, user.id);
   // save new token
   AdminModel.findByIdAndUpdate(user.id, token);
-  // res.cookie('token', token, {expire: 60*60 + Date.now()}).send('cookie set');
   res.json({token:token})
 }
 
@@ -76,4 +85,5 @@ module.exports = {
   login,
   signup,
   update,
+  logout
 };
