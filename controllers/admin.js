@@ -11,6 +11,7 @@ const logout=async(req,res,next)=>{
      { token:""},
      { new: true, runValidators: true }
    )
+   res.status(200).json({"Message":"logout"})
 }
 
 async function login(req, res, next) {
