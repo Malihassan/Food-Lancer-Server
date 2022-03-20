@@ -2,10 +2,8 @@ const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-
-async function CountOfBuyerModules() {
-	return await buyerModel.count({});
-}
+const config = require("../config/accountConfig");
+const cloudinary = require("../config/cloudinaryConfig");
 const login= async (req,res,next)=>{
   const {email,password}=req.body;
   if (!email||!password)
@@ -33,13 +31,30 @@ const _tokenCreator = async function (userName, _id) {
   return token;
 };
 const signup = async (req, res, next) => {
-	try {
-		await buyerModel.create(req.body);
-		res.status(201).send("created");
-	} catch (error) {
-		res.status(400).send(error.message);
-	}
+	const buyerData=req.body;
+	console.log(buyerData,"Data");
+    const result = await cloudinary.uploader.upload(req.file.path);
+	_create({image: { url: result.secure_url, _id: result.public_id }, ...buyerData})
+	.then((data) => {
+		res.json(data);
+	  })
+	  .catch((e) => res.status(400).send(e.message));
 };
+const _create = async function (buyerData) {
+	const newBuyer = await buyerModel.create(buyerData);
+	const { userName, email, _id } = newBuyer;
+	const token = await _tokenCreator(userName, _id);
+  
+	config._mailConfirmation(
+	  userName,
+	  email,
+	  token,
+	  _id,
+	  process.env.USER,
+	  process.env.PASS
+	);
+	return token;
+  };
 const allBuyers = async (req, res, next) => {
 	let { page = 1, status, email } = req.query;
 	status = status ? { status } : {};

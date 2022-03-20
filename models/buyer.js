@@ -30,64 +30,68 @@ const buyerSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-			match: [/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/g, "Please fill a valid password"],
+      match: [
+        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/g,
+        "Please fill a valid password",
+      ],
     },
-    image:{
-			url: String,
-		},
-		phone: {
-			type: String,
-			trim: true,
-			unique: true,
-			required: true,
-			match: [/^01[0125]\d{1,8}/g, "Please fill a valid Phone Number"],
-		},
-		email: {
-			type: String,
-			trim: true,
-			unique: true,
-			required: true,
-			lowercase: true,
-			match: [
-				/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-				"Please fill a valid email address",
-			],
-		},
-		token: {
-			type: String,
-			default: "",
-		},
-		address: {
-			type: String,
-			required: true,
-		},
-		confirmationCode: {
-			type: Number,
-			default: 0,
-		},
-		status: {
-			type: String,
-			default: "pending",
-			enum: ["active", "pending", "blocked"],
-		},
-		gender: {
-			type: String,
-			required: true,
-			enum: ["male", "female"],
-		},
-	},
-	{ timestamps: true }
+    image: {
+        _id: String,
+        url: String,
+    },
+    phone: {
+      type: String,
+      trim: true,
+      unique: true,
+      required: true,
+      match: [/^01[0125]\d{1,8}/g, "Please fill a valid Phone Number"],
+    },
+    email: {
+      type: String,
+      trim: true,
+      unique: true,
+      required: true,
+      lowercase: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Please fill a valid email address",
+      ],
+    },
+    token: {
+      type: String,
+      default: "",
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+    confirmationCode: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+      default: "pending",
+      enum: ["active", "pending", "blocked"],
+    },
+    gender: {
+      type: String,
+      required: true,
+      enum: ["male", "female"],
+    },
+  },
+  { timestamps: true }
 );
 
 buyerSchema.plugin(mongoosePaginate);
 
 buyerSchema.pre("save", function (next) {
-	this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
-	next();
+  this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+  next();
 });
 buyerSchema.methods.comparePassword = function (password) {
-	const that = this;
-	return bcrypt.compareSync(password, that.password);
+  const that = this;
+  return bcrypt.compareSync(password, that.password);
 };
 const buyerModel = mongoose.model("buyer", buyerSchema);
 module.exports = buyerModel;
