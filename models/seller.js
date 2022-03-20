@@ -1,32 +1,32 @@
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const sellerSchema = mongoose.Schema(
-  {
-    userName: {
-      type: String,
-      minLength: [5, "Must be at least 5"],
-      maxlength: [20, "Must be at latest 20"],
-      trim: true,
-      required: true,
-      unique: true,
-    },
-    firstName: {
-      type: String,
-      minLength: [3, "Must be at least 3"],
-      maxLength: [20, "Must be at latest 20"],
-      required: true,
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      minLength: [3, "Must be at least 3"],
-      maxLength: [20, "Must be at latest 20"],
-      required: true,
-      trim: true,
-    },
-    image:{
+	{
+		userName: {
+			type: String,
+			minLength: [5, "Must be at least 5"],
+			maxlength: [20, "Must be at latest 20"],
+			trim: true,
+			required: true,
+			unique: true,
+		},
+		firstName: {
+			type: String,
+			minLength: [3, "Must be at least 3"],
+			maxLength: [20, "Must be at latest 20"],
+			required: true,
+			trim: true,
+		},
+		lastName: {
+			type: String,
+			minLength: [3, "Must be at least 3"],
+			maxLength: [20, "Must be at latest 20"],
+			required: true,
+			trim: true,
+		},
+		image: {
 			url: String,
 		  },
     password: {
@@ -86,12 +86,12 @@ const sellerSchema = mongoose.Schema(
 sellerSchema.plugin(mongoosePaginate);
 
 sellerSchema.pre("save", function (next) {
-  this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
-  next();
+	this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+	next();
 });
 sellerSchema.methods.comparePassword = function (password) {
-  const that = this;
-  return bcrypt.compareSync(password, that.password);
+	const that = this;
+	return bcrypt.compareSync(password, that.password);
 };
 const sellerModel = mongoose.model("seller", sellerSchema);
 module.exports = sellerModel;
