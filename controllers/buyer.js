@@ -1,10 +1,7 @@
+const { config } = require("../config/cloudinaryConfig");
 const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
-
-async function CountOfBuyerModules() {
-  return await buyerModel.count({});
-}
-
+const OrderModel = require("../models/order");
 const signup = async (req, res, next) => {
   try {
     await buyerModel.create(req.body);
@@ -13,11 +10,33 @@ const signup = async (req, res, next) => {
     res.status(400).send(error.message);
   }
 };
+async function forgetPassword(req, res, next) {
+  const { email } = req.body;
+  const buyer = await buyerModel.findOne({ email });
+  if (!buyer) {
+    return next(new AppError("emailNotFound"));
+  }
+  const token = await _tokenCreator(buyer.userName, buyer.id);
+  config.forgetPassword(seller.userName, seller.email, token);
+  res.status(200).json({ response: "Success send code" });
+}
+const resetPassword = async (req, res, next) => {
+  const buyer = req.buyer;
+  console.log(buyer.email,buyer.id);
+  const { password, confirmPassword } = req.body;
+  if (password != confirmPassword) {
+    return next({ status: 404, message: "Password Not Matched" });
+  }
+  buyer.password =password
+  await buyer.save();
+  res.json({message:'Success'});
+};
+
 const allBuyers = async (req, res, next) => {
   let { page = 1, status , email  } = req.query;
   status = status ? { status } : {};
   email = email ? { email } : {};
-  const pageSize = 4;
+  const pageSize = 7;
   try {
     const option = {
       page: page,
@@ -65,32 +84,48 @@ const updateStatus = async (req, res, next) => {
     res.status(400).json(error.message);
   }
 };
-const getOrdersForSpecifcBuyer = (req, res, next) => {
+const getOrdersForSpecifcBuyer =async (req, res, next) => {
   const { id } = req.params;
-  orderModel
+  await OrderModel
     .find({ buyerId: id })
     .populate({
       path: "sellerId",
-      select: "userName firstName lastName phone email status gender -_id",
+      select: "userName firstName lastName phone email status gender _id",
     })
     .populate({
       path: "products",
       populate: {
         path: "_id",
         select:
-          "name description image price addOns reviews avgRate status -_id",
+          "name description image price addOns reviews avgRate status _id",
       },
     })
     .then((data) => {
-      if (!data) {
+      if (data.length == 0) {
         return next(new AppError("accountNotFound"));
       }
+      countofOrderBuyer(id)
+      countOfDoneOrderBuyer(id)
+      countofCancelOrderBuyer(id)
       res.json(data);
-    });
+    })
 };
-
+async function countofOrderBuyer(id) {
+  const count  =await OrderModel.find({buyerId:id}).count()
+  console.log(count);
+}
+async function countofCancelOrderBuyer(id) {
+  const count  =await OrderModel.find({buyerId:id,status:'canceled'}).count()
+  console.log(count);
+}
+async function countOfDoneOrderBuyer(id) {
+  const count  =await OrderModel.find({buyerId:id,status:'delivered'}).count()
+  console.log(count);
+}
 module.exports = {
   signup,
+  forgetPassword,
+  resetPassword,
   updateStatus,
   allBuyers,
   buyerById,
