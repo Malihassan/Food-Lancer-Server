@@ -74,13 +74,6 @@ const buyerSchema = mongoose.Schema(
 			required: true,
 			enum: ["male", "female"],
 		},
-		fav: [
-			{
-				type: mongoose.SchemaTypes.ObjectId,
-				ref: "category",
-				required: true,
-			},
-		],
 	},
 	{ timestamps: true }
 );
