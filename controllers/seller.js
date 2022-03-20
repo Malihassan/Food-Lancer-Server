@@ -2,9 +2,8 @@ const AppError = require("../helpers/ErrorClass");
 const sellerModel = require("../models/seller");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
-const config = require("../config/pendingConfig");
+const config = require("../config/accountConfig");
 const cloudinary = require("../config/cloudinaryConfig");
-const { path } = require("express/lib/application");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 

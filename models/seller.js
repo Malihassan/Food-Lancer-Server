@@ -36,6 +36,7 @@ const sellerSchema = mongoose.Schema(
       trim: true,
     },
     image: {
+      _id: String,
       url: String,
     },
     phone: {
