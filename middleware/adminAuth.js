@@ -9,7 +9,7 @@ async function adminAuth(req, res, next) {
 		const payload = jwt.verify(token, process.env.SECRETKEY);
 		const admin = await AdminModel.findById(payload.id);
 		if (!admin) {
-			return next(new AppError("accountNotFound"));
+			return next(new AppError("JsonWebTokenError"));
 		}
 		req.admin = admin;
 		next();

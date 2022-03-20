@@ -11,3 +11,6 @@ router.patch("/resetPassword/:token",resetPassAuth,sellerController.resetPasswor
 router.patch("/editProfile", sellerAuthentication, sellerController.updateSeller);
 
 module.exports = router;
+
+
+// getSpecificSeller

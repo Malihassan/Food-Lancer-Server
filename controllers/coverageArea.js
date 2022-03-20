@@ -27,7 +27,7 @@ const displayAllCoverageArea = async (req, res, next) => {
   const { page, searchValue} = req.query;
   let coverageAreas;
   let count;
-  const pageSize = 6;
+  const pageSize = 8;
   if (searchValue) {
     coverageAreas = await coverageAreaModule
       .find({$or: [

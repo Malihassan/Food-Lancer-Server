@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const sellerSchema = mongoose.Schema(
   {
@@ -26,15 +26,17 @@ const sellerSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
-    image:{
-			url: String,
-		  },
     password: {
       type: String,
-      minLength: [3, "Must be at least 3"],
-      maxLength: [30, "Must be at latest 30"],
+      match: [
+        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/g,
+        "Please fill a valid password",
+      ],
       required: true,
       trim: true,
+    },
+    image: {
+      url: String,
     },
     phone: {
       type: String,
@@ -54,15 +56,16 @@ const sellerSchema = mongoose.Schema(
         "Please fill a valid email address",
       ],
     },
-    rate: {
-      type: Number,
-      default: 0,
-    },
     token: {
       type: String,
       default: "",
     },
-    "coverageArea": {
+    rate: {
+      type: Number,
+      default: 0,
+    },
+
+    coverageArea: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "coverageArea",
       required: true,

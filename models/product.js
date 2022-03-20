@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 const productSchema = mongoose.Schema(
   {
     categoryId: {
@@ -7,16 +7,16 @@ const productSchema = mongoose.Schema(
       ref: "category",
       required: true,
     },
-    status:{
+    status: {
       type: String,
       default: "pending",
       enum: ["active", "pending", "blocked"],
     },
-    reasonOfBlock:{
-      type: String
+    reasonOfBlock: {
+      type: String,
     },
-    pendingMessage:{
-      type: String
+    pendingMessage: {
+      type: String,
     },
     sellerId: {
       type: mongoose.SchemaTypes.ObjectId,
@@ -35,8 +35,8 @@ const productSchema = mongoose.Schema(
     },
     image: [
       {
-        _id:String,
-        url: String
+        _id: String,
+        url: String,
       },
     ],
     price: {
@@ -75,19 +75,11 @@ const productSchema = mongoose.Schema(
           ref: "seller",
           required: true,
         },
-        comments: [
-          {
-            message: {
-              type: "String",
-              required: true,
-              trim: true,
-            },
-            createdAt: {
-              type: Date,
-              default: new Date(),
-            },
-          },
-        ],
+        comments: { type: "String", required: true, trim: true },
+        createdAt: {
+          type: Date,
+          default: new Date(),
+        },
         rate: Number,
       },
     ],
@@ -95,10 +87,9 @@ const productSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-productSchema.plugin(mongoosePaginate)
+productSchema.plugin(mongoosePaginate);
 const ProductModel = mongoose.model("product", productSchema);
 productSchema
   .path("image")
   .validate((img) => img.length < 5, "Must have maxmum 5 images");
 module.exports = ProductModel;
-

@@ -3,13 +3,10 @@ const sellerModel = require("../models/seller");
 const config = require("../config/emailsConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
+const cloudinary = require("../config/cloudinaryConfig");
+const { path } = require("express/lib/application");
 const jwt = require("jsonwebtoken");
-// const cloudinary = require("../config/cloudinaryConfig");
 require("dotenv").config();
-
-async function CountOfSellerModules() {
-  return await sellerModel.count({});
-}
 
 async function login(req, res, next) {
   const { email, password } = req.body;
@@ -76,14 +73,11 @@ async function updateSeller(req, res, next) {
     .catch((e) => res.status(400).json(e.message));
 }
 
-const signup = function (req, res, next) {
+const signup = async (req, res, next)=> {
   const userDetails = req.body;
-  // const result = await cloudinary.uploader.upload(req.file.path);
+  const result = await cloudinary.uploader.upload(req.file.path);
 
-  _create({
-    image: [{ url: result.secure_url, _id: result.public_id }],
-    ...userDetails,
-  })
+  _create({image: { url: result.secure_url, _id: result.public_id }, ...userDetails})
     .then((data) => {
       res.json(data);
     })
@@ -279,7 +273,6 @@ module.exports = {
   resetPassword,
   getSellers,
   getSellersByStatus,
-  getSpecificSeller,
   getSpecificSeller,
   getOrdersForSpecificSeller,
   getSpecificOrderForSpecificSeller,
