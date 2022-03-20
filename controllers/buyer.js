@@ -1,9 +1,11 @@
 const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
+const OrderModel = require("../models/order");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const config = require("../config/accountConfig");
+const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
+
 const login= async (req,res,next)=>{
   const {email,password}=req.body;
   if (!email||!password)
@@ -30,6 +32,7 @@ const _tokenCreator = async function (userName, _id) {
   await buyerModel.findOneAndUpdate({ _id }, { token });
   return token;
 };
+
 const signup = async (req, res, next) => {
 	const buyerData=req.body;
 	console.log(buyerData,"Data");
@@ -40,6 +43,28 @@ const signup = async (req, res, next) => {
 	  })
 	  .catch((e) => res.status(400).send(e.message));
 };
+async function forgetPassword(req, res, next) {
+  const { email } = req.body;
+  const buyer = await buyerModel.findOne({ email });
+  if (!buyer) {
+    return next(new AppError("emailNotFound"));
+  }
+  const token = await _tokenCreator(buyer.userName, buyer.id);
+  config.forgetPassword(seller.userName, seller.email, token);
+  res.status(200).json({ response: "Success send code" });
+}
+const resetPassword = async (req, res, next) => {
+  const buyer = req.buyer;
+  console.log(buyer.email,buyer.id);
+  const { password, confirmPassword } = req.body;
+  if (password != confirmPassword) {
+    return next({ status: 404, message: "Password Not Matched" });
+  }
+  buyer.password =password
+  await buyer.save();
+  res.json({message:'Success'});
+};
+
 const _create = async function (buyerData) {
 	const newBuyer = await buyerModel.create(buyerData);
 	const { userName, email, _id } = newBuyer;
@@ -107,30 +132,44 @@ const updateStatus = async (req, res, next) => {
 		res.status(400).json(error.message);
 	}
 };
-const getOrdersForSpecifcBuyer = (req, res, next) => {
-	const { id } = req.params;
-	orderModel
-		.find({ buyerId: id })
-		.populate({
-			path: "sellerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "products",
-			populate: {
-				path: "_id",
-				select:
-					"name description image price addOns reviews avgRate status -_id",
-			},
-		})
-		.then((data) => {
-			if (!data) {
-				return next(new AppError("accountNotFound"));
-			}
-			res.json(data);
-		});
+const getOrdersForSpecifcBuyer =async (req, res, next) => {
+  const { id } = req.params;
+  await OrderModel
+    .find({ buyerId: id })
+    .populate({
+      path: "sellerId",
+      select: "userName firstName lastName phone email status gender _id",
+    })
+    .populate({
+      path: "products",
+      populate: {
+        path: "_id",
+        select:
+          "name description image price addOns reviews avgRate status _id",
+      },
+    })
+    .then((data) => {
+      if (data.length == 0) {
+        return next(new AppError("accountNotFound"));
+      }
+      countofOrderBuyer(id)
+      countOfDoneOrderBuyer(id)
+      countofCancelOrderBuyer(id)
+      res.json(data);
+    })
 };
-
+async function countofOrderBuyer(id) {
+  const count  =await OrderModel.find({buyerId:id}).count()
+  console.log(count);
+}
+async function countofCancelOrderBuyer(id) {
+  const count  =await OrderModel.find({buyerId:id,status:'canceled'}).count()
+  console.log(count);
+}
+async function countOfDoneOrderBuyer(id) {
+  const count  =await OrderModel.find({buyerId:id,status:'delivered'}).count()
+  console.log(count);
+}
 async function updateBuyer(req, res, next) {
 	const { id } = req.buyer;
 	const { phone, firstName, lastName, address, image } = req.body;
@@ -148,13 +187,14 @@ async function updateBuyer(req, res, next) {
 		})
 		.catch((e) => res.status(400).json(e.message));
 }
-
 module.exports = {
   login,
-	signup,
-	updateStatus,
-	allBuyers,
-	buyerById,
-	getOrdersForSpecifcBuyer,
-	updateBuyer,
+  signup,
+  forgetPassword,
+  resetPassword,
+  updateBuyer,
+  updateStatus,
+  allBuyers,
+  buyerById,
+  getOrdersForSpecifcBuyer,
 };

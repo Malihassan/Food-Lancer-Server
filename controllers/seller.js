@@ -1,8 +1,8 @@
 const AppError = require("../helpers/ErrorClass");
 const sellerModel = require("../models/seller");
+const config = require("../config/emailsConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
-const config = require("../config/accountConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -12,11 +12,12 @@ async function login(req, res, next) {
   if (!validatorLoginRequestBody(email, password)) {
     return next(new AppError("allFieldsRequired"));
   }
-
+  
   const user = await sellerModel.findOne({ email });
   if (!user) return next(new AppError("emailNotFound"));
-
+  console.log(user);
   const validPass = await user.comparePassword(password);
+  console.log(validPass);
   if (!validPass) return next(new AppError("InvalidPassword"));
 
   const token = await _tokenCreator(user.userName, user.id);
@@ -31,7 +32,27 @@ function validatorLoginRequestBody(email, password) {
   }
   return true;
 }
-async function forgetPassword(req, res, next) {}
+async function forgetPassword(req, res, next) {
+  const { email } = req.body;
+  const seller = await sellerModel.findOne({ email });
+  if (!seller) {
+    return next(new AppError("emailNotFound"));
+  }
+  const token = await _tokenCreator(seller.userName, seller.id);
+  config.forgetPassword(seller.userName, seller.email, token);
+  res.status(200).json({ response: "Success send code" });
+}
+const resetPassword = async (req, res, next) => {
+  const seller = req.seller;
+  console.log(seller.email,seller.id);
+  const { password, confirmPassword } = req.body;
+  if (password != confirmPassword) {
+    return next({ status: 404, message: "Password Not Matched" });
+  }
+  seller.password =password
+  await seller.save();
+  res.json({message:'Success'});
+};
 
 async function updateSeller(req, res, next) {
   const { id } = req.seller;
@@ -106,10 +127,10 @@ const _changeStatus = async function (id) {
 const updateSellerStatus = function (req, res, next) {
   const { id } = req.params;
   const { status } = req.body;
-  console.log(id,status);
+  console.log(id, status);
   _editSeller(id, status)
     .then((result) => {
-      res.status(200).json({updatedStatus:result.status});
+      res.status(200).json({ updatedStatus: result.status });
     })
     .catch(() => {
       next(new AppError("UnauthorizedError"));
@@ -121,7 +142,7 @@ const _editSeller = function (id, status) {
 };
 const getSpecificSeller = async (req, res, next) => {
   const { id } = req.params;
-  const seller = await sellerModel.findById(id).populate('coverageArea');
+  const seller = await sellerModel.findById(id).populate("coverageArea");
   if (!seller) {
     return next(new AppError("accountNotFound"));
   }
@@ -131,9 +152,10 @@ const getSellers = async (req, res, next) => {
   let { page = 1, status, email, rate } = req.query;
   status = status ? { status } : {};
   email = email ? { email } : {};
-  rate = rate ? JSON.parse(rate) : [];
-  if (rate.length !==0) {
+  rate = rate ? { rate } : [];
+  if (rate.length !== 0) {
     rate = rate.map((item, index) => {
+      console.log("===>", item);
       switch (item) {
         case ">=2":
           return (item = { $lte: 2 });
@@ -147,7 +169,7 @@ const getSellers = async (req, res, next) => {
   } else {
     rate = [{ rate: { $gte: 0 } }];
   }
-  const pageSize = 4;
+  const pageSize = 7;
   const option = {
     page: page,
     limit: pageSize,
@@ -157,7 +179,6 @@ const getSellers = async (req, res, next) => {
     },
     select: "userName email rate status",
   };
-  console.log(status, email);
   const allSellers = await sellerModel.paginate(
     {
       $and: [status, email, { $or: rate }],
@@ -248,6 +269,7 @@ module.exports = {
   confirm,
   login,
   forgetPassword,
+  resetPassword,
   getSellers,
   getSellersByStatus,
   getSpecificSeller,
