@@ -7,10 +7,6 @@ const jwt = require("jsonwebtoken");
 // const cloudinary = require("../config/cloudinaryConfig");
 require("dotenv").config();
 
-async function CountOfSellerModules() {
-  return await sellerModel.count({});
-}
-
 async function login(req, res, next) {
   const { email, password } = req.body;
   if (!validatorLoginRequestBody(email, password)) {
@@ -254,7 +250,6 @@ module.exports = {
   forgetPassword,
   getSellers,
   getSellersByStatus,
-  getSpecificSeller,
   getSpecificSeller,
   getOrdersForSpecificSeller,
   getSpecificOrderForSpecificSeller,

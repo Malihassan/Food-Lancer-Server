@@ -10,3 +10,6 @@ router.post("/forgetPassword",sellerAuthentication, sellerController.forgetPassw
 router.patch("/edit", sellerAuthentication, sellerController.updateSeller);
 
 module.exports = router;
+
+
+// getSpecificSeller

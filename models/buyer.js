@@ -30,6 +30,7 @@ const buyerSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+			match: [/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/g, "Please fill a valid password"],
     },
     image:{
 			url: String,

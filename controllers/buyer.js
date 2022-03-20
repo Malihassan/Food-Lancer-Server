@@ -1,10 +1,37 @@
 const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 async function CountOfBuyerModules() {
   return await buyerModel.count({});
 }
-
+const login= async (req,res,next)=>{
+  const {email,password}=req.body;
+  if (!email||!password)
+  {
+    return next(new AppError("allFieldsRequired"));
+  }
+  const buyer=await buyerModel.findOne({email});
+  if (!buyer)
+  {
+    return next(new AppError("emailNotFound"));
+  }
+  if(! await buyer.comparePassword(password))
+  {
+    return next(new AppError("InvalidPassword"));
+  }
+  const token = await _tokenCreator(buyer.userName, buyer.id);
+  await buyerModel.findByIdAndUpdate(buyer.id,token);
+  res.json({token});
+}
+const _tokenCreator = async function (userName, _id) {
+  token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
+    expiresIn: "1d",
+  });
+  await buyerModel.findOneAndUpdate({ _id }, { token });
+  return token;
+};
 const signup = async (req, res, next) => {
   try {
     await buyerModel.create(req.body);
@@ -90,6 +117,7 @@ const getOrdersForSpecifcBuyer = (req, res, next) => {
 };
 
 module.exports = {
+  login,
   signup,
   updateStatus,
   allBuyers,

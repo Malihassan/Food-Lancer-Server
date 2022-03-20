@@ -31,8 +31,7 @@ const sellerSchema = mongoose.Schema(
 		  },
     password: {
       type: String,
-      minLength: [3, "Must be at least 3"],
-      maxLength: [30, "Must be at latest 30"],
+			match: [/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/g, "Please fill a valid password"],
       required: true,
       trim: true,
     },
