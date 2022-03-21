@@ -176,11 +176,12 @@ async function countOfDoneOrderBuyer(id) {
 }
 async function updateBuyer(req, res, next) {
   const { id } = req.buyer;
-  const { phone, firstName, lastName, address, image } = req.body;
+  const result = await cloudinary.uploader.upload(req.file.path);
+  const { phone, firstName, lastName, address } = req.body;
   buyerModel
     .findOneAndUpdate(
       { _id: id },
-      { phone, firstName, lastName, address, image },
+      { phone, firstName, lastName, address, image:{ url: result.secure_url, _id: result.public_id } },
       { new: true, runValidators: true }
     )
     .then((data) => {
