@@ -180,7 +180,7 @@ async function updateBuyer(req, res, next) {
   const { _id } = req.buyer;
   let result;
   try{
-    console.log("uplaod");
+    console.log(req.file.path,"REq File Path");
     result = await cloudinary.uploader.upload(req.file.path);
     console.log(result);
   }
