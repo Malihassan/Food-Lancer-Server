@@ -45,17 +45,20 @@ const signup = async (req, res, next) => {
 };
 async function forgetPassword(req, res, next) {
   const { email } = req.body;
+  console.log(email);
   const buyer = await buyerModel.findOne({ email });
+  console.log(buyer);
+
   if (!buyer) {
     return next(new AppError("emailNotFound"));
   }
   const token = await _tokenCreator(buyer.userName, buyer.id);
-  config.forgetPassword(seller.userName, seller.email, token);
+  config.forgetPassword(buyer.userName, buyer.email, token,'buyer');
   res.status(200).json({ response: "Success send code" });
 }
 const resetPassword = async (req, res, next) => {
   const buyer = req.buyer;
-  console.log(buyer.email,buyer.id);
+  console.log("======>>>",buyer.email,buyer.id);
   const { password, confirmPassword } = req.body;
   if (password != confirmPassword) {
     return next({ status: 404, message: "Password Not Matched" });

@@ -40,7 +40,7 @@ async function forgetPassword(req, res, next) {
     return next(new AppError("emailNotFound"));
   }
   const token = await _tokenCreator(seller.userName, seller.id);
-  config.forgetPassword(seller.userName, seller.email, token);
+  config.forgetPassword(seller.userName, seller.email, token,'seller');
   res.status(200).json({ response: "Success send code" });
 }
 const resetPassword = async (req, res, next) => {
