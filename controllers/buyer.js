@@ -106,7 +106,6 @@ const buyerById = async (req, res, next) => {
   const { id } = req.params;
   const buyer = await buyerModel
     .findById(id)
-    .populate({ path: "fav", select: "name" })
     .catch((error) => {
       res.status(400).json(error.message);
     });
