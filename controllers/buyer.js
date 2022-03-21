@@ -148,33 +148,9 @@ const getOrdersForSpecifcBuyer = async (req, res, next) => {
       },
     })
     .then((data) => {
-      if (data.length == 0) {
-        return next(new AppError("accountNotFound"));
-      }
-      countofOrderBuyer(id);
-      countOfDoneOrderBuyer(id);
-      countofCancelOrderBuyer(id);
       res.json(data);
     });
 };
-async function countofOrderBuyer(id) {
-  const count = await OrderModel.find({ buyerId: id }).count();
-  console.log(count);
-}
-async function countofCancelOrderBuyer(id) {
-  const count = await OrderModel.find({
-    buyerId: id,
-    status: "canceled",
-  }).count();
-  console.log(count);
-}
-async function countOfDoneOrderBuyer(id) {
-  const count = await OrderModel.find({
-    buyerId: id,
-    status: "delivered",
-  }).count();
-  console.log(count);
-}
 async function updateBuyer(req, res, next) {
   const { _id } = req.buyer;
   let result;
