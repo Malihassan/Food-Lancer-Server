@@ -21,7 +21,7 @@ const _mailConfirmation = function(username, email, token, id){
             <small>this link will expire 24 hours</small>`
     });
 }
-const forgetPassword = function (username,userEmail, token){
+const forgetPassword = function (username,userEmail, token,type){
   const transporter = nodemailer.createTransport(transportConfig);
   const mailOptions = {
     from: `${process.env.USER}`,
@@ -30,7 +30,7 @@ const forgetPassword = function (username,userEmail, token){
     html: `
             <h2>Hello, ${username} </h2>
             <p>we received a request for a password change on Food-lancer.com you can reset your password
-            <a href="http://localhost:3000/seller/account/resetPassword/${token}">Click here!!!</a> 
+            <a href="http://localhost:3000/${type}/account/resetPassword/${token}">Click here!!!</a> 
             </p>
             <br>
             <small>this link will expire 24 hours</small>`

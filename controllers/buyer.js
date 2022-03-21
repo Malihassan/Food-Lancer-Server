@@ -44,17 +44,19 @@ const signup = async (req, res, next) => {
 };
 async function forgetPassword(req, res, next) {
   const { email } = req.body;
+  console.log(email);
   const buyer = await buyerModel.findOne({ email });
+  console.log(buyer);
+
   if (!buyer) {
     return next(new AppError("emailNotFound"));
   }
   const token = await _tokenCreator(buyer.userName, buyer.id);
-  config.forgetPassword(seller.userName, seller.email, token);
+  config.forgetPassword(buyer.userName, buyer.email, token, "buyer");
   res.status(200).json({ response: "Success send code" });
 }
 const resetPassword = async (req, res, next) => {
   const buyer = req.buyer;
-  console.log(buyer.email, buyer.id);
   const { password, confirmPassword } = req.body;
   if (password != confirmPassword) {
     return next({ status: 404, message: "Password Not Matched" });
@@ -175,20 +177,37 @@ async function countOfDoneOrderBuyer(id) {
   console.log(count);
 }
 async function updateBuyer(req, res, next) {
-  const { id } = req.buyer;
-  const result = await cloudinary.uploader.upload(req.file.path);
+  const { _id } = req.buyer;
+  let result;
+  try{
+    console.log("uplaod");
+    result = await cloudinary.uploader.upload(req.file.path);
+    console.log(result);
+  }
+  catch(err){
+    console.log(err.message,"Message");
+    return next(new AppError("allFieldsRequired"));
+
+  }
   const { phone, firstName, lastName, address } = req.body;
   buyerModel
     .findOneAndUpdate(
-      { _id: id },
-      { phone, firstName, lastName, address, image:{ url: result.secure_url, _id: result.public_id } },
+      { _id },
+      {
+        phone,
+        firstName,
+        lastName,
+        address,
+        image: { url: result.secure_url, _id: result.public_id },
+      },
       { new: true, runValidators: true }
     )
     .then((data) => {
       if (!data) {
         return next(new AppError("allFieldsRequired"));
       }
-      res.send("Profile Updated Successfully");
+      console.log("Valid");
+      res.status(200).send("Profile Updated Successfully");
     })
     .catch((e) => res.status(400).json(e.message));
 }

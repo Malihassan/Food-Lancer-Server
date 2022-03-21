@@ -8,8 +8,8 @@ module.exports = multer({
   storage:multer.diskStorage({}),
   fileFilter:(req,file,cb)=>{
     let ext = path.extname(file.originalname);
-    if (ext!==".jpg" && ext!==".jfif") {
-      cb(new Error("file type is not supported"),false);
+    if (!ext.match(/\.(png|PNG|jpg|gif|jpeg)$/)) {
+      cb(new Error("file type is not supported"));
       return;
     }
     cb(null,true)
