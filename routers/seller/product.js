@@ -20,6 +20,10 @@ router.post(
 	sellerAuthentication,
 	productController.addProduct
 );
+router.get(
+	"/myProducts",
+	productController.getAllProducts
+);
 router.delete("/:id", sellerAuthentication, productController.deleteProduct);
 router.get(
 	"/",
