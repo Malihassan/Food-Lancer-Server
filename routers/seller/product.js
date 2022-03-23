@@ -21,15 +21,10 @@ router.post(
 	productController.addProduct
 );
 router.delete("/:id", sellerAuthentication, productController.deleteProduct);
-router.get(
-	"/",
-	sellerAuthentication,
-	productController.getProductsForSpecifcSeller
-);
-router.patch(
-	"/:id",
-	sellerAuthentication,
-	productController.updateProductForSpecifcSeller
-);
+router.get('/:sellerId/:productId',sellerAuthentication,productController.getSpecifcProductForSpecificSeller)
+router.get("/",sellerAuthentication,productController.getProductsForSpecifcSeller);
+router.patch("/:id",sellerAuthentication,productController.updateProductForSpecifcSeller);
+
+// /:sellerId/:productid
 module.exports = router;
 // MyProducts FOR SELLER

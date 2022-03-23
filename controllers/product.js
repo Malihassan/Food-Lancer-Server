@@ -153,12 +153,30 @@ const getProductsForSpecificSeller = async (req, res, next) => {
   res.json(products);
 };
 const getSpecifcProductForSpecificSeller = async (req, res, next) => {
-  const { id, productId } = req.params;
-  const products = await productModel.find({ sellerId: id, _id: productId });
-  if (products.length === 0) {
-    return next(new AppError("accountNotFound"));
-  }
+  const { sellerId, productId } = req.params;
+  const {_id}=req.seller
+  const products = await productModel.find({ sellerId: _id, _id: productId });
+  // if (products.length === 0) {
+  //   return next(new AppError("accountNotFound"));
+  // }
   res.json(products);
+};
+const updateSpecificProductForSpecificSeller = (req, res, next) => {
+  const { sellerId, productId } = req.params;
+  const { status, reasonOfCancellation } = req.body;
+  productModel
+    .findOneAndUpdate(
+      { _id: productId, sellerId: sellerId },
+      { reasonOfCancellation, status },
+      { new: true, runValidators: true }
+    )
+    .then((data) => {
+      if (!data) {
+        return next(new AppError("accountNotFound"));
+      }
+      res.json(data);
+    })
+    .catch((e) => res.status(400).json(e.message));
 };
 const updateStatus = async (req, res, next) => {
   const { id } = req.params;
@@ -196,13 +214,14 @@ const pendingMessage = async (req, res, next) => {
 };
 module.exports = {
   addProduct,
+  pendingMessage,
   getAllProducts,
-  deleteProduct,
   getProductsForSpecifcSeller,
-  updateProductForSpecifcSeller,
-  updateStatus,
   getOneProduct,
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
-  pendingMessage,
+  deleteProduct,
+  updateProductForSpecifcSeller,
+  updateStatus,
+  updateSpecificProductForSpecificSeller,
 };

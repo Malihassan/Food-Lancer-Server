@@ -14,10 +14,8 @@ async function login(req, res, next) {
   }
   
   const user = await sellerModel.findOne({ email });
-  if (!user) return next(new AppError("emailNotFound"));
-  console.log(user);
+  if (!user) return next(new AppError("InvalidPassword"));
   const validPass = await user.comparePassword(password);
-  console.log(validPass);
   if (!validPass) return next(new AppError("InvalidPassword"));
 
   const token = await _tokenCreator(user.userName, user.id);
@@ -197,73 +195,7 @@ const getSellersByStatus = async (req, res, next) => {
   res.json(data);
 };
 
-const getOrdersForSpecificSeller = (req, res, next) => {
-  const { id } = req.params;
-  orderModel
-    .find({ sellerId: id })
-    .populate({
-      path: "buyerId",
-      select: "userName firstName lastName phone email status gender -_id",
-    })
-    .populate({
-      path: "sellerId",
-      select: "userName firstName lastName phone email status gender -_id",
-    })
-    .populate({
-      path: "products",
-      populate: {
-        path: "_id",
-        select:
-          "name description image price addOns reviews avgRate status -_id",
-      },
-    })
-    .then((data) => {
-      if (!data) {
-        return next(new AppError("accountNotFound"));
-      }
-      res.json(data);
-    });
-};
-const getSpecificOrderForSpecificSeller = (req, res, nex) => {
-  const { sellerId, orderId } = req.params;
-  orderModel
-    .find({ _id: orderId, sellerId: sellerId })
-    .populate({
-      path: "buyerId",
-      select: "userName firstName lastName phone email status gender -_id",
-    })
-    .populate({
-      path: "products",
-      populate: {
-        path: "_id",
-        select:
-          "name description image price addOns reviews avgRate status -_id",
-      },
-    })
-    .then((data) => {
-      if (!data) {
-        return next(new AppError("accountNotFound"));
-      }
-      res.json(data);
-    });
-};
-const updateSpecificProductForSpecificSeller = (req, res, next) => {
-  const { sellerId, productId } = req.params;
-  const { status, reasonOfCancellation } = req.body;
-  productModel
-    .findOneAndUpdate(
-      { _id: productId, sellerId: sellerId },
-      { reasonOfCancellation, status },
-      { new: true, runValidators: true }
-    )
-    .then((data) => {
-      if (!data) {
-        return next(new AppError("accountNotFound"));
-      }
-      res.json(data);
-    })
-    .catch((e) => res.status(400).json(e.message));
-};
+
 module.exports = {
   signup,
   confirm,
@@ -273,9 +205,6 @@ module.exports = {
   getSellers,
   getSellersByStatus,
   getSpecificSeller,
-  getOrdersForSpecificSeller,
-  getSpecificOrderForSpecificSeller,
-  updateSpecificProductForSpecificSeller,
   updateSeller,
   updateSellerStatus,
 };

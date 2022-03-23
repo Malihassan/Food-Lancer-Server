@@ -13,7 +13,7 @@ const login = async (req, res, next) => {
   }
   const buyer = await buyerModel.findOne({ email });
   if (!buyer) {
-    return next(new AppError("emailNotFound"));
+    return next(new AppError("InvalidPassword"));
   }
   if (!(await buyer.comparePassword(password))) {
     return next(new AppError("InvalidPassword"));

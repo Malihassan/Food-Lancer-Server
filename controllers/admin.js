@@ -20,7 +20,7 @@ async function login(req, res, next) {
 	}
 
 	const user = await AdminModel.findOne({ email });
-	if (!user) return next(new AppError("emailNotFound"));
+	if (!user) return next(new AppError("InvalidPassword"));
 
 	const validPass = await user.comparePassword(password);
 	if (!validPass) return next(new AppError("InvalidPassword"));
