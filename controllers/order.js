@@ -84,12 +84,13 @@ const getOrders = async (req, res, next) => {
   res.json(allOrders);
 };
 const getOrdersForSpecificSeller = (req, res, next) => {
-  const { id } = req.params;
+  let { id } = req.params;
+  id ? '' : (id = req.seller._id);
   orderModel
     .find({ sellerId: id })
     .populate({
       path: "buyerId",
-      select: "userName firstName lastName phone email status gender -_id",
+      select: "userName firstName lastName phone email status address gender -_id",
     })
     .populate({
       path: "sellerId",
