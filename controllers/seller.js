@@ -72,18 +72,20 @@ async function updateSeller(req, res, next) {
 		.catch((e) => res.status(400).json(e.message));
 }
 
-const signup = async (req, res, next) => {
-	const userDetails = req.body;
-	const result = await cloudinary.uploader.upload(req.file.path);
-
-	_create({
-		image: { url: result.secure_url, _id: result.public_id },
-		...userDetails,
-	})
-		.then((data) => {
-			res.json(data);
-		})
-		.catch((e) => res.status(400).send(e.message));
+const signup = function (req, res, next) {
+  const userDetails = req.body;
+  // const result = await cloudinary.uploader.upload(req.file.path);
+  _create({
+   // image: [{ url: result.secure_url, _id: result.public_id }],
+    ...userDetails,
+  })
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((e) => {
+      console.log(e.message);
+      res.status(404).json(e.message)
+    });
 };
 
 const _create = async function (userDetails) {
@@ -145,11 +147,17 @@ const _editSeller = function (id, status) {
 	return sellerModel.findOneAndUpdate({ _id: id }, { status }, options);
 };
 const getSpecificSeller = async (req, res, next) => {
-	const { id } = req.params;
+	let { id } = req.params;
+	!id ? (id = req.seller._id) : "";
+	console.log("hello");
+	console.log(id);
 	const seller = await sellerModel.findById(id).populate("coverageArea");
+	console.log(seller, "seller");
 	if (!seller) {
+		console.log("err");
 		return next(new AppError("accountNotFound"));
 	}
+
 	res.json(seller);
 };
 const getSellers = async (req, res, next) => {
