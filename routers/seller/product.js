@@ -35,5 +35,12 @@ router.patch(
 	sellerAuthentication,
 	productController.updateProductForSpecifcSeller
 );
+
+router.get(
+	"/:id",
+	sellerAuthentication,
+	productController.getOneProduct
+)
+
 module.exports = router;
 // MyProducts FOR SELLER
