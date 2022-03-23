@@ -72,18 +72,20 @@ async function updateSeller(req, res, next) {
 		.catch((e) => res.status(400).json(e.message));
 }
 
-const signup = async (req, res, next) => {
-	const userDetails = req.body;
-	const result = await cloudinary.uploader.upload(req.file.path);
-
-	_create({
-		image: { url: result.secure_url, _id: result.public_id },
-		...userDetails,
-	})
-		.then((data) => {
-			res.json(data);
-		})
-		.catch((e) => res.status(400).send(e.message));
+const signup = function (req, res, next) {
+  const userDetails = req.body;
+  // const result = await cloudinary.uploader.upload(req.file.path);
+  _create({
+   // image: [{ url: result.secure_url, _id: result.public_id }],
+    ...userDetails,
+  })
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((e) => {
+      console.log(e.message);
+      res.status(404).json(e.message)
+    });
 };
 
 const _create = async function (userDetails) {

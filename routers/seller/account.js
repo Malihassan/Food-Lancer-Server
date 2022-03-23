@@ -2,6 +2,7 @@ const router = require("express").Router();
 const multer = require("../../middleware/multer");
 const sellerAuthentication = require("../../middleware/sellerAuth");
 const sellerController = require("../../controllers/seller");
+const coverageController =require("../../models/coverageArea")
 
 router.post("/login", sellerController.login);
 router.post("/signup", multer.single("image"), sellerController.signup);
@@ -19,5 +20,6 @@ router.patch(
 	sellerAuthentication,
 	sellerController.updateSeller
 );
+router.get("/coverageArea", coverageController.getAllCoverageArea);
 
 module.exports = router;

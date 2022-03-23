@@ -16,9 +16,13 @@ try {
   })  */
 router.post(
 	"/addProduct",
-	multer.single("image"),
 	sellerAuthentication,
+	multer.single("image"),
 	productController.addProduct
+);
+router.get(
+	"/myProducts",
+	productController.getAllProducts
 );
 router.delete("/:id", sellerAuthentication, productController.deleteProduct);
 router.get(
