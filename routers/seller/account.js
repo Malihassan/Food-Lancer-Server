@@ -2,7 +2,7 @@ const router = require("express").Router();
 const multer = require("../../middleware/multer");
 const sellerAuthentication = require("../../middleware/sellerAuth");
 const sellerController = require("../../controllers/seller");
-const coverageController =require("../../models/coverageArea")
+const coverageController =require("../../controllers/coverageArea")
 
 router.post("/login", sellerController.login);
 router.post("/signup", multer.single("image"), sellerController.signup);
