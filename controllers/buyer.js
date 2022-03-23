@@ -52,7 +52,7 @@ async function forgetPassword(req, res, next) {
     return next(new AppError("emailNotFound"));
   }
   const token = await _tokenCreator(buyer.userName, buyer.id);
-  config.forgetPassword(buyer.userName, buyer.email, token,'buyer');
+  config.forgetPassword(buyer.userName, buyer.email, token, "buyer");
   res.status(200).json({ response: "Success send code" });
 }
 const resetPassword = async (req, res, next) => {
@@ -106,7 +106,6 @@ const buyerById = async (req, res, next) => {
   const { id } = req.params;
   const buyer = await buyerModel
     .findById(id)
-    .populate({ path: "fav", select: "name" })
     .catch((error) => {
       res.status(400).json(error.message);
     });
@@ -149,47 +148,41 @@ const getOrdersForSpecifcBuyer = async (req, res, next) => {
       },
     })
     .then((data) => {
-      if (data.length == 0) {
-        return next(new AppError("accountNotFound"));
-      }
-      countofOrderBuyer(id);
-      countOfDoneOrderBuyer(id);
-      countofCancelOrderBuyer(id);
       res.json(data);
     });
 };
-async function countofOrderBuyer(id) {
-  const count = await OrderModel.find({ buyerId: id }).count();
-  console.log(count);
-}
-async function countofCancelOrderBuyer(id) {
-  const count = await OrderModel.find({
-    buyerId: id,
-    status: "canceled",
-  }).count();
-  console.log(count);
-}
-async function countOfDoneOrderBuyer(id) {
-  const count = await OrderModel.find({
-    buyerId: id,
-    status: "delivered",
-  }).count();
-  console.log(count);
-}
 async function updateBuyer(req, res, next) {
-  const { id } = req.buyer;
-  const { phone, firstName, lastName, address, image } = req.body;
+  const { _id } = req.buyer;
+  let result;
+  try{
+    console.log(req.file.path,"REq File Path");
+    result = await cloudinary.uploader.upload(req.file.path);
+    console.log(result);
+  }
+  catch(err){
+    console.log(err.message,"Message");
+    return next(new AppError("allFieldsRequired"));
+
+  }
+  const { phone, firstName, lastName, address } = req.body;
   buyerModel
     .findOneAndUpdate(
-      { _id: id },
-      { phone, firstName, lastName, address, image },
+      { _id },
+      {
+        phone,
+        firstName,
+        lastName,
+        address,
+        image: { url: result.secure_url, _id: result.public_id },
+      },
       { new: true, runValidators: true }
     )
     .then((data) => {
       if (!data) {
         return next(new AppError("allFieldsRequired"));
       }
-      res.send("Profile Updated Successfully");
+      console.log("Valid");
+      res.status(200).send("Profile Updated Successfully");
     })
     .catch((e) => res.status(400).json(e.message));
 }

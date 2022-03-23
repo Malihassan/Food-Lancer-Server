@@ -3,9 +3,10 @@ const categoryModel = require("../models/category");
 const AppError = require("../helpers/ErrorClass");
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
-const { path } = require("express/lib/application");
+//const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
+  console.log("here",id);
   const body = req.body;
   const { name, description, price, addOns/* , image, reviews */ } = body;
   categoryName = "Pizza";
@@ -15,6 +16,7 @@ const addProduct = async (req, res, next) => {
   }
   try {
     const result = await cloudinary.uploader.upload(req.file.path);
+    console.log(result);
     await productModel
       .create({
         categoryId: category._id,
