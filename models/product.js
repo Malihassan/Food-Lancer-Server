@@ -12,9 +12,6 @@ const productSchema = mongoose.Schema(
       default: "pending",
       enum: ["active", "pending", "blocked"],
     },
-    reasonOfBlock: {
-      type: String,
-    },
     pendingMessage: {
       type: String,
     },
@@ -43,25 +40,6 @@ const productSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
-    addOns: [
-      {
-        des: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        name: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-          trim: true,
-        },
-      },
-    ],
     reviews: [
       {
         _id: mongoose.SchemaTypes.ObjectId,

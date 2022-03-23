@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const buyerSchema = mongoose.Schema(
   {
@@ -30,10 +30,15 @@ const buyerSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      match: [
+        /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/g,
+        "Please fill a valid password",
+      ],
     },
-    image:{
-			url: String,
-		  },
+    image: {
+        _id: String,
+        url: String,
+    },
     phone: {
       type: String,
       trim: true,
@@ -74,9 +79,6 @@ const buyerSchema = mongoose.Schema(
       required: true,
       enum: ["male", "female"],
     },
-    fav: [
-      { type: mongoose.SchemaTypes.ObjectId, ref: "category", required: true },
-    ],
   },
   { timestamps: true }
 );

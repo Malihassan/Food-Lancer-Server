@@ -27,9 +27,8 @@ const adminSchema = mongoose.Schema(
 		},
 		password: {
 			type: String,
-			minLength: [3, "Must be at least 3"],
-			maxLength: [60, "Must be at latest 60"],
 			required: true,
+			match: [/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/g, "Please fill a valid password"],
 			trim: true,
 		},
 		phone: {
