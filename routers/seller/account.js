@@ -6,6 +6,8 @@ const sellerController = require("../../controllers/seller");
 router.post("/login", sellerController.login);
 router.post("/signup", multer.single("image"), sellerController.signup);
 router.get("/signup/confirm/:token/:id", sellerController.confirm);
+router.get("/info", sellerAuthentication, sellerController.getSpecificSeller);
+
 router.post("/forgetPassword", sellerController.forgetPassword);
 router.patch(
 	"/resetPassword",

@@ -145,11 +145,17 @@ const _editSeller = function (id, status) {
 	return sellerModel.findOneAndUpdate({ _id: id }, { status }, options);
 };
 const getSpecificSeller = async (req, res, next) => {
-	const { id } = req.params;
+	let { id } = req.params;
+	!id ? (id = req.seller._id) : "";
+	console.log("hello");
+	console.log(id);
 	const seller = await sellerModel.findById(id).populate("coverageArea");
+	console.log(seller, "seller");
 	if (!seller) {
+		console.log("err");
 		return next(new AppError("accountNotFound"));
 	}
+
 	res.json(seller);
 };
 const getSellers = async (req, res, next) => {
