@@ -24,31 +24,35 @@ async function CountOfCoverageAreaModules() {
 }
 
 const displayAllCoverageArea = async (req, res, next) => {
-  const { page, searchValue} = req.query;
+  const { page, searchValue } = req.query;
   let coverageAreas;
   let count;
   const pageSize = 6;
   if (searchValue) {
     coverageAreas = await coverageAreaModule
-      .find({$or: [
-        { 'governorateName': searchValue },
-        { 'regionName': searchValue }
-      ]})
+      .find({
+        $or: [{ governorateName: searchValue }, { regionName: searchValue }],
+      })
       .skip(pageSize * (page - 1))
       .limit(pageSize);
-  count = coverageAreas.length;
+    count = coverageAreas.length;
   } else {
     coverageAreas = await coverageAreaModule
       .find()
       .skip(pageSize * (page - 1))
       .limit(pageSize);
-      count = await CountOfCoverageAreaModules();
+    count = await CountOfCoverageAreaModules();
   }
   res.json({ coverageAreas, countOfCoveragArea: count });
+};
+const getAllCoverageArea = async (req, res, next) => {
+  const coverageArea = await coverageAreaModule.find();
+  res.json(coverageArea);
 };
 
 module.exports = {
   createCoverageArea,
   deleteCoverageArea,
   displayAllCoverageArea,
+  getAllCoverageArea,
 };

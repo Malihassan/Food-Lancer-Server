@@ -58,12 +58,17 @@ async function updateSeller(req, res, next) {
 const signup = function (req, res, next) {
   const userDetails = req.body;
   // const result = await cloudinary.uploader.upload(req.file.path);
-
-  _create({image: [{ url: result.secure_url, _id: result.public_id }], ...userDetails})
+  _create({
+   // image: [{ url: result.secure_url, _id: result.public_id }],
+    ...userDetails,
+  })
     .then((data) => {
       res.json(data);
     })
-    .catch((e) => res.status(400).send(e.message));
+    .catch((e) => {
+      console.log(e.message);
+      res.status(404).json(e.message)
+    });
 };
 const _create = async function (userDetails) {
   const newUser = await sellerModel.create(userDetails);
@@ -110,10 +115,10 @@ const _changeStatus = async function (id) {
 const updateSellerStatus = function (req, res, next) {
   const { id } = req.params;
   const { status } = req.body;
-  console.log(id,status);
+  console.log(id, status);
   _editSeller(id, status)
     .then((result) => {
-      res.status(200).json({updatedStatus:result.status});
+      res.status(200).json({ updatedStatus: result.status });
     })
     .catch(() => {
       next(new AppError("UnauthorizedError"));
@@ -125,7 +130,7 @@ const _editSeller = function (id, status) {
 };
 const getSpecificSeller = async (req, res, next) => {
   const { id } = req.params;
-  const seller = await sellerModel.findById(id).populate('coverageArea');
+  const seller = await sellerModel.findById(id).populate("coverageArea");
   if (!seller) {
     return next(new AppError("accountNotFound"));
   }
@@ -136,7 +141,7 @@ const getSellers = async (req, res, next) => {
   status = status ? { status } : {};
   email = email ? { email } : {};
   rate = rate ? JSON.parse(rate) : [];
-  if (rate.length !==0) {
+  if (rate.length !== 0) {
     rate = rate.map((item, index) => {
       switch (item) {
         case ">=2":

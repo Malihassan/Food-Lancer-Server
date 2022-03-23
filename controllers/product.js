@@ -3,7 +3,7 @@ const categoryModel = require("../models/category");
 const AppError = require("../helpers/ErrorClass");
 const config = require("../config/pendingConfig");
 const cloudinary = require("../config/cloudinaryConfig");
-const { path } = require("express/lib/application");
+//const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
   const body = req.body;
