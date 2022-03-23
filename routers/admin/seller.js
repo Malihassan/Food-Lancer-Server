@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sellerController = require("../../controllers/seller");
 const productController = require("../../controllers/product");
+const orderController = require('../../controllers/order')
 const adminAuthentication = require("../../middleware/adminAuth");
 
 router.get("/allSellers", adminAuthentication, sellerController.getSellers);
@@ -36,16 +37,16 @@ router.patch("/update/:id", adminAuthentication, sellerController.updateSeller);
 router.get(
   "/:id/orders",
   adminAuthentication,
-  sellerController.getOrdersForSpecificSeller
+  orderController.getOrdersForSpecificSeller
 );
 router.get(
   "/:sellerId/orders/:orderId",
   adminAuthentication,
-  sellerController.getSpecificOrderForSpecificSeller
+  orderController.getSpecificOrderForSpecificSeller
 );
 router.patch(
   "/:sellerId/products/:productId",
-  sellerController.updateSpecificProductForSpecificSeller
+  productController.updateSpecificProductForSpecificSeller
 );
 // router.patch("/update/:id", sellerController.updateSeller);
 

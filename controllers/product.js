@@ -6,7 +6,7 @@ const cloudinary = require("../config/cloudinaryConfig");
 //const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
-  console.log("here",id);
+  let arr3=[];
   const body = req.body;
   const { name, description, price, addOns/* , image, reviews */ } = body;
   categoryName = "Pizza";
@@ -15,15 +15,18 @@ const addProduct = async (req, res, next) => {
     return next(new AppError("categoryNotFound"));
   }
   try {
-    const result = await cloudinary.uploader.upload(req.file.path);
-    console.log(result);
+    const images=await req.files;
+    for(let img of images) {
+      let result = await cloudinary.uploader.upload(img.path);
+      arr3.push({url: result.secure_url, _id: result.public_id});
+    }
     await productModel
       .create({
         categoryId: category._id,
         sellerId: id,
         name,
         description,
-        image: [{ url: result.secure_url, _id: result.public_id }],
+        image: arr3,
         //image:[],
         price,
         addOns,
@@ -34,14 +37,11 @@ const addProduct = async (req, res, next) => {
         status: "pending",
       })
       .then((data) => {
-        console.log(data);
+        res.json(data);
       })
       .catch((err) => {
         res.status(401).json(err.message); //////////custome error
       });
-    await productModel.find().then((products) => {
-      res.json(products);
-    });
   } catch (error) {
     console.log(error);
   }
@@ -155,12 +155,30 @@ const getProductsForSpecificSeller = async (req, res, next) => {
   res.json(products);
 };
 const getSpecifcProductForSpecificSeller = async (req, res, next) => {
-  const { id, productId } = req.params;
-  const products = await productModel.find({ sellerId: id, _id: productId });
-  if (products.length === 0) {
-    return next(new AppError("accountNotFound"));
-  }
+  const { sellerId, productId } = req.params;
+  const {_id}=req.seller
+  const products = await productModel.find({ sellerId: _id, _id: productId });
+  // if (products.length === 0) {
+  //   return next(new AppError("accountNotFound"));
+  // }
   res.json(products);
+};
+const updateSpecificProductForSpecificSeller = (req, res, next) => {
+  const { sellerId, productId } = req.params;
+  const { status, reasonOfCancellation } = req.body;
+  productModel
+    .findOneAndUpdate(
+      { _id: productId, sellerId: sellerId },
+      { reasonOfCancellation, status },
+      { new: true, runValidators: true }
+    )
+    .then((data) => {
+      if (!data) {
+        return next(new AppError("accountNotFound"));
+      }
+      res.json(data);
+    })
+    .catch((e) => res.status(400).json(e.message));
 };
 const updateStatus = async (req, res, next) => {
   const { id } = req.params;
@@ -198,13 +216,14 @@ const pendingMessage = async (req, res, next) => {
 };
 module.exports = {
   addProduct,
+  pendingMessage,
   getAllProducts,
-  deleteProduct,
   getProductsForSpecifcSeller,
-  updateProductForSpecifcSeller,
-  updateStatus,
   getOneProduct,
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
-  pendingMessage,
+  deleteProduct,
+  updateProductForSpecifcSeller,
+  updateStatus,
+  updateSpecificProductForSpecificSeller,
 };
