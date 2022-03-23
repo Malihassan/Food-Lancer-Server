@@ -17,7 +17,7 @@ try {
 router.post(
 	"/addProduct",
 	sellerAuthentication,
-	multer.single("image"),
+	multer.array("image"),
 	productController.addProduct
 );
 router.get(

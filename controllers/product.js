@@ -6,7 +6,7 @@ const cloudinary = require("../config/cloudinaryConfig");
 const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
-  console.log("here",id);
+  let arr3=[];
   const body = req.body;
   const { name, description, price, addOns/* , image, reviews */ } = body;
   categoryName = "Pizza";
@@ -15,15 +15,18 @@ const addProduct = async (req, res, next) => {
     return next(new AppError("categoryNotFound"));
   }
   try {
-    const result = await cloudinary.uploader.upload(req.file.path);
-    console.log(result);
+    const images=await req.files;
+    for(let img of images) {
+      let result = await cloudinary.uploader.upload(img.path);
+      arr3.push({url: result.secure_url, _id: result.public_id});
+    }
     await productModel
       .create({
         categoryId: category._id,
         sellerId: id,
         name,
         description,
-        image: [{ url: result.secure_url, _id: result.public_id }],
+        image: arr3,
         //image:[],
         price,
         addOns,
@@ -34,14 +37,11 @@ const addProduct = async (req, res, next) => {
         status: "pending",
       })
       .then((data) => {
-        console.log(data);
+        res.json(data);
       })
       .catch((err) => {
         res.status(401).json(err.message); //////////custome error
       });
-    await productModel.find().then((products) => {
-      res.json(products);
-    });
   } catch (error) {
     console.log(error);
   }
