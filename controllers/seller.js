@@ -5,18 +5,20 @@ const orderModel = require("../models/order");
 const productModel = require("../models/product");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
+// const upload = require("../utils/multer");
+
 require("dotenv").config();
 
 async function login(req, res, next) {
-  const { email, password } = req.body;
-  if (!validatorLoginRequestBody(email, password)) {
-    return next(new AppError("allFieldsRequired"));
-  }
-  
-  const user = await sellerModel.findOne({ email });
-  if (!user) return next(new AppError("InvalidPassword"));
-  const validPass = await user.comparePassword(password);
-  if (!validPass) return next(new AppError("InvalidPassword"));
+	const { email, password } = req.body;
+	if (!validatorLoginRequestBody(email, password)) {
+		return next(new AppError("allFieldsRequired"));
+	}
+
+	const user = await sellerModel.findOne({ email });
+	if (!user) return next(new AppError("InvalidPassword"));
+	const validPass = await user.comparePassword(password);
+	if (!validPass) return next(new AppError("InvalidPassword"));
 
 	const token = await _tokenCreator(user.userName, user.id);
 	// save new token
@@ -54,12 +56,18 @@ const resetPassword = async (req, res, next) => {
 
 async function updateSeller(req, res, next) {
 	const { id } = req.seller;
-	const { phone, firstName, lastName, coverageArea } = req.body;
+	const { phone, firstName, lastName, coverageArea, imageId } = req.body;
+
+	// delete old image
+	await cloudinary.uploader.destroy(imageId);
+
+	// Upload new image to cloudinary
+	const image = await cloudinary.uploader.upload(req.file.path);
 
 	sellerModel
 		.findOneAndUpdate(
 			{ _id: id },
-			{ phone, firstName, lastName, coverageArea },
+			{ phone, firstName, lastName, coverageArea, image },
 			{ returnNewDocument: true, runValidators: true, new: true }
 		)
 		.then((data) => {
@@ -207,16 +215,15 @@ const getSellersByStatus = async (req, res, next) => {
 	res.json(data);
 };
 
-
 module.exports = {
-  signup,
-  confirm,
-  login,
-  forgetPassword,
-  resetPassword,
-  getSellers,
-  getSellersByStatus,
-  getSpecificSeller,
-  updateSeller,
-  updateSellerStatus,
+	signup,
+	confirm,
+	login,
+	forgetPassword,
+	resetPassword,
+	getSellers,
+	getSellersByStatus,
+	getSpecificSeller,
+	updateSeller,
+	updateSellerStatus,
 };
