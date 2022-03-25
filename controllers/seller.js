@@ -8,17 +8,15 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 async function login(req, res, next) {
-	const { email, password } = req.body;
-	if (!validatorLoginRequestBody(email, password)) {
-		return next(new AppError("allFieldsRequired"));
-	}
-
-	const user = await sellerModel.findOne({ email });
-	if (!user) return next(new AppError("emailNotFound"));
-	console.log(user);
-	const validPass = await user.comparePassword(password);
-	console.log(validPass);
-	if (!validPass) return next(new AppError("InvalidPassword"));
+  const { email, password } = req.body;
+  if (!validatorLoginRequestBody(email, password)) {
+    return next(new AppError("allFieldsRequired"));
+  }
+  
+  const user = await sellerModel.findOne({ email });
+  if (!user) return next(new AppError("InvalidPassword"));
+  const validPass = await user.comparePassword(password);
+  if (!validPass) return next(new AppError("InvalidPassword"));
 
 	const token = await _tokenCreator(user.userName, user.id);
 	// save new token
@@ -57,35 +55,37 @@ const resetPassword = async (req, res, next) => {
 async function updateSeller(req, res, next) {
 	const { id } = req.seller;
 	const { phone, firstName, lastName, coverageArea } = req.body;
+
 	sellerModel
 		.findOneAndUpdate(
 			{ _id: id },
 			{ phone, firstName, lastName, coverageArea },
-			{ new: true, runValidators: true }
+			{ returnNewDocument: true, runValidators: true, new: true }
 		)
 		.then((data) => {
 			if (!data) {
 				return next(new AppError("allFieldsRequired"));
 			}
+
 			res.send("Profile Updated Successfully");
 		})
 		.catch((e) => res.status(400).json(e.message));
 }
 
 const signup = function (req, res, next) {
-  const userDetails = req.body;
-  // const result = await cloudinary.uploader.upload(req.file.path);
-  _create({
-   // image: [{ url: result.secure_url, _id: result.public_id }],
-    ...userDetails,
-  })
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((e) => {
-      console.log(e.message);
-      res.status(404).json(e.message)
-    });
+	const userDetails = req.body;
+	// const result = await cloudinary.uploader.upload(req.file.path);
+	_create({
+		// image: [{ url: result.secure_url, _id: result.public_id }],
+		...userDetails,
+	})
+		.then((data) => {
+			res.json(data);
+		})
+		.catch((e) => {
+			console.log(e.message);
+			res.status(404).json(e.message);
+		});
 };
 
 const _create = async function (userDetails) {
@@ -149,12 +149,10 @@ const _editSeller = function (id, status) {
 const getSpecificSeller = async (req, res, next) => {
 	let { id } = req.params;
 	!id ? (id = req.seller._id) : "";
-	console.log("hello");
-	console.log(id);
+
 	const seller = await sellerModel.findById(id).populate("coverageArea");
-	console.log(seller, "seller");
+
 	if (!seller) {
-		console.log("err");
 		return next(new AppError("accountNotFound"));
 	}
 
@@ -209,85 +207,16 @@ const getSellersByStatus = async (req, res, next) => {
 	res.json(data);
 };
 
-const getOrdersForSpecificSeller = (req, res, next) => {
-	const { id } = req.params;
-	orderModel
-		.find({ sellerId: id })
-		.populate({
-			path: "buyerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "sellerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "products",
-			populate: {
-				path: "_id",
-				select:
-					"name description image price addOns reviews avgRate status -_id",
-			},
-		})
-		.then((data) => {
-			if (!data) {
-				return next(new AppError("accountNotFound"));
-			}
-			res.json(data);
-		});
-};
-const getSpecificOrderForSpecificSeller = (req, res, nex) => {
-	const { sellerId, orderId } = req.params;
-	orderModel
-		.find({ _id: orderId, sellerId: sellerId })
-		.populate({
-			path: "buyerId",
-			select: "userName firstName lastName phone email status gender -_id",
-		})
-		.populate({
-			path: "products",
-			populate: {
-				path: "_id",
-				select:
-					"name description image price addOns reviews avgRate status -_id",
-			},
-		})
-		.then((data) => {
-			if (!data) {
-				return next(new AppError("accountNotFound"));
-			}
-			res.json(data);
-		});
-};
-const updateSpecificProductForSpecificSeller = (req, res, next) => {
-	const { sellerId, productId } = req.params;
-	const { status, reasonOfCancellation } = req.body;
-	productModel
-		.findOneAndUpdate(
-			{ _id: productId, sellerId: sellerId },
-			{ reasonOfCancellation, status },
-			{ new: true, runValidators: true }
-		)
-		.then((data) => {
-			if (!data) {
-				return next(new AppError("accountNotFound"));
-			}
-			res.json(data);
-		})
-		.catch((e) => res.status(400).json(e.message));
-};
+
 module.exports = {
-	signup,
-	confirm,
-	login,
-	forgetPassword,
-	resetPassword,
-	getSellers,
-	getSellersByStatus,
-	getSpecificSeller,
-	getOrdersForSpecificSeller,
-	getSpecificOrderForSpecificSeller,
-	updateSpecificProductForSpecificSeller,
-	updateSeller,
-	updateSellerStatus,
+  signup,
+  confirm,
+  login,
+  forgetPassword,
+  resetPassword,
+  getSellers,
+  getSellersByStatus,
+  getSpecificSeller,
+  updateSeller,
+  updateSellerStatus,
 };

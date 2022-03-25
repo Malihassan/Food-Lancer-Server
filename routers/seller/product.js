@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../../controllers/product");
+
 const sellerAuthentication = require("../../middleware/sellerAuth");
 //const cloudinary = require("../../config/cloudinaryConfig");
 const multer = require("../../middleware/multer");
@@ -25,15 +26,10 @@ router.get(
 	productController.getAllProducts
 );
 router.delete("/:id", sellerAuthentication, productController.deleteProduct);
-router.get(
-	"/",
-	sellerAuthentication,
-	productController.getProductsForSpecifcSeller
-);
-router.patch(
-	"/:id",
-	sellerAuthentication,
-	productController.updateProductForSpecifcSeller
-);
+router.get('/:sellerId/:productId',sellerAuthentication,productController.getSpecifcProductForSpecificSeller)
+router.get("/",sellerAuthentication,productController.getProductsForSpecifcSeller);
+router.patch("/:id",sellerAuthentication,productController.updateProductForSpecifcSeller);
+router.get("/:id",sellerAuthentication,productController.getOneProduct)
+// /:sellerId/:productid
 module.exports = router;
 // MyProducts FOR SELLER
