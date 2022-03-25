@@ -16,6 +16,7 @@ const addProduct = async (req, res, next) => {
   }
   try {
     const images=await req.files;
+    console.log(images,"Images <----");
     for(let img of images) {
       let result = await cloudinary.uploader.upload(img.path);
       arr3.push({url: result.secure_url, _id: result.public_id});
