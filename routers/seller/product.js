@@ -32,7 +32,7 @@ router.get(
 );
 router.patch(
 	"/:id",
-	sellerAuthentication,
+	// sellerAuthentication,
 	productController.updateProductForSpecifcSeller
 );
 
