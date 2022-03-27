@@ -5,18 +5,20 @@ const orderModel = require("../models/order");
 const productModel = require("../models/product");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
+// const upload = require("../utils/multer");
+
 require("dotenv").config();
 
 async function login(req, res, next) {
-  const { email, password } = req.body;
-  if (!validatorLoginRequestBody(email, password)) {
-    return next(new AppError("allFieldsRequired"));
-  }
-  
-  const user = await sellerModel.findOne({ email });
-  if (!user) return next(new AppError("InvalidPassword"));
-  const validPass = await user.comparePassword(password);
-  if (!validPass) return next(new AppError("InvalidPassword"));
+	const { email, password } = req.body;
+	if (!validatorLoginRequestBody(email, password)) {
+		return next(new AppError("allFieldsRequired"));
+	}
+
+	const user = await sellerModel.findOne({ email });
+	if (!user) return next(new AppError("InvalidPassword"));
+	const validPass = await user.comparePassword(password);
+	if (!validPass) return next(new AppError("InvalidPassword"));
 
 	const token = await _tokenCreator(user.userName, user.id);
 	// save new token
@@ -54,36 +56,49 @@ const resetPassword = async (req, res, next) => {
 
 async function updateSeller(req, res, next) {
 	const { id } = req.seller;
-	const { phone, firstName, lastName, coverageArea } = req.body;
+	const { phone, firstName, lastName, coverageArea, imageId } = req.body;
+
+	let newImage = {};
+
+	if (req.file) {
+		// delete old image
+		await cloudinary.uploader.destroy(imageId);
+
+		const result = await cloudinary.uploader.upload(req.file.path);
+		newImage.url = result.secure_url;
+		newImage._id = result.public_id;
+	}
+
 	sellerModel
 		.findOneAndUpdate(
 			{ _id: id },
-			{ phone, firstName, lastName, coverageArea },
-			{ new: true, runValidators: true }
+			{ phone, firstName, lastName, coverageArea, image: newImage },
+			{ returnNewDocument: true, runValidators: true, new: true }
 		)
 		.then((data) => {
 			if (!data) {
 				return next(new AppError("allFieldsRequired"));
 			}
+
 			res.send("Profile Updated Successfully");
 		})
 		.catch((e) => res.status(400).json(e.message));
 }
 
 const signup = function (req, res, next) {
-  const userDetails = req.body;
-  // const result = await cloudinary.uploader.upload(req.file.path);
-  _create({
-   // image: [{ url: result.secure_url, _id: result.public_id }],
-    ...userDetails,
-  })
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((e) => {
-      console.log(e.message);
-      res.status(404).json(e.message)
-    });
+	const userDetails = req.body;
+	// const result = await cloudinary.uploader.upload(req.file.path);
+	_create({
+		// image: [{ url: result.secure_url, _id: result.public_id }],
+		...userDetails,
+	})
+		.then((data) => {
+			res.json(data);
+		})
+		.catch((e) => {
+			console.log(e.message);
+			res.status(404).json(e.message);
+		});
 };
 
 const _create = async function (userDetails) {
@@ -148,11 +163,10 @@ const getSpecificSeller = async (req, res, next) => {
 	let { id } = req.params;
 	!id ? (id = req.seller._id) : "";
 	console.log("hello");
-	console.log(id);
+
 	const seller = await sellerModel.findById(id).populate("coverageArea");
-	console.log(seller, "seller");
+
 	if (!seller) {
-		console.log("err");
 		return next(new AppError("accountNotFound"));
 	}
 
@@ -207,16 +221,15 @@ const getSellersByStatus = async (req, res, next) => {
 	res.json(data);
 };
 
-
 module.exports = {
-  signup,
-  confirm,
-  login,
-  forgetPassword,
-  resetPassword,
-  getSellers,
-  getSellersByStatus,
-  getSpecificSeller,
-  updateSeller,
-  updateSellerStatus,
+	signup,
+	confirm,
+	login,
+	forgetPassword,
+	resetPassword,
+	getSellers,
+	getSellersByStatus,
+	getSpecificSeller,
+	updateSeller,
+	updateSellerStatus,
 };
