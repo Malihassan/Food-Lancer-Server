@@ -19,13 +19,16 @@ async function login(req, res, next) {
 	const validPass = await user.comparePassword(password);
 	console.log(validPass);
 	if (!validPass) return next(new AppError("InvalidPassword"));
-
 	const token = await _tokenCreator(user.userName, user.id);
 	// save new token
-	sellerModel.findByIdAndUpdate(user.id, token);
+	sellerModel.findOneAndUpdate(
+    { _id: user.id},
+    { token },
+    { new: true, runValidators: true }
+    )
+  console.log(token);
 	res.json({ token });
 }
-
 function validatorLoginRequestBody(email, password) {
 	if (!email || email.length == 0 || !password || password.length == 0) {
 		return false;
@@ -40,7 +43,7 @@ async function forgetPassword(req, res, next) {
 	}
 	const token = await _tokenCreator(seller.userName, seller.id);
 	config.forgetPassword(seller.userName, seller.email, token, "seller");
-	res.status(200).json({ response: "Success send code" });
+	res.status(200).json({ response: "Please Check Your Email" });
 }
 const resetPassword = async (req, res, next) => {
 	const seller = req.seller;
@@ -72,11 +75,12 @@ async function updateSeller(req, res, next) {
 		.catch((e) => res.status(400).json(e.message));
 }
 
-const signup = function (req, res, next) {
+const signup = async  function (req, res, next) {
   const userDetails = req.body;
-  // const result = await cloudinary.uploader.upload(req.file.path);
+console.log(req.body);
+   const result = await cloudinary.uploader.upload(req.file.path);
   _create({
-   // image: [{ url: result.secure_url, _id: result.public_id }],
+    image: [{ url: result.secure_url, _id: result.public_id }],
     ...userDetails,
   })
     .then((data) => {
