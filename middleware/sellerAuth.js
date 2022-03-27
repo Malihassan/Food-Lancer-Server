@@ -6,7 +6,6 @@ require("dotenv").config();
 async function sellerAuth(req, res, next) {
 	try {
 		const { token } = req.headers;
-
 		const payload = jwt.verify(token, process.env.SECRETKEY);
 		const seller = await sellerModel.findById(payload.id);
 		if (!seller) {

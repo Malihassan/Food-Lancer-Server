@@ -33,8 +33,8 @@ const getOrders = async (req, res, next) => {
     maxPrice,
     orderStatus,
     id,
+    sellerId=req.seller._id,
     buyerId,
-    sellerId,
     page = 1,
   } = req.query;
   const pageSize = 6;
@@ -56,7 +56,7 @@ const getOrders = async (req, res, next) => {
       },
       {
         path: "buyerId",
-        select: "userName firstName lastName phone email status gender _id",
+        select: "userName firstName lastName phone email status address gender _id",
       },
       {
         path: "products",
@@ -135,8 +135,8 @@ const getSpecificOrderForSpecificSeller = (req, res, nex) => {
     });
 };
 module.exports = {
-  getOrdersForSpecificBuyer,
   getOrders,
+  getOrdersForSpecificBuyer,
   getOrdersForSpecificSeller,
   getSpecificOrderForSpecificSeller,
   // getOrdersForSpecificQuery,
