@@ -6,8 +6,7 @@ require("dotenv").config();
 async function sellerAuth(req, res, next) {
 	try {
 		const { token } = req.headers;
-		console.log("bl",token,"token");
-		const payload = jwt.verify(token,process.env.SECRETKEY);
+		const payload = jwt.verify(token, process.env.SECRETKEY);
 		const seller = await sellerModel.findById(payload.id);
 		if (!seller) {
 			return next(new AppError("accountNotFound"));

@@ -8,10 +8,6 @@ const categorySchema = mongoose.Schema(
             required: true,
             unique:true
         },
-        categoryImg: {
-            type: String,
-            required: true,
-        },
     },
     { timestamps: true }
 );
