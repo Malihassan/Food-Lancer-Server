@@ -176,12 +176,11 @@ const getSpecificSeller = async (req, res, next) => {
     return next(new AppError("accountNotFound"));
   }
 
-  let countDeliver = await orderController.getCountDeliveredOrdersForSeller(seller._id);
-  let inprogressDeliver = await orderController.getCountInprogressOrdersForSeller(seller._id);
-  seller.countDeliverOrder = countDeliver;
-  seller.inprogressDeliverOrder = inprogressDeliver;
+  let countDeliverOrder = await orderController.getCountDeliveredOrdersForSeller(seller._id);
+  let countInprogressOrder = await orderController.getCountInprogressOrdersForSeller(seller._id);
 
-  res.json(seller);
+
+  res.json({seller,countDeliverOrder,countInprogressOrder});
 };
 const getSellers = async (req, res, next) => {
   let { page = 1, status, email, rate } = req.query;
