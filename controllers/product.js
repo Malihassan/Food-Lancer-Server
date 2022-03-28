@@ -60,14 +60,23 @@ const deleteProduct = (req, res, next) => {
     })
     .catch((e) => res.status(401).json(e.message));
 };
-const updateProductForSpecifcSeller = (req, res, next) => {
+const updateProductForSpecifcSeller = async (req, res, next) => {
   const { id } = req.params;
   const idSeller = req.seller;
+  let imgs=[];
   const { name, description, image, price, addOns } = req.body;
-  productModel
+  try{
+    const images = await req.files;
+    console.log(images, "Images <----");
+    for (let img of images) {
+      let result = await cloudinary.uploader.upload(img.path);
+      imgs.push({url: result.secure_url, _id: result.public_id});
+    }
+    productModel
     .findOneAndUpdate(
-      { _id: id, sellerId: idSeller },
-      { name, description, image, price, addOns },
+
+      { _id: id, sellerId: idSeller  },
+      { name, description, image: imgs, price, addOns },
       { new: true, runValidators: true }
     )
     .then((data) => {
@@ -77,6 +86,11 @@ const updateProductForSpecifcSeller = (req, res, next) => {
       res.json(data);
     })
     .catch((e) => res.status(401).json(e.message));
+  } catch(e){
+    console.log(e)
+    console.log("hello")
+  }
+
 };
 const getProductsForSpecifcSeller = async (req, res, next) => {
   const { _id } = req.seller;
@@ -131,6 +145,7 @@ const getAllProducts = async (req, res, next) => {
 };
 const getOneProduct = function (req, res, next) {
   const { id } = req.params;
+  console.log(id);
   productModel
     .findOne({ _id: id })
     .populate({
@@ -146,9 +161,11 @@ const getOneProduct = function (req, res, next) {
       select: "email userName",
     })
     .then((data) => {
+      console.log(data);
       res.json(data);
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log(e);
       next(new AppError("noProductFound"));
     });
 };

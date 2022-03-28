@@ -3,12 +3,22 @@ const sellerModel = require("../models/seller");
 const config = require("../config/emailsConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
+const orderController = require("../controllers/order");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
 // const upload = require("../utils/multer");
 
 require("dotenv").config();
 
+const logout = async (req, res) => {
+	const seller = req.seller;
+	await sellerModel.findOneAndUpdate(
+		{ _id: seller._id },
+		{ token: "" },
+		{ new: true, runValidators: true }
+	);
+	res.status(200).json({ Message: "logout" });
+};
 async function login(req, res, next) {
 	const { email, password } = req.body;
 	if (!validatorLoginRequestBody(email, password)) {
@@ -16,16 +26,20 @@ async function login(req, res, next) {
 	}
 
 	const user = await sellerModel.findOne({ email });
-	if (!user) return next(new AppError("InvalidPassword"));
+	if (!user) return next(new AppError("emailNotFound"));
+	console.log(user);
 	const validPass = await user.comparePassword(password);
+	console.log(validPass);
 	if (!validPass) return next(new AppError("InvalidPassword"));
-
 	const token = await _tokenCreator(user.userName, user.id);
 	// save new token
-	sellerModel.findByIdAndUpdate(user.id, token);
+	sellerModel.findOneAndUpdate(
+		{ _id: user.id },
+		{ token },
+		{ new: true, runValidators: true }
+	);
 	res.json({ token });
 }
-
 function validatorLoginRequestBody(email, password) {
 	if (!email || email.length == 0 || !password || password.length == 0) {
 		return false;
@@ -40,7 +54,7 @@ async function forgetPassword(req, res, next) {
 	}
 	const token = await _tokenCreator(seller.userName, seller.id);
 	config.forgetPassword(seller.userName, seller.email, token, "seller");
-	res.status(200).json({ response: "Success send code" });
+	res.status(200).json({ response: "Please Check Your Email" });
 }
 const resetPassword = async (req, res, next) => {
 	const seller = req.seller;
@@ -63,7 +77,7 @@ async function updateSeller(req, res, next) {
 	if (req.file) {
 		// delete old image
 		await cloudinary.uploader.destroy(imageId);
-		// add the new image
+
 		const result = await cloudinary.uploader.upload(req.file.path);
 		newImage.url = result.secure_url;
 		newImage._id = result.public_id;
@@ -85,11 +99,12 @@ async function updateSeller(req, res, next) {
 		.catch((e) => res.status(400).json(e.message));
 }
 
-const signup = function (req, res, next) {
+const signup = async function (req, res, next) {
 	const userDetails = req.body;
-	// const result = await cloudinary.uploader.upload(req.file.path);
+	console.log(req.body);
+	const result = await cloudinary.uploader.upload(req.file.path);
 	_create({
-		// image: [{ url: result.secure_url, _id: result.public_id }],
+		image: [{ url: result.secure_url, _id: result.public_id }],
 		...userDetails,
 	})
 		.then((data) => {
@@ -169,7 +184,12 @@ const getSpecificSeller = async (req, res, next) => {
 		return next(new AppError("accountNotFound"));
 	}
 
-	res.json(seller);
+	let countDeliverOrder =
+		await orderController.getCountDeliveredOrdersForSeller(seller._id);
+	let countInprogressOrder =
+		await orderController.getCountInprogressOrdersForSeller(seller._id);
+
+	res.json({ seller, countDeliverOrder, countInprogressOrder });
 };
 const getSellers = async (req, res, next) => {
 	let { page = 1, status, email, rate } = req.query;
@@ -231,4 +251,5 @@ module.exports = {
 	getSpecificSeller,
 	updateSeller,
 	updateSellerStatus,
+	logout,
 };

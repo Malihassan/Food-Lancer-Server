@@ -6,6 +6,8 @@ router.get("/", buyerAuthentication, productController.getAllProducts)
 
 router.get(
 	"/:id",
-	buyerAuthentication,
+	// buyerAuthentication,
 	productController.getOneProduct
 )
+
+module.exports = router

@@ -33,7 +33,7 @@ const getOrders = async (req, res, next) => {
     maxPrice,
     orderStatus,
     id,
-    sellerId=req.seller._id,
+    sellerId = req.seller._id,
     buyerId,
     page = 1,
   } = req.query;
@@ -48,15 +48,22 @@ const getOrders = async (req, res, next) => {
 
   const option = {
     page: page,
+    // sort:{status:'canceled'},
     limit: pageSize,
     populate: [
       {
         path: "sellerId",
-        select: "userName firstName lastName phone email status gender _id",
+        select:
+          "userName firstName lastName phone email status rate gender _id",
+        populate: {
+          path: "coverageArea",
+          select: "governorateName regionName",
+        },
       },
       {
         path: "buyerId",
-        select: "userName firstName lastName phone email status address gender _id",
+        select:
+          "userName firstName lastName phone email status address gender _id",
       },
       {
         path: "products",
@@ -81,16 +88,25 @@ const getOrders = async (req, res, next) => {
     },
     option
   );
+
   res.json(allOrders);
+};
+
+const getCountDeliveredOrdersForSeller = async (id) => {
+  return await orderModel.find({ sellerId: id, status: "delivered" }).count();
+};
+const getCountInprogressOrdersForSeller = async (id) => {
+  return await orderModel.find({ sellerId: id, status: "in progress" }).count();
 };
 const getOrdersForSpecificSeller = (req, res, next) => {
   let { id } = req.params;
-  id ? '' : (id = req.seller._id);
+  id ? "" : (id = req.seller._id);
   orderModel
     .find({ sellerId: id })
     .populate({
       path: "buyerId",
-      select: "userName firstName lastName phone email status address gender -_id",
+      select:
+        "userName firstName lastName phone email status address gender -_id",
     })
     .populate({
       path: "sellerId",
@@ -104,13 +120,15 @@ const getOrdersForSpecificSeller = (req, res, next) => {
           "name description image price addOns reviews avgRate status -_id",
       },
     })
-    .then((data) => {
+    .then(async (data) => {
       if (!data) {
         return next(new AppError("accountNotFound"));
       }
+
       res.json(data);
     });
 };
+
 const getSpecificOrderForSpecificSeller = (req, res, nex) => {
   const { sellerId, orderId } = req.params;
   orderModel
@@ -139,6 +157,6 @@ module.exports = {
   getOrdersForSpecificBuyer,
   getOrdersForSpecificSeller,
   getSpecificOrderForSpecificSeller,
-  // getOrdersForSpecificQuery,
-  // getSpecificOrder,
+  getCountInprogressOrdersForSeller,
+  getCountDeliveredOrdersForSeller
 };

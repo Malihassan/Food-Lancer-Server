@@ -11,6 +11,8 @@ router.get("/signup/confirm/:token/:id", sellerController.confirm);
 router.get("/info", sellerAuthentication, sellerController.getSpecificSeller);
 
 router.post("/forgetPassword", sellerController.forgetPassword);
+router.get("/logout", sellerAuthentication, sellerController.logout);
+
 router.patch(
 	"/resetPassword",
 	sellerAuthentication,
