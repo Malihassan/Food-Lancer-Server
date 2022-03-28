@@ -6,19 +6,20 @@ const cloudinary = require("../config/cloudinaryConfig");
 //const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
-  let arr3=[];
+  let arr3 = [];
   const body = req.body;
-  const { name, description, price, addOns/* , image, reviews */ } = body;
+  const { name, description, price, addOns /* , image, reviews */ } = body;
   categoryName = "Pizza";
   const category = await categoryModel.findOne({ name: categoryName }).exec();
   if (!category) {
     return next(new AppError("categoryNotFound"));
   }
   try {
-    const images=await req.files;
-    for(let img of images) {
+    const images = await req.files;
+    console.log(images, "Images <----");
+    for (let img of images) {
       let result = await cloudinary.uploader.upload(img.path);
-      arr3.push({url: result.secure_url, _id: result.public_id});
+      arr3.push({ url: result.secure_url, _id: result.public_id });
     }
     await productModel
       .create({
@@ -47,8 +48,10 @@ const addProduct = async (req, res, next) => {
   }
 };
 const deleteProduct = (req, res, next) => {
+  const seller = req.seller;
+  console.log(seller._id);
   productModel
-    .findOneAndDelete({ _id: req.params.id, sellerId: sellerId.id })
+    .findOneAndDelete({ _id: req.params.id, sellerId: seller._id })
     .then((deleted) => {
       if (!deleted) {
         return next(new AppError("accountNotFound"));
@@ -61,11 +64,11 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
   const { id } = req.params;
   const idSeller = req.seller;
   let imgs=[];
-  const { name, description, price, addOns } = req.body;
+  const { name, description, image, price, addOns } = req.body;
   try{
-    const images=await req.files;
-    for(let img of images) {
-      console.log(img, "image");
+    const images = await req.files;
+    console.log(images, "Images <----");
+    for (let img of images) {
       let result = await cloudinary.uploader.upload(img.path);
       imgs.push({url: result.secure_url, _id: result.public_id});
     }
@@ -85,19 +88,23 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
     .catch((e) => res.status(401).json(e.message));
   } catch(e){
     console.log(e)
+    console.log("hello")
   }
 
 };
 const getProductsForSpecifcSeller = async (req, res, next) => {
-  const { id } = req.seller;
-  const data = await productModel.find({ sellerId: id });
+  const { _id } = req.seller;
+  console.log('products');
+  const data = await productModel.find({ sellerId: _id });
   if (!data) {
     return next(new AppError("accountNotFound"));
   }
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
+  let sellerId=req.seller._id;
   let { page = 1, status, categoryId } = req.query;
+  sellerId = sellerId ? { sellerId } : {};
   status = status ? { status } : {};
   categoryId = categoryId ? { categoryId } : {};
   const pageSize = 12;
@@ -127,7 +134,7 @@ const getAllProducts = async (req, res, next) => {
   };
   const products = await productModel.paginate(
     {
-      $and: [status, categoryId],
+      $and: [status, categoryId,sellerId],
     },
     options
   );
@@ -148,7 +155,7 @@ const getOneProduct = function (req, res, next) {
     .populate({
       path: "categoryId",
       select: "name",
-    })  
+    })
     .populate({
       path: "reviews.buyerId",
       select: "email userName",
@@ -171,12 +178,30 @@ const getProductsForSpecificSeller = async (req, res, next) => {
   res.json(products);
 };
 const getSpecifcProductForSpecificSeller = async (req, res, next) => {
-  const { id, productId } = req.params;
-  const products = await productModel.find({ sellerId: id, _id: productId });
-  if (products.length === 0) {
-    return next(new AppError("accountNotFound"));
-  }
+  const { sellerId, productId } = req.params;
+  const { _id } = req.seller;
+  const products = await productModel.find({ sellerId: _id, _id: productId });
+  // if (products.length === 0) {
+  //   return next(new AppError("accountNotFound"));
+  // }
   res.json(products);
+};
+const updateSpecificProductForSpecificSeller = (req, res, next) => {
+  const { sellerId, productId } = req.params;
+  const { status, reasonOfCancellation } = req.body;
+  productModel
+    .findOneAndUpdate(
+      { _id: productId, sellerId: sellerId },
+      { reasonOfCancellation, status },
+      { new: true, runValidators: true }
+    )
+    .then((data) => {
+      if (!data) {
+        return next(new AppError("accountNotFound"));
+      }
+      res.json(data);
+    })
+    .catch((e) => res.status(400).json(e.message));
 };
 const updateStatus = async (req, res, next) => {
   const { id } = req.params;
@@ -214,13 +239,14 @@ const pendingMessage = async (req, res, next) => {
 };
 module.exports = {
   addProduct,
+  pendingMessage,
   getAllProducts,
-  deleteProduct,
   getProductsForSpecifcSeller,
-  updateProductForSpecifcSeller,
-  updateStatus,
   getOneProduct,
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
-  pendingMessage,
+  deleteProduct,
+  updateProductForSpecifcSeller,
+  updateStatus,
+  updateSpecificProductForSpecificSeller,
 };
