@@ -59,11 +59,11 @@ async function updateSeller(req, res, next) {
 	const { phone, firstName, lastName, coverageArea, imageId } = req.body;
 
 	let newImage = {};
-
+	console.log(req.file);
 	if (req.file) {
 		// delete old image
 		await cloudinary.uploader.destroy(imageId);
-
+		// add the new image
 		const result = await cloudinary.uploader.upload(req.file.path);
 		newImage.url = result.secure_url;
 		newImage._id = result.public_id;
@@ -162,7 +162,6 @@ const _editSeller = function (id, status) {
 const getSpecificSeller = async (req, res, next) => {
 	let { id } = req.params;
 	!id ? (id = req.seller._id) : "";
-	console.log("hello");
 
 	const seller = await sellerModel.findById(id).populate("coverageArea");
 
