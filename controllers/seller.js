@@ -3,6 +3,7 @@ const sellerModel = require("../models/seller");
 const config = require("../config/emailsConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
+const orderController = require('../controllers/order')
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
 // const upload = require("../utils/multer");
@@ -15,17 +16,22 @@ async function login(req, res, next) {
     return next(new AppError("allFieldsRequired"));
   }
 
-  const user = await sellerModel.findOne({ email });
-  if (!user) return next(new AppError("InvalidPassword"));
-  const validPass = await user.comparePassword(password);
-  if (!validPass) return next(new AppError("InvalidPassword"));
-
-  const token = await _tokenCreator(user.userName, user.id);
-  // save new token
-  sellerModel.findByIdAndUpdate(user.id, token);
-  res.json({ token });
+	const user = await sellerModel.findOne({ email });
+	if (!user) return next(new AppError("emailNotFound"));
+	console.log(user);
+	const validPass = await user.comparePassword(password);
+	console.log(validPass);
+	if (!validPass) return next(new AppError("InvalidPassword"));
+	const token = await _tokenCreator(user.userName, user.id);
+	// save new token
+	sellerModel.findOneAndUpdate(
+    { _id: user.id},
+    { token },
+    { new: true, runValidators: true }
+    )
+  console.log(token);
+	res.json({ token });
 }
-
 function validatorLoginRequestBody(email, password) {
   if (!email || email.length == 0 || !password || password.length == 0) {
     return false;
@@ -33,14 +39,14 @@ function validatorLoginRequestBody(email, password) {
   return true;
 }
 async function forgetPassword(req, res, next) {
-  const { email } = req.body;
-  const seller = await sellerModel.findOne({ email });
-  if (!seller) {
-    return next(new AppError("emailNotFound"));
-  }
-  const token = await _tokenCreator(seller.userName, seller.id);
-  config.forgetPassword(seller.userName, seller.email, token, "seller");
-  res.status(200).json({ response: "Success send code" });
+	const { email } = req.body;
+	const seller = await sellerModel.findOne({ email });
+	if (!seller) {
+		return next(new AppError("emailNotFound"));
+	}
+	const token = await _tokenCreator(seller.userName, seller.id);
+	config.forgetPassword(seller.userName, seller.email, token, "seller");
+	res.status(200).json({ response: "Please Check Your Email" });
 }
 const resetPassword = async (req, res, next) => {
   const seller = req.seller;
@@ -85,11 +91,12 @@ async function updateSeller(req, res, next) {
     .catch((e) => res.status(400).json(e.message));
 }
 
-const signup = function (req, res, next) {
+const signup = async  function (req, res, next) {
   const userDetails = req.body;
-  // const result = await cloudinary.uploader.upload(req.file.path);
+console.log(req.body);
+   const result = await cloudinary.uploader.upload(req.file.path);
   _create({
-    // image: [{ url: result.secure_url, _id: result.public_id }],
+    image: [{ url: result.secure_url, _id: result.public_id }],
     ...userDetails,
   })
     .then((data) => {
@@ -162,7 +169,6 @@ const _editSeller = function (id, status) {
 const getSpecificSeller = async (req, res, next) => {
   let { id } = req.params;
   !id ? (id = req.seller._id) : "";
-  console.log("hello");
 
   const seller = await sellerModel.findById(id).populate("coverageArea");
 
@@ -170,7 +176,11 @@ const getSpecificSeller = async (req, res, next) => {
     return next(new AppError("accountNotFound"));
   }
 
-  res.json(seller);
+  let countDeliverOrder = await orderController.getCountDeliveredOrdersForSeller(seller._id);
+  let countInprogressOrder = await orderController.getCountInprogressOrdersForSeller(seller._id);
+
+
+  res.json({seller,countDeliverOrder,countInprogressOrder});
 };
 const getSellers = async (req, res, next) => {
   let { page = 1, status, email, rate } = req.query;
