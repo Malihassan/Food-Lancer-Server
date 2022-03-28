@@ -48,6 +48,7 @@ const getOrders = async (req, res, next) => {
 
   const option = {
     page: page,
+    // sort:{status:'canceled'},
     limit: pageSize,
     populate: [
       {
@@ -88,20 +89,13 @@ const getOrders = async (req, res, next) => {
     option
   );
 
-  if (sellerId) {
-    let countDeliver = await getSellerDeliveredOrders(sellerId);
-    let inprogressDeliver = await getSellerInprogressOrders(sellerId);
-    allOrders.countDeliverOrder = countDeliver;
-    allOrders.inprogressDeliverOrder = inprogressDeliver;
-  }
-
   res.json(allOrders);
 };
 
-const getSellerDeliveredOrders = async (id) => {
+const getCountDeliveredOrdersForSeller = async (id) => {
   return await orderModel.find({ sellerId: id, status: "delivered" }).count();
 };
-const getSellerInprogressOrders = async (id) => {
+const getCountInprogressOrdersForSeller = async (id) => {
   return await orderModel.find({ sellerId: id, status: "in progress" }).count();
 };
 const getOrdersForSpecificSeller = (req, res, next) => {
@@ -163,6 +157,6 @@ module.exports = {
   getOrdersForSpecificBuyer,
   getOrdersForSpecificSeller,
   getSpecificOrderForSpecificSeller,
-  // getOrdersForSpecificQuery,
-  // getSpecificOrder,
+  getCountInprogressOrdersForSeller,
+  getCountDeliveredOrdersForSeller
 };

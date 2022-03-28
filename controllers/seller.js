@@ -3,6 +3,7 @@ const sellerModel = require("../models/seller");
 const config = require("../config/emailsConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
+const orderController = require('../controllers/order')
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
 // const upload = require("../utils/multer");
@@ -162,7 +163,6 @@ const _editSeller = function (id, status) {
 const getSpecificSeller = async (req, res, next) => {
   let { id } = req.params;
   !id ? (id = req.seller._id) : "";
-  console.log("hello");
 
   const seller = await sellerModel.findById(id).populate("coverageArea");
 
@@ -170,6 +170,11 @@ const getSpecificSeller = async (req, res, next) => {
     return next(new AppError("accountNotFound"));
   }
 
+  let countDeliver = await orderController.getSellerDeliveredOrders(seller._id);
+  let inprogressDeliver = await orderController.getSellerInprogressOrders(seller._id);
+  seller.countDeliverOrder = countDeliver;
+  seller.inprogressDeliverOrder = inprogressDeliver;
+  
   res.json(seller);
 };
 const getSellers = async (req, res, next) => {
