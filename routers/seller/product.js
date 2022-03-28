@@ -38,7 +38,7 @@ router.get(
 );
 router.patch(
 	"/:id",
-	// sellerAuthentication,
+	sellerAuthentication,
   multer.array("image"),
 	productController.updateProductForSpecifcSeller
 );

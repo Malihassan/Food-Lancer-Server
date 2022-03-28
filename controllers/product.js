@@ -74,8 +74,8 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
     }
     productModel
     .findOneAndUpdate(
-      // , sellerId: idSeller 
-      { _id: id },
+
+      { _id: id, sellerId: idSeller  },
       { name, description, image: imgs, price, addOns },
       { new: true, runValidators: true }
     )
