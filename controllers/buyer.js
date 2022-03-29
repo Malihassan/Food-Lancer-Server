@@ -179,19 +179,22 @@ const addFav = async (req, res, next) => {
 	} else {
 		const newFavs = [...buyer.favs, newFavId];
 		console.log(newFavs, "newFavs");
-		const updatedBuyer = await buyerModel.findByIdAndUpdate(
-			{ _id },
-			{ favs: newFavs },
-			{ returnNewDocument: true, runValidators: true, new: true }
-		);
-		res.json(updatedBuyer);
+		const updatedBuyer = await buyerModel
+			.findByIdAndUpdate(
+				{ _id },
+				{ favs: newFavs },
+				{ returnNewDocument: true, runValidators: true, new: true }
+			)
+			.populate({
+				path: "favs",
+			});
+		res.json(updatedBuyer.favs);
 	}
 };
 
 const deleteFav = async (req, res, next) => {
 	const { _id } = req.buyer;
 	const deleteId = mongoose.Types.ObjectId(req.body.id);
-	console.log("here");
 
 	const buyer = await buyerModel.findById({ _id });
 	if (!buyer) {
@@ -201,13 +204,17 @@ const deleteFav = async (req, res, next) => {
 		id.toString() === deleteId.toString() ? false : true
 	);
 
-	const updatedBuyer = await buyerModel.findByIdAndUpdate(
-		{ _id },
-		{ favs: newFavs },
-		{ returnNewDocument: true, runValidators: true, new: true }
-	);
+	const updatedBuyer = await buyerModel
+		.findByIdAndUpdate(
+			{ _id },
+			{ favs: newFavs },
+			{ returnNewDocument: true, runValidators: true, new: true }
+		)
+		.populate({
+			path: "favs",
+		});
 
-	res.json(updatedBuyer);
+	res.json(updatedBuyer.favs);
 };
 
 async function updateBuyer(req, res, next) {
