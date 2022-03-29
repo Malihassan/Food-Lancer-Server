@@ -82,6 +82,7 @@ const _create = async function (buyerData) {
 	);
 	return token;
 };
+
 const allBuyers = async (req, res, next) => {
 	let { page = 1, status, email } = req.query;
 	status = status ? { status } : {};
@@ -104,10 +105,15 @@ const allBuyers = async (req, res, next) => {
 };
 
 const buyerById = async (req, res, next) => {
-	const { id } = req.params;
-	const buyer = await buyerModel.findById(id).catch((error) => {
-		res.status(400).json(error.message);
-	});
+	const { _id } = req.buyer;
+	const buyer = await buyerModel
+		.findById(_id)
+		.populate({
+			path: "favs",
+		})
+		.catch((error) => {
+			res.status(400).json(error.message);
+		});
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
