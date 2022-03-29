@@ -20,8 +20,4 @@ router.patch(
 	BuyerController.updateBuyer
 );
 
-router.get("/favs", buyerAuthentication, BuyerController.getFavs);
-router.post("/favs", buyerAuthentication, BuyerController.addFav);
-router.delete("/favs", buyerAuthentication, BuyerController.addFav);
-
 module.exports = router;

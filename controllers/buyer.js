@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
+const mongoose = require("mongoose");
 
 const login = async (req, res, next) => {
 	const { email, password } = req.body;
@@ -150,15 +151,64 @@ const getOrdersForSpecifcBuyer = async (req, res, next) => {
 		});
 };
 
-const getFavs = async (req, res) => {
+const getFavs = async (req, res, next) => {
 	const { _id } = req.buyer;
-	const buyer = await buyerModel.find({ _id }).populate({
-		path: "faves",
+
+	const buyer = await buyerModel.findById({ _id }).populate({
+		path: "favs",
 	});
-	res.json(buyer);
+	if (!buyer) {
+		return next(new AppError("accountNotFound"));
+	}
+	res.json(buyer.favs);
 };
-const addFav = () => {};
-const deleteFav = () => {};
+
+const addFav = async (req, res, next) => {
+	const { _id } = req.buyer;
+	const newFavId = mongoose.Types.ObjectId(req.body.id);
+
+	const buyer = await buyerModel.findById({ _id });
+	if (!buyer) {
+		return next(new AppError("accountNotFound"));
+	}
+	const exist = await buyer.favs.find(
+		(id) => id.toString() === newFavId.toString()
+	);
+	if (exist) {
+		res.send("Product is already favoured");
+	} else {
+		const newFavs = [...buyer.favs, newFavId];
+		console.log(newFavs, "newFavs");
+		const updatedBuyer = await buyerModel.findByIdAndUpdate(
+			{ _id },
+			{ favs: newFavs },
+			{ returnNewDocument: true, runValidators: true, new: true }
+		);
+		res.json(updatedBuyer);
+	}
+};
+
+const deleteFav = async (req, res, next) => {
+	const { _id } = req.buyer;
+	const deleteId = mongoose.Types.ObjectId(req.body.id);
+	console.log("here");
+
+	const buyer = await buyerModel.findById({ _id });
+	if (!buyer) {
+		return next(new AppError("accountNotFound"));
+	}
+	const newFavs = buyer.favs.filter((id) =>
+		id.toString() === deleteId.toString() ? false : true
+	);
+
+	const updatedBuyer = await buyerModel.findByIdAndUpdate(
+		{ _id },
+		{ favs: newFavs },
+		{ returnNewDocument: true, runValidators: true, new: true }
+	);
+
+	res.json(updatedBuyer);
+};
 
 async function updateBuyer(req, res, next) {
 	const { _id } = req.buyer;
