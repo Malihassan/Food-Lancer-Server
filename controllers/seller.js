@@ -73,14 +73,18 @@ async function updateSeller(req, res, next) {
 	const { phone, firstName, lastName, coverageArea, imageId } = req.body;
 
 	let newImage = {};
-	console.log(req.file);
 	if (req.file) {
-		// delete old image
-		await cloudinary.uploader.destroy(imageId);
-
-		const result = await cloudinary.uploader.upload(req.file.path);
-		newImage.url = result.secure_url;
-		newImage._id = result.public_id;
+		try {
+			// delete old image
+			await cloudinary.uploader.destroy(imageId);
+			// add new image
+			const result = await cloudinary.uploader.upload(req.file.path);
+			newImage.url = result.secure_url;
+			newImage._id = result.public_id;
+		} catch (err) {
+			console.log(err.message, "Error Message");
+			return next(new AppError("allFieldsRequired"));
+		}
 	}
 
 	sellerModel
