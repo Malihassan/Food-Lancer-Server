@@ -70,7 +70,8 @@ const resetPassword = async (req, res, next) => {
 
 async function updateSeller(req, res, next) {
 	const { id } = req.seller;
-	const { phone, firstName, lastName, coverageArea, imageId } = req.body;
+	const { phone, firstName, lastName, coverageArea, imageId, imageUrl } =
+		req.body;
 
 	let newImage = {};
 	if (req.file) {
@@ -90,7 +91,13 @@ async function updateSeller(req, res, next) {
 	sellerModel
 		.findOneAndUpdate(
 			{ _id: id },
-			{ phone, firstName, lastName, coverageArea, image: newImage },
+			{
+				phone,
+				firstName,
+				lastName,
+				coverageArea,
+				image: newImage.url ? newImage : { url: imageUrl, _id: imageId },
+			},
 			{ returnNewDocument: true, runValidators: true, new: true }
 		)
 		.then((data) => {
@@ -98,7 +105,7 @@ async function updateSeller(req, res, next) {
 				return next(new AppError("allFieldsRequired"));
 			}
 
-			res.send("Profile Updated Successfully");
+			res.status(200).send("Profile Updated Successfully");
 		})
 		.catch((e) => res.status(400).json(e.message));
 }

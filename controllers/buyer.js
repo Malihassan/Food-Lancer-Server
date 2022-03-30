@@ -6,6 +6,7 @@ require("dotenv").config();
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 const mongoose = require("mongoose");
+const util = require("util");
 
 const login = async (req, res, next) => {
 	const { email, password } = req.body;
@@ -225,17 +226,23 @@ const deleteFav = async (req, res, next) => {
 
 async function updateBuyer(req, res, next) {
 	const { _id } = req.buyer;
-	const { phone, firstName, lastName, address, imageId } = req.body;
+	const { phone, firstName, lastName, address, imageId, imageUrl } = req.body;
+
 	let result;
-	try {
-		// delete old image
-		await cloudinary.uploader.destroy(imageId);
-		// add new image
-		result = await cloudinary.uploader.upload(req.file.path);
-		console.log(result);
-	} catch (err) {
-		console.log(err.message, "Error Message");
-		return next(new AppError("allFieldsRequired"));
+	let newImage = {};
+	if (req.file) {
+		try {
+			// delete old image
+			await cloudinary.uploader.destroy(imageId);
+			// add new image
+			result = await cloudinary.uploader.upload(req.file.path);
+			newImage.url = result.secure_url;
+			newImage._id = result.public_id;
+			console.log(newImage.url, "url");
+		} catch (err) {
+			console.log(err.message, "Error Message");
+			return next(new AppError("allFieldsRequired"));
+		}
 	}
 
 	buyerModel
@@ -246,15 +253,15 @@ async function updateBuyer(req, res, next) {
 				firstName,
 				lastName,
 				address,
-				image: { url: result.secure_url, _id: result.public_id },
+				image: newImage.url ? newImage : { url: imageUrl, _id: imageId },
 			},
-			{ new: true, runValidators: true }
+			{ new: true, runValidators: true, returnNewDocument: true }
 		)
 		.then((data) => {
 			if (!data) {
 				return next(new AppError("allFieldsRequired"));
 			}
-			console.log("Valid");
+
 			res.status(200).send("Profile Updated Successfully");
 		})
 		.catch((e) => res.status(400).json(e.message));
