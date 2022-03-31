@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
+const bodyParser = require('body-parser');
 
 const routers = require("./routers/index");
 const errorHandler = require("./helpers/error-handler");
@@ -15,6 +16,9 @@ mongoose.connect(process.env.ATLS_URL, () => {
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static("files"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routers);
 app.use(errorHandler);
 const port = process.env.PORT || 3300;
