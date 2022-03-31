@@ -5,18 +5,17 @@ const orderModel = require("../models/order");
 const productModel = require("../models/product");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
-// const upload = require("../utils/multer");
-
 require("dotenv").config();
-
 async function login(req, res, next) {
   const { email, password } = req.body;
   if (!validatorLoginRequestBody(email, password)) {
     return next(new AppError("allFieldsRequired"));
   }
-
 	const user = await sellerModel.findOne({ email });
 	if (!user) return next(new AppError("emailNotFound"));
+  if (user.status==="pending") {
+    return next(new AppError("pendindStatusEmail"));
+  }
 	console.log(user);
 	const validPass = await user.comparePassword(password);
 	console.log(validPass);
@@ -56,7 +55,7 @@ const resetPassword = async (req, res, next) => {
   }
   seller.password = password;
   await seller.save();
-  res.json({ message: "Success" });
+  res.status(200).json({ response: "Reset Password Done Succefully" });
 };
 
 async function updateSeller(req, res, next) {
@@ -68,7 +67,6 @@ async function updateSeller(req, res, next) {
   if (req.file) {
     // delete old image
     await cloudinary.uploader.destroy(imageId);
-
     const result = await cloudinary.uploader.upload(req.file.path);
     newImage.url = result.secure_url;
     newImage._id = result.public_id;
@@ -92,18 +90,16 @@ async function updateSeller(req, res, next) {
 
 const signup = async  function (req, res, next) {
   const userDetails = req.body;
-console.log(req.body);
    const result = await cloudinary.uploader.upload(req.file.path);
   _create({
-    image: [{ url: result.secure_url, _id: result.public_id }],
+    image: { url: result.secure_url, _id: result.public_id },
     ...userDetails,
   })
     .then((data) => {
-      res.json(data);
+      res.json({message: "Please Cofirm Your Email"});
     })
     .catch((e) => {
-      console.log(e.message);
-      res.status(404).json(e.message);
+      res.status(404).json(e);
     });
 };
 
@@ -136,7 +132,9 @@ const confirm = function (req, res, next) {
   const { id } = req.params;
   _changeStatus(id)
     .then((user) => {
-      res.send(`hello ${user}`);
+      //res.send(`hello ${user}`);
+      res.send(`Email had been confirmed`);
+      
     })
     .catch((e) => {
       console.log(e);
@@ -145,7 +143,7 @@ const confirm = function (req, res, next) {
 };
 
 const _changeStatus = async function (id) {
-  const user = await sellerModel.findByIdAndUpdate(id, { status: "active" });
+  const user = await sellerModel.findByIdAndUpdate(id,{ status: "active" });
   const { userName } = user;
   return userName;
 };

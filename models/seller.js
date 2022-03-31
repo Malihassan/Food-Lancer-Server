@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate-v2");
-
+var uniqueValidator = require('mongoose-unique-validator');
 const sellerSchema = mongoose.Schema(
 	{
 		userName: {
@@ -89,8 +89,8 @@ const sellerSchema = mongoose.Schema(
 	{ timestamps: true }
 );
 sellerSchema.plugin(mongoosePaginate);
-
-sellerSchema.pre("save", function (next) {
+sellerSchema.plugin(uniqueValidator, { message: 'expected {PATH} to be unique.' });
+  sellerSchema.pre("save", function (next) {
 	this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
 	next();
 });

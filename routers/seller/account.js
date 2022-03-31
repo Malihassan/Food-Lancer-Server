@@ -12,15 +12,15 @@ router.get("/info", sellerAuthentication, sellerController.getSpecificSeller);
 
 router.post("/forgetPassword", sellerController.forgetPassword);
 router.patch(
-	"/resetPassword",
-	sellerAuthentication,
-	sellerController.resetPassword
+  "/resetPassword",
+  sellerAuthentication,
+  sellerController.resetPassword
 );
 router.patch(
-	"/editProfile",
-	sellerAuthentication,
-	upload.single("image"),
-	sellerController.updateSeller
+  "/editProfile",
+  sellerAuthentication,
+  upload.single("image"),
+  sellerController.updateSeller
 );
 router.get("/coverageArea", coverageController.getAllCoverageArea);
 

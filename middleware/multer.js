@@ -1,7 +1,4 @@
-/* import {multer} from 'multer';
-const storage = multer.memoryStorage();
-const multerUploads = multer({ storage }).single(‘image’);
-export { multerUploads }; */
+
 const multer = require("multer");
 const path = require("path");
 module.exports = multer({
@@ -13,19 +10,6 @@ module.exports = multer({
       return;
     }
     cb(null,true)
-    // if (
-    //   file.mimetype === "image/jpeg" ||
-    //   file.mimetype === "image/png" ||
-    //   file.mimetype === "image/PNG" ||
-    //   file.mimetype === "image/jpg" ||
-    //   file.mimetype === "image/jfif"
-    // ) {
-    //   cb(null, true);
-    // }
-    // else 
-    // {
-    //   cb({message:"UnSupported File Format"},false);
-    // }
   },
   limits:{fileSize: 1080 * 1080 }
 });
