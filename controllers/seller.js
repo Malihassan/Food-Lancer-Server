@@ -48,7 +48,7 @@ async function forgetPassword(req, res, next) {
 }
 const resetPassword = async (req, res, next) => {
   const seller = req.seller;
-  console.log(seller.email, seller.id);
+  console.log(seller.email,seller.id);
   const { password, confirmPassword } = req.body;
   if (password != confirmPassword) {
     return next({ status: 404, message: "Password Not Matched" });
