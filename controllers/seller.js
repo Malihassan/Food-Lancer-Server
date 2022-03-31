@@ -6,8 +6,6 @@ const productModel = require("../models/product");
 const orderController = require("../controllers/order");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
-// const upload = require("../utils/multer");
-
 require("dotenv").config();
 
 const logout = async (req, res) => {
@@ -27,6 +25,9 @@ async function login(req, res, next) {
 
   const user = await sellerModel.findOne({ email });
   if (!user) return next(new AppError("emailNotFound"));
+  if (user.status === "pending") {
+    return next(new AppError("pendindStatusEmail"));
+  }
   console.log(user);
   const validPass = await user.comparePassword(password);
   console.log(validPass);
@@ -65,12 +66,13 @@ const resetPassword = async (req, res, next) => {
   }
   seller.password = password;
   await seller.save();
-  res.json({ message: "Success" });
+  res.status(200).json({ response: "Reset Password Done Succefully" });
 };
 
 async function updateSeller(req, res, next) {
   const { id } = req.seller;
-  const { phone, firstName, lastName, coverageArea, imageId } = req.body;
+  const { phone, firstName, lastName, coverageArea, imageId, imageUrl } =
+    req.body;
 
   let newImage = {};
   if (req.file) {
@@ -90,7 +92,13 @@ async function updateSeller(req, res, next) {
   sellerModel
     .findOneAndUpdate(
       { _id: id },
-      { phone, firstName, lastName, coverageArea, image: newImage },
+      {
+        phone,
+        firstName,
+        lastName,
+        coverageArea,
+        image: newImage.url ? newImage : { url: imageUrl, _id: imageId },
+      },
       { returnNewDocument: true, runValidators: true, new: true }
     )
     .then((data) => {
@@ -98,20 +106,21 @@ async function updateSeller(req, res, next) {
         return next(new AppError("allFieldsRequired"));
       }
 
-      res.send("Profile Updated Successfully");
+      res.status(200).send("Profile Updated Successfully");
     })
     .catch((e) => res.status(400).json(e.message));
 }
 
 const signup = async function (req, res, next) {
   const userDetails = req.body;
+  console.log(req.body);
   const result = await cloudinary.uploader.upload(req.file.path);
   _create({
     image: [{ url: result.secure_url, _id: result.public_id }],
     ...userDetails,
   })
     .then((data) => {
-      res.json(data);
+      res.json({ message: "Please Cofirm Your Email" });
     })
     .catch((e) => {
       console.log(e.message);
