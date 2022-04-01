@@ -201,15 +201,19 @@ const addFav = async (req, res, next) => {
 
 const deleteFav = async (req, res, next) => {
 	const { _id } = req.buyer;
+	console.log(req.body.id);
 	const deleteId = mongoose.Types.ObjectId(req.body.id);
 
 	const buyer = await buyerModel.findById({ _id });
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
-	const newFavs = buyer.favs.filter((id) =>
-		id.toString() === deleteId.toString() ? false : true
-	);
+	const newFavs = buyer.favs.filter((id) => {
+		console.log(id.toString(), deleteId.toString());
+		return id.toString() === deleteId.toString() ? false : true;
+	});
+
+	console.log(newFavs);
 
 	const updatedBuyer = await buyerModel
 		.findByIdAndUpdate(

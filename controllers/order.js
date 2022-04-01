@@ -28,15 +28,13 @@ const getOrdersForSpecificBuyer = (req, res, next) => {
 };
 
 const getOrders = async (req, res, next) => {
-	const {
-		minPrice,
-		maxPrice,
-		orderStatus,
-		id,
-		sellerId = req.seller._id,
-		buyerId,
-		page = 1,
-	} = req.query;
+	let sellerId;
+	if (req.seller) {
+		sellerId = req.seller._id;
+	} else {
+		sellerId = req.query.sellerId;
+	}
+	const { minPrice, maxPrice, orderStatus, id, buyerId, page = 1 } = req.query;
 	const pageSize = 6;
 
 	const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};

@@ -99,7 +99,11 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
 	res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-	let sellerId = req.seller._id;
+	let sellerId;
+	if (req.seller) {
+		sellerId = req.seller._id;
+	}
+
 	let { page = 1, status, categoryId } = req.query;
 	sellerId = sellerId ? { sellerId } : {};
 	status = status ? { status } : {};
