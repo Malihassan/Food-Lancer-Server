@@ -59,14 +59,19 @@ async function forgetPassword(req, res, next) {
 }
 const resetPassword = async (req, res, next) => {
   const seller = req.seller;
-  console.log(seller.email, seller.id);
   const { password, confirmPassword } = req.body;
   if (password != confirmPassword) {
     return next({ status: 404, message: "Password Not Matched" });
   }
   seller.password = password;
-  await seller.save();
-  res.status(200).json({ response: "Reset Password Done Succefully" });
+  try {
+    await seller.save({
+      validateModifiedOnly: true,
+    });
+    res.status(200).json({ response: "Reset Password Done Succefully" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 async function updateSeller(req, res, next) {
@@ -111,6 +116,16 @@ async function updateSeller(req, res, next) {
     .catch((e) => res.status(400).json(e.message));
 }
 
+const checkSellerAcountBeforeSignup = async (req, res, next) => {
+	console.log(req.body);
+	const {email,password,phone} = req.body
+	const accountExist =await sellerModel.findOne({$or:[{email},{password},{phone}]})
+	console.log(accountExist);
+	if (accountExist) {
+		return next(new AppError('sellerUniqueFileds'))
+	}
+	next()
+};
 const signup = async function (req, res, next) {
   const userDetails = req.body;
   console.log(req.body);
@@ -124,7 +139,7 @@ const signup = async function (req, res, next) {
     })
     .catch((e) => {
       console.log(e.message);
-      res.status(404).json(e.message);
+      res.status(400).json(e.message);
     });
 };
 
@@ -256,6 +271,7 @@ const getSellersByStatus = async (req, res, next) => {
 };
 
 module.exports = {
+  checkSellerAcountBeforeSignup,
   signup,
   confirm,
   login,
