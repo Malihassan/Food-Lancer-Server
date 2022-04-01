@@ -64,8 +64,14 @@ const resetPassword = async (req, res, next) => {
 		return next({ status: 404, message: "Password Not Matched" });
 	}
 	buyer.password = password;
-	await buyer.save();
-	res.json({ message: "Success" });
+	try {
+		await buyer.save({
+			validateModifiedOnly: true,
+		});
+		res.status(200).json({ response: "Reset Password Done Succefully" });
+	} catch (error) {
+		res.status(400).json({ error: error.message });
+	}
 };
 
 const _create = async function (buyerData) {
@@ -201,7 +207,6 @@ const addFav = async (req, res, next) => {
 
 const deleteFav = async (req, res, next) => {
 	const { _id } = req.buyer;
-	console.log(req.body.id);
 	const deleteId = mongoose.Types.ObjectId(req.body.id);
 
 	const buyer = await buyerModel.findById({ _id });
@@ -212,18 +217,13 @@ const deleteFav = async (req, res, next) => {
 		console.log(id.toString(), deleteId.toString());
 		return id.toString() === deleteId.toString() ? false : true;
 	});
-
-	console.log(newFavs);
-
 	const updatedBuyer = await buyerModel
 		.findByIdAndUpdate(
 			{ _id },
 			{ favs: newFavs },
 			{ returnNewDocument: true, runValidators: true, new: true }
 		)
-		.populate({
-			path: "favs",
-		});
+		.populate({});
 
 	res.json(updatedBuyer.favs);
 };
