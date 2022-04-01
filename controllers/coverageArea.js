@@ -47,7 +47,11 @@ const displayAllCoverageArea = async (req, res, next) => {
 };
 const getAllCoverageArea = async (req, res, next) => {
   const coverageArea = await coverageAreaModule.find();
-  res.json(coverageArea);
+  if (coverageArea.length!==0) {
+    res.json(coverageArea);
+    return
+  }
+  res.status(404).json("No Data Found")
 };
 
 module.exports = {
