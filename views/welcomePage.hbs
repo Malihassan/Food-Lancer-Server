@@ -1,0 +1,40 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * { margin: 0; padding: 0%; box-sizing: border-box; } section {
+      background-image:
+      url("https://food.bolt.eu/images/sign-up-restaurant.jpg"); /* Full height
+      */ height: 100%; width: 100vw; /* Center and scale the image nicely */
+      background-position: center; background-repeat: no-repeat;
+      background-size: cover; display: flex; justify-content: center;
+      align-items: center; } .logo { font-family: "Nunito", sans-serif
+      !important; color: #f0a500; font-size: 2.5rem; align-self: flex-start; }
+      .messageWrraper { padding: 15px; background-color: rgba(3, 3, 3, 0.596);
+      width: 50%; height: 50%; display: flex; flex-direction: column;
+      justify-content: space-between; align-items: center; } .text { color:
+      white; height: 70%; width: 100%; } h3, h5, a { margin: 20px; } a { float:
+      right; padding: 12px; background-color: transparent; border: 1px solid
+      #f0a500; color: white; margin-top: 10px; color: inherit; /* blue colors
+      for links too */ text-decoration: inherit; } a:hover { background-color:
+      #f0a500; } @media screen and (max-width: 600px) { .messageWrraper { width:
+      95%; height: 70%; } }
+    </style>
+
+  </head>
+  <body>
+    <section>
+      <div class="messageWrraper">
+        <label class="logo">FOODLANCER</label>
+        <div class="text">
+          <h2>thank you {{userName}}</h2>
+          <h3> Your Email Is Confirmed</h3>
+          <a href="http://localhost:3000/"> go to login</a>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

@@ -15,8 +15,8 @@ const _mailConfirmation = function(username, email, token, id){
         subject: "Please confirm your email",
         html: `<h1>Email Confirmation</h1>
             <h2>Hello, ${username}!</h2>
-            <p>we received a request for a Register Form</p>
-            <a href="http://localhost:${process.env.PORT}/seller/account/signup/confirm/${token}/${id}">Click here!!!</a> 
+            <p>we received a request for a password change on Food-lancer.com you can reset your password</p>
+            <a href="https://food-lancer.herokuapp.com/seller/account/signup/confirm/${token}/${id}">Click here!!!</a> 
             <br> <br>
             <small>this link will expire 24 hours</small>`
     });

@@ -25,9 +25,9 @@ async function login(req, res, next) {
 
 	const user = await sellerModel.findOne({ email });
 	if (!user) return next(new AppError("emailNotFound"));
-  if (user.status==="pending") {
-    return next(new AppError("pendindStatusEmail"));
-  }
+	if (user.status === "pending") {
+		return next(new AppError("pendindStatusEmail"));
+	}
 	console.log(user);
 	const validPass = await user.comparePassword(password);
 	console.log(validPass);
@@ -84,7 +84,6 @@ async function updateSeller(req, res, next) {
 			newImage.url = result.secure_url;
 			newImage._id = result.public_id;
 		} catch (err) {
-			console.log(err.message, "Error Message");
 			return next(new AppError("allFieldsRequired"));
 		}
 	}
@@ -120,7 +119,7 @@ const signup = async function (req, res, next) {
 		...userDetails,
 	})
 		.then((data) => {
-      res.json({message: "Please Cofirm Your Email"});
+			res.json({ message: "Please Cofirm Your Email" });
 		})
 		.catch((e) => {
 			console.log(e.message);
@@ -157,8 +156,10 @@ const confirm = function (req, res, next) {
 	const { id } = req.params;
 	_changeStatus(id)
 		.then((user) => {
-			res.send(`Email had been confirmed`);
-      
+			// res.send(`hello ${user}`);
+			return res.render("welcomePage", {
+				userNamr: user.userName,
+			});
 		})
 		.catch((e) => {
 			console.log(e);
