@@ -83,7 +83,6 @@ async function updateSeller(req, res, next) {
 			newImage.url = result.secure_url;
 			newImage._id = result.public_id;
 		} catch (err) {
-			console.log(err.message, "Error Message");
 			return next(new AppError("allFieldsRequired"));
 		}
 	}
