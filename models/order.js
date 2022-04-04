@@ -12,6 +12,12 @@ const orderSchema = mongoose.Schema(
       ref: "seller",
       required: true,
     },
+	address: {
+		type: String,
+		required: true,
+		minLength: [5, "Must be at least 5"],
+		maxlength: [40, "Must be at latest 20"],
+	},
     products: [
       {
         _id: {

@@ -117,16 +117,14 @@ async function updateSeller(req, res, next) {
 }
 
 const checkSellerAcountBeforeSignup = async (req, res, next) => {
-  console.log(req.body);
-  const { email, password, phone } = req.body;
-  const accountExist = await sellerModel.findOne({
-    $or: [{ email }, { password }, { phone }],
-  });
-  console.log(accountExist);
-  if (accountExist) {
-    return next(new AppError("sellerUniqueFileds"));
-  }
-  next();
+	console.log(req.body);
+	const {email,userName,phone} = req.body
+	const accountExist =await sellerModel.findOne({$or:[{email},{userName},{phone}]})
+	console.log(accountExist);
+	if (accountExist) {
+		return next(new AppError('userUniqueFileds'))
+	}
+	next()
 };
 const signup = async function (req, res, next) {
   const userDetails = req.body;

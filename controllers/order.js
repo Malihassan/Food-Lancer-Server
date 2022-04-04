@@ -4,19 +4,21 @@ const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
 const getOrdersForSpecificBuyer = (req, res, next) => {
-  const { id } = req.query;
+  // const { id } = req.query;
+//   const { id } = req.params;
+const { id } = req.buyer;
   orderModel
     .find({ buyerId: id })
     .populate({
       path: "sellerId",
-      select: "userName firstName lastName phone email status gender -_id",
+      select: "userName firstName lastName phone email status gender rate",
     })
     .populate({
       path: "products",
       populate: {
         path: "_id",
         select:
-          "name description image price addOns reviews avgRate status -_id",
+          "name description image price addOns reviews avgRate status ",
       },
     })
     .then((data) => {
@@ -28,16 +30,14 @@ const getOrdersForSpecificBuyer = (req, res, next) => {
 };
 
 const getOrders = async (req, res, next) => {
-  const {
-    minPrice,
-    maxPrice,
-    orderStatus,
-    id,
-    sellerId = req.seller._id,
-    buyerId,
-    page = 1,
-  } = req.query;
-  const pageSize = 6;
+	let sellerId;
+	if (req.seller) {
+		sellerId = req.seller._id;
+	} else {
+		sellerId = req.query.sellerId;
+	}
+	const { minPrice, maxPrice, orderStatus, id, buyerId, page = 1 } = req.query;
+	const pageSize = 6;
 
   const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
   const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
