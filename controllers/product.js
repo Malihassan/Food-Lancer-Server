@@ -48,6 +48,16 @@ const addProduct = async (req, res, next) => {
 		console.log(error);
 	}
 };
+const checkSellerProductBeforeSignup = async (req, res, next) => {
+	console.log(req.body);
+	const {name} = req.body
+	const productNameExist =await productModel.findOne({name})
+	console.log(productNameExist);
+	if (productNameExist) {
+		return next(new AppError('productUniqueName'))
+	}
+	next()
+};
 const deleteProduct = (req, res, next) => {
 	const seller = req.seller;
 	console.log(seller._id);
