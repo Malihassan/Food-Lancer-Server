@@ -71,6 +71,7 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 			let result = await cloudinary.uploader.upload(img.path);
 			imgs.push({ url: result.secure_url, _id: result.public_id });
 		}
+		console.log(idSeller);
 		productModel
 			.findOneAndUpdate(
 				{ _id: id, sellerId: idSeller },
@@ -78,15 +79,14 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 				{ new: true, runValidators: true }
 			)
 			.then((data) => {
-				if (!data) {
-					return next(new AppError("accountNotFound"));
-				}
+				// if (!data) {
+				// 	return next(new AppError("accountNotFound"));
+				// }
+				console.log(data, "------------------------ data")
 				res.json(data);
 			})
 			.catch((e) => res.status(401).json(e.message));
 	} catch (e) {
-		console.log(e);
-		console.log("hello");
 	}
 };
 const getProductsForSpecifcSeller = async (req, res, next) => {
