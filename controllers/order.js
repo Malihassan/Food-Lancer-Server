@@ -3,6 +3,21 @@ const AppError = require("../helpers/ErrorClass");
 const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
+const addOrder = (req, res, next) => {
+	const {id} = req.buyer
+	const orderDetails = req.body
+	orderModel.create(orderDetails)
+	.then((data)=>{
+		if(!data){
+			return next(new AppError("accountNotFound"));
+		}
+		
+		res.json(data);
+	})
+	
+}
+
+
 const getOrdersForSpecificBuyer = (req, res, next) => {
   // const { id } = req.query;
 //   const { id } = req.params;
