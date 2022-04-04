@@ -13,7 +13,14 @@ const BuyerController = require("../..//controllers/buyer");
 // );
 
 router.get("/favs", buyerAuthentication, BuyerController.getFavs);
+router.get(
+  "/allProducts",
+ // buyerAuthentication,
+  productController.getAllProducts
+);
+
 router.post("/favs", buyerAuthentication, BuyerController.addFav);
 router.delete("/favs", buyerAuthentication, BuyerController.deleteFav);
+//getAllProducts
 
 module.exports = router;

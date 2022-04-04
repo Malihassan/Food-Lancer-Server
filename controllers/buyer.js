@@ -40,7 +40,7 @@ const signup = async (req, res, next) => {
 		...buyerData,
 	})
 		.then((data) => {
-			res.json(data);
+      res.json({ message: "Please Cofirm Your Email" });
 		})
 		.catch((e) => res.status(400).send(e.message));
 };
@@ -74,6 +74,16 @@ const resetPassword = async (req, res, next) => {
 	}
 };
 
+const checkBuyerAcountBeforeSignup = async (req, res, next) => {
+	console.log(req.body);
+	const {email,userName,phone} = req.body
+	const accountExist =await buyerModel.findOne({$or:[{email},{userName},{phone}]})
+	console.log(accountExist);
+	if (accountExist) {
+		return next(new AppError('userUniqueFileds'))
+	}
+	next()
+};
 const _create = async function (buyerData) {
 	const newBuyer = await buyerModel.create(buyerData);
 	const { userName, email, _id } = newBuyer;
@@ -283,4 +293,5 @@ module.exports = {
 	getFavs,
 	addFav,
 	deleteFav,
+  checkBuyerAcountBeforeSignup,
 };
