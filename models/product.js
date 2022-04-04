@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate-v2");
+var uniqueValidator = require('mongoose-unique-validator');
 const productSchema = mongoose.Schema(
   {
     categoryId: {
@@ -24,11 +25,13 @@ const productSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      unique:true,
     },
     description: {
       type: String,
       required: true,
       trim: true,
+      maxLength: 100
     },
     image: [
       {
@@ -74,6 +77,7 @@ const productSchema = mongoose.Schema(
   { timestamps: true }
 );
 productSchema.plugin(mongoosePaginate);
+productSchema.plugin(uniqueValidator, { message: 'expected {PATH} to be unique.' });
 const ProductModel = mongoose.model("product", productSchema);
 // findByIdAndUpdate
 // productSchema.pre('findOneAndUpdate', function (next, done) {

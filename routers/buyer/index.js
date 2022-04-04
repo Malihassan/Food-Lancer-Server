@@ -6,4 +6,4 @@ router.use('/account',accountRouter)
 router.use('/order',orderRouter)
 router.use('/product',productRouter)
 
-module.exports = router
+module.exports = router;

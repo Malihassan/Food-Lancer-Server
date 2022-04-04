@@ -42,5 +42,12 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'CategoryMustUniqe') {
     return res.status(404).json({ error: "category must be unique" });
   }
+  if (err.name === 'pendindStatusEmail') {
+    return res.status(404).json({ error: "Please Confirm Your Email" });
+  }
+  if (err.name === 'sellerUniqueFileds') {
+    return res.status(400).json({ error: "Phone or Email or UserName Is Exist" });
+  }
+  
 }
 module.exports = errorHandler;

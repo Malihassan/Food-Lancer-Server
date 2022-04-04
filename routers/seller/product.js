@@ -37,9 +37,10 @@ router.get(
   productController.getAllProducts
 );
 router.patch(
-  "/:id",
-  sellerAuthentication,
-  productController.updateProductForSpecifcSeller
+	"/:id",
+	sellerAuthentication,
+  multer.array("image"),
+	productController.updateProductForSpecifcSeller
 );
 router.get("/:id", sellerAuthentication, productController.getOneProduct);
 // /:sellerId/:productid
