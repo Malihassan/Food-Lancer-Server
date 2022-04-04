@@ -3,6 +3,8 @@ const categoryModel = require("../models/category");
 const AppError = require("../helpers/ErrorClass");
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
+var mongoose = require("mongoose");
+
 //const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
@@ -80,7 +82,7 @@ const updateProductForSpecifcSeller = (req, res, next) => {
 };
 const getProductsForSpecifcSeller = async (req, res, next) => {
   const { _id } = req.seller;
-  console.log('products');
+  console.log("products");
   const data = await productModel.find({ sellerId: _id });
   if (!data) {
     return next(new AppError("accountNotFound"));
@@ -88,7 +90,7 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
   res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-  let sellerId=req.seller._id;
+  let sellerId = req.seller._id;
   let { page = 1, status, categoryId } = req.query;
   sellerId = sellerId ? { sellerId } : {};
   status = status ? { status } : {};
@@ -120,7 +122,7 @@ const getAllProducts = async (req, res, next) => {
   };
   const products = await productModel.paginate(
     {
-      $and: [status, categoryId,sellerId],
+      $and: [status, categoryId, sellerId],
     },
     options
   );
@@ -203,6 +205,52 @@ const updateStatus = async (req, res, next) => {
     res.status(401).json(error.message);
   }
 };
+const updateReview = async (req, res, next) => {
+  const { comments, rate, buyerId, sellerId, orderId } = req.body;
+  const { productId } = req.params;
+  
+  try {
+    console.log(orderId,"order id");
+    const checked = await productModel.findOne({_id:productId,"reviews.buyerId":buyerId,"reviews.sellerId":sellerId,"reviews.orderId":orderId});
+    if (checked)
+    {
+      console.log(checked,"inside checked");
+      return next(new AppError("reviewAlreadyAdded"));
+    }
+    const updated = await productModel.findOneAndUpdate(
+      { _id: productId },
+      {
+        $push: {
+          reviews: 
+             {
+              buyerId: mongoose.Types.ObjectId(buyerId),
+              sellerId: mongoose.Types.ObjectId(sellerId),
+              orderId: mongoose.Types.ObjectId(orderId),
+              comments,
+              rate,
+            },
+        },
+      }
+      ,
+      { new: true, runValidators: true }      
+    );
+    if (!updated) {
+      return next(new AppError("accountNotFound"));
+    }
+next ()
+    // res.json(checked);
+  } catch (error) {
+    res.status(401).json(error.message);
+  }
+};
+const updateRate=async(req,res,next)=>{
+  const {productId}=req.params;
+  await productModel.findOneAndUpdate({_id:productId},
+    [ { $set: { "avgRate" : { $avg: "$reviews.rate" } } } ],
+  );
+  res.status(200).json({});
+}
+
 const pendingMessage = async (req, res, next) => {
   const { id } = req.params;
   const { pendingMessage } = req.body;
@@ -231,5 +279,7 @@ module.exports = {
   deleteProduct,
   updateProductForSpecifcSeller,
   updateStatus,
+  updateReview,
+  updateRate,
   updateSpecificProductForSpecificSeller,
 };

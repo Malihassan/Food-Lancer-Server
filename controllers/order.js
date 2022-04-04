@@ -4,19 +4,20 @@ const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
 const getOrdersForSpecificBuyer = (req, res, next) => {
-  const { id } = req.query;
+  // const { id } = req.query;
+  const { id } = req.params;
   orderModel
     .find({ buyerId: id })
     .populate({
       path: "sellerId",
-      select: "userName firstName lastName phone email status gender -_id",
+      select: "userName firstName lastName phone email status gender rate",
     })
     .populate({
       path: "products",
       populate: {
         path: "_id",
         select:
-          "name description image price addOns reviews avgRate status -_id",
+          "name description image price addOns reviews avgRate status ",
       },
     })
     .then((data) => {

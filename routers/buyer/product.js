@@ -9,3 +9,10 @@ router.get(
 	buyerAuthentication,
 	productController.getOneProduct
 )
+router.patch(
+	"/updatedReview/:productId",
+	// buyerAuthentication,
+	productController.updateReview,
+	productController.updateRate
+)
+module.exports=router;
