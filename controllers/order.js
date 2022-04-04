@@ -5,7 +5,8 @@ const { json } = require("express/lib/response");
 
 const getOrdersForSpecificBuyer = (req, res, next) => {
   // const { id } = req.query;
-  const { id } = req.params;
+//   const { id } = req.params;
+const { id } = req.buyer;
   orderModel
     .find({ buyerId: id })
     .populate({

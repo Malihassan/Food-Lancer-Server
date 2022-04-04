@@ -292,11 +292,13 @@ const pendingMessage = async (req, res, next) => {
 	res.json(userEmail);
 	config.sendPendingMessage(pendingMessage, userEmail);
 };
+
 module.exports = {
   addProduct,
   pendingMessage,
   getAllProducts,
   getProductsForSpecifcSeller,
+  checkSellerProductBeforeSignup,
   getOneProduct,
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
