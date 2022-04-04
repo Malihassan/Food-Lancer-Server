@@ -21,6 +21,9 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'allFieldsRequired') {
     return res.status(400).json({ error: "All fields are required !" });
   }
+  if (err.name === 'reviewAlreadyAdded') {
+    return res.status(304).json({ error: "this product already have review !" });
+  }
   if (err.name === 'categoryNotFound') {
     return res.status(404).json({ error: "Category not available !" });
   }
@@ -42,5 +45,12 @@ function errorHandler(err, req, res, next) {
   if (err.name === 'pendindStatusEmail') {
     return res.status(404).json({ error: "Please Confirm Your Email" });
   }
+  if (err.name === 'userUniqueFileds') {
+    return res.status(400).json({ error: "Phone or Email or UserName Is Exist" });
+  }
+  if (err.name === 'productUniqueName') {
+    return res.status(400).json({ error: "Product name already Exist" });
+  }
+
 }
 module.exports = errorHandler;

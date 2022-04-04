@@ -58,15 +58,20 @@ async function forgetPassword(req, res, next) {
 	res.status(200).json({ response: "Please Check Your Email" });
 }
 const resetPassword = async (req, res, next) => {
-	const seller = req.seller;
-	console.log(seller.email, seller.id);
-	const { password, confirmPassword } = req.body;
-	if (password != confirmPassword) {
-		return next({ status: 404, message: "Password Not Matched" });
-	}
-	seller.password = password;
-	await seller.save();
-	res.status(200).json({ response: "Reset Password Done Succefully" });
+  const seller = req.seller;
+  const { password, confirmPassword } = req.body;
+  if (password != confirmPassword) {
+    return next({ status: 404, message: "Password Not Matched" });
+  }
+  seller.password = password;
+  try {
+    await seller.save({
+      validateModifiedOnly: true,
+    });
+    res.status(200).json({ response: "Reset Password Done Succefully" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 async function updateSeller(req, res, next) {
@@ -110,21 +115,31 @@ async function updateSeller(req, res, next) {
 		.catch((e) => res.status(400).json(e.message));
 }
 
-const signup = async function (req, res, next) {
-	const userDetails = req.body;
+const checkSellerAcountBeforeSignup = async (req, res, next) => {
 	console.log(req.body);
-	const result = await cloudinary.uploader.upload(req.file.path);
-	_create({
-		image: [{ url: result.secure_url, _id: result.public_id }],
-		...userDetails,
-	})
-		.then((data) => {
-			res.json({ message: "Please Cofirm Your Email" });
-		})
-		.catch((e) => {
-			console.log(e.message);
-			res.status(404).json(e.message);
-		});
+	const {email,userName,phone} = req.body
+	const accountExist =await sellerModel.findOne({$or:[{email},{userName},{phone}]})
+	console.log(accountExist);
+	if (accountExist) {
+		return next(new AppError('userUniqueFileds'))
+	}
+	next()
+};
+const signup = async function (req, res, next) {
+  const userDetails = req.body;
+  console.log(req.body);
+  const result = await cloudinary.uploader.upload(req.file.path);
+  _create({
+    image: [{ url: result.secure_url, _id: result.public_id }],
+    ...userDetails,
+  })
+    .then((data) => {
+      res.json({ message: "Please Cofirm Your Email" });
+    })
+    .catch((e) => {
+      console.log(e.message);
+      res.status(400).json(e.message);
+    });
 };
 
 const _create = async function (userDetails) {
@@ -255,15 +270,16 @@ const getSellersByStatus = async (req, res, next) => {
 };
 
 module.exports = {
-	signup,
-	confirm,
-	login,
-	forgetPassword,
-	resetPassword,
-	getSellers,
-	getSellersByStatus,
-	getSpecificSeller,
-	updateSeller,
-	updateSellerStatus,
-	logout,
+  checkSellerAcountBeforeSignup,
+  signup,
+  confirm,
+  login,
+  forgetPassword,
+  resetPassword,
+  getSellers,
+  getSellersByStatus,
+  getSpecificSeller,
+  updateSeller,
+  updateSellerStatus,
+  logout,
 };

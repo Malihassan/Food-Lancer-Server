@@ -19,6 +19,7 @@ router.post(
   "/addProduct",
   sellerAuthentication,
   multer.array("image"),
+  productController.checkSellerProductBeforeSignup ,
   productController.addProduct
 );
 // router.get(

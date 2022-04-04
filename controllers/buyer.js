@@ -40,7 +40,7 @@ const signup = async (req, res, next) => {
 		...buyerData,
 	})
 		.then((data) => {
-			res.json(data);
+      res.json({ message: "Please Cofirm Your Email" });
 		})
 		.catch((e) => res.status(400).send(e.message));
 };
@@ -64,10 +64,26 @@ const resetPassword = async (req, res, next) => {
 		return next({ status: 404, message: "Password Not Matched" });
 	}
 	buyer.password = password;
-	await buyer.save();
-	res.json({ message: "Success" });
+	try {
+		await buyer.save({
+			validateModifiedOnly: true,
+		});
+		res.status(200).json({ response: "Reset Password Done Succefully" });
+	} catch (error) {
+		res.status(400).json({ error: error.message });
+	}
 };
 
+const checkBuyerAcountBeforeSignup = async (req, res, next) => {
+	console.log(req.body);
+	const {email,userName,phone} = req.body
+	const accountExist =await buyerModel.findOne({$or:[{email},{userName},{phone}]})
+	console.log(accountExist);
+	if (accountExist) {
+		return next(new AppError('userUniqueFileds'))
+	}
+	next()
+};
 const _create = async function (buyerData) {
 	const newBuyer = await buyerModel.create(buyerData);
 	const { userName, email, _id } = newBuyer;
@@ -207,19 +223,17 @@ const deleteFav = async (req, res, next) => {
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
-	const newFavs = buyer.favs.filter((id) =>
-		id.toString() === deleteId.toString() ? false : true
-	);
-
+	const newFavs = buyer.favs.filter((id) => {
+		console.log(id.toString(), deleteId.toString());
+		return id.toString() === deleteId.toString() ? false : true;
+	});
 	const updatedBuyer = await buyerModel
 		.findByIdAndUpdate(
 			{ _id },
 			{ favs: newFavs },
 			{ returnNewDocument: true, runValidators: true, new: true }
 		)
-		.populate({
-			path: "favs",
-		});
+		.populate({});
 
 	res.json(updatedBuyer.favs);
 };
@@ -279,4 +293,5 @@ module.exports = {
 	getFavs,
 	addFav,
 	deleteFav,
+  checkBuyerAcountBeforeSignup,
 };
