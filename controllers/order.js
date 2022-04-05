@@ -155,7 +155,6 @@ const getSpecificOrderForSpecificSeller = (req, res, nex) => {
 const updateOrderStatusForSeller = async (req, res, next) => {
   const seller = req.seller;
   const { orderId, status } = req.body;
-  console.log(orderId, status);
   let order ;
   try {
     order = await orderModel
@@ -168,9 +167,11 @@ const updateOrderStatusForSeller = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-  console.log(order);
+  
+  
   const io = req.app.get("socketio");
-  io.to(order.socketId).emit("updateOrderStatus", order);
+  io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
+  console.log(order.buyerId.socketId);
   res.json(order);
 };
 module.exports = {

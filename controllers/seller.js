@@ -74,7 +74,6 @@ const resetPassword = async (req, res, next) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 async function updateSeller(req, res, next) {
   const { id } = req.seller;
   const { phone, firstName, lastName, coverageArea, imageId, imageUrl } =
@@ -149,15 +148,16 @@ const _create = async function (userDetails) {
 
   const token = await _tokenCreator(userName, _id);
 
-  config._mailConfirmation(
-    userName,
-    email,
-    token,
-    _id,
-    process.env.USER,
-    process.env.PASS
-  );
-  return token;
+	config._mailConfirmation(
+		userName,
+		email,
+		token,
+		_id,
+    "seller",
+		process.env.USER,
+		process.env.PASS
+	);
+	return token;
 };
 
 const _tokenCreator = async function (userName, _id) {
@@ -169,18 +169,18 @@ const _tokenCreator = async function (userName, _id) {
 };
 
 const confirm = function (req, res, next) {
-  const { id } = req.params;
-  _changeStatus(id)
-    .then((user) => {
-      // res.send(`hello ${user}`);
-      return res.render("welcomePage", {
-        userNamr: user.userName,
-      });
-    })
-    .catch((e) => {
-      console.log(e);
-      next();
-    });
+	const { id } = req.params;
+	_changeStatus(id)
+		.then((user) => {
+			// res.send(`hello ${user}`);
+			return res.render("welcomePage", {
+				userName: user,
+			});
+		})
+		.catch((e) => {
+			console.log(e);
+			next();
+		});
 };
 
 const _changeStatus = async function (id) {

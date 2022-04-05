@@ -37,8 +37,8 @@ app.use(errorHandler);
 
 io.on("connection", (socket) => {
   let { type, id } = socket.handshake.query;
-  console.log(type,id);
-//   type === "seller" ? addSeller(id, socket.id) : addBuyer(id, socket.id);
+  console.log(type,id ,socket.id);
+  type === "seller" ? addSeller(id, socket.id) : addBuyer(id, socket.id);
 });
 
 const port = process.env.PORT || 3300;

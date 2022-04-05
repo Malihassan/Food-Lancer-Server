@@ -7,7 +7,7 @@ const transportConfig ={
     pass: `${process.env.PASS}`
   }
 }
-const _mailConfirmation = function(username, email, token, id){
+const _mailConfirmation = function(username, email, token, id,type){
     const transport = nodemailer.createTransport(transportConfig)
     transport.sendMail({
         from: process.env.USER,
@@ -16,7 +16,7 @@ const _mailConfirmation = function(username, email, token, id){
         html: `<h1>Email Confirmation</h1>
             <h2>Hello, ${username}!</h2>
             <p>we received a request for a password change on Food-lancer.com you can reset your password</p>
-            <a href="https://food-lancer.herokuapp.com/seller/account/signup/confirm/${token}/${id}">Click here!!!</a> 
+            <a href="http://localhost:3000/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
             <br> <br>
             <small>this link will expire 24 hours</small>`
     });

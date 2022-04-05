@@ -16,11 +16,11 @@ try {
 } 
   })  */
 router.post(
-  "/addProduct",
-  sellerAuthentication,
-  multer.array("image"),
-  productController.checkSellerProductBeforeSignup ,
-  productController.addProduct
+	"/addProduct",
+	sellerAuthentication,
+	multer.array("image"),
+	productController.checkSellerProductBeforeSignup,
+	productController.addProduct
 );
 // router.get(
 // 	"/myProducts",
@@ -28,9 +28,9 @@ router.post(
 // );
 router.delete("/:id", sellerAuthentication, productController.deleteProduct);
 router.get(
-  "/:sellerId/:productId",
-  sellerAuthentication,
-  productController.getSpecifcProductForSpecificSeller
+	"/:sellerId/:productId",
+	sellerAuthentication,
+	productController.getSpecifcProductForSpecificSeller
 );
 router.get(
   "/myProducts",
@@ -40,7 +40,7 @@ router.get(
 router.patch(
 	"/:id",
 	sellerAuthentication,
-  multer.array("image"),
+	multer.array("image"),
 	productController.updateProductForSpecifcSeller
 );
 router.get("/:id", sellerAuthentication, productController.getOneProduct);

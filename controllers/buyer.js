@@ -6,23 +6,24 @@ require("dotenv").config();
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 const mongoose = require("mongoose");
-const util = require("util");
 
 const login = async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(new AppError("allFieldsRequired"));
-  }
-  const buyer = await buyerModel.findOne({ email });
-  if (!buyer) {
-    return next(new AppError("InvalidPassword"));
-  }
-  if (!(await buyer.comparePassword(password))) {
-    return next(new AppError("InvalidPassword"));
-  }
-  const token = await _tokenCreator(buyer.userName, buyer.id);
-  await buyerModel.findByIdAndUpdate(buyer.id, token);
-  res.json({ token ,_id:buyer._id });
+	const { email, password } = req.body;
+	if (!email || !password) {
+		return next(new AppError("allFieldsRequired"));
+	}
+	const buyer = await buyerModel.findOne({ email });
+	if (!buyer) return next(new AppError("emailNotFound"));
+
+  if (buyer.status === "pending") {
+		return next(new AppError("pendindStatusEmail"));
+	}
+	if (!(await buyer.comparePassword(password))) {
+		return next(new AppError("InvalidPassword"));
+	}
+	const token = await _tokenCreator(buyer.userName, buyer.id);
+	await buyerModel.findByIdAndUpdate(buyer.id, token);
+	res.json({ token, _id: buyer._id });
 };
 const _tokenCreator = async function (userName, _id) {
 	token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
@@ -31,7 +32,24 @@ const _tokenCreator = async function (userName, _id) {
 	await buyerModel.findOneAndUpdate({ _id }, { token });
 	return token;
 };
-
+const confirm = function (req, res, next) {
+	const { id } = req.params;
+	_changeStatus(id)
+		.then((user) => {
+			return res.render("welcomePage", {
+				userName: user,
+			});
+		})
+		.catch((e) => {
+			console.log(e);
+			next();
+		});
+};
+const _changeStatus = async function (id) {
+	const user = await buyerModel.findByIdAndUpdate(id, { status: "active" });
+	const { userName } = user;
+	return userName;
+};
 const signup = async (req, res, next) => {
 	const buyerData = req.body;
 	const result = await cloudinary.uploader.upload(req.file.path);
@@ -40,19 +58,19 @@ const signup = async (req, res, next) => {
 		...buyerData,
 	})
 		.then((data) => {
-      res.json({ message: "Please Cofirm Your Email" });
+			res.json({ message: "Please Cofirm Your Email" });
 		})
 		.catch((e) => res.status(400).send(e.message));
 };
 async function forgetPassword(req, res, next) {
-  const { email } = req.body;
-  const buyer = await buyerModel.findOne({ email });
-  if (!buyer) {
-    return next(new AppError("emailNotFound"));
-  }
-  const token = await _tokenCreator(buyer.userName, buyer.id);
-  config.forgetPassword(buyer.userName, buyer.email, token, "buyer");
-  res.status(200).json({ response: "Success send code" });
+	const { email } = req.body;
+	const buyer = await buyerModel.findOne({ email });
+	if (!buyer) {
+		return next(new AppError("emailNotFound"));
+	}
+	const token = await _tokenCreator(buyer.userName, buyer.id);
+	config.forgetPassword(buyer.userName, buyer.email, token, "buyer");
+	res.status(200).json({ response: "Success send code" });
 }
 const resetPassword = async (req, res, next) => {
 	const buyer = req.buyer;
@@ -72,14 +90,15 @@ const resetPassword = async (req, res, next) => {
 };
 
 const checkBuyerAcountBeforeSignup = async (req, res, next) => {
-	console.log(req.body);
-	const {email,userName,phone} = req.body
-	const accountExist =await buyerModel.findOne({$or:[{email},{userName},{phone}]})
-	console.log(accountExist);
+	const { email, userName, phone } = req.body;
+	const accountExist = await buyerModel.findOne({
+		$or: [{ email }, { userName }, { phone }],
+	});
+
 	if (accountExist) {
-		return next(new AppError('userUniqueFileds'))
+		return next(new AppError("userUniqueFileds"));
 	}
-	next()
+	next();
 };
 const _create = async function (buyerData) {
 	const newBuyer = await buyerModel.create(buyerData);
@@ -91,6 +110,7 @@ const _create = async function (buyerData) {
 		email,
 		token,
 		_id,
+    "buyer",
 		process.env.USER,
 		process.env.PASS
 	);
@@ -198,7 +218,7 @@ const addFav = async (req, res, next) => {
 		res.send("Product is already favoured");
 	} else {
 		const newFavs = [...buyer.favs, newFavId];
-		console.log(newFavs, "newFavs");
+
 		const updatedBuyer = await buyerModel
 			.findByIdAndUpdate(
 				{ _id },
@@ -215,13 +235,13 @@ const addFav = async (req, res, next) => {
 const deleteFav = async (req, res, next) => {
 	const { _id } = req.buyer;
 	const deleteId = mongoose.Types.ObjectId(req.body.id);
+	console.log(req.body);
 
 	const buyer = await buyerModel.findById({ _id });
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
 	const newFavs = buyer.favs.filter((id) => {
-		console.log(id.toString(), deleteId.toString());
 		return id.toString() === deleteId.toString() ? false : true;
 	});
 	const updatedBuyer = await buyerModel
@@ -230,7 +250,7 @@ const deleteFav = async (req, res, next) => {
 			{ favs: newFavs },
 			{ returnNewDocument: true, runValidators: true, new: true }
 		)
-		.populate({});
+		.populate({ path: "favs" });
 
 	res.json(updatedBuyer.favs);
 };
@@ -249,9 +269,7 @@ async function updateBuyer(req, res, next) {
 			result = await cloudinary.uploader.upload(req.file.path);
 			newImage.url = result.secure_url;
 			newImage._id = result.public_id;
-			console.log(newImage.url, "url");
 		} catch (err) {
-			console.log(err.message, "Error Message");
 			return next(new AppError("allFieldsRequired"));
 		}
 	}
@@ -291,4 +309,5 @@ module.exports = {
 	addFav,
 	deleteFav,
   checkBuyerAcountBeforeSignup,
+  confirm,
 };
