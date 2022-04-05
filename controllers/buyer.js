@@ -21,7 +21,7 @@ const login = async (req, res, next) => {
 	}
 	const token = await _tokenCreator(buyer.userName, buyer.id);
 	await buyerModel.findByIdAndUpdate(buyer.id, token);
-	res.json({ token });
+	res.json({ token, _id: buyer._id });
 };
 const _tokenCreator = async function (userName, _id) {
 	token = await jwt.sign({ userName, id: _id }, process.env.SECRETKEY, {
@@ -45,9 +45,7 @@ const signup = async (req, res, next) => {
 };
 async function forgetPassword(req, res, next) {
 	const { email } = req.body;
-
 	const buyer = await buyerModel.findOne({ email });
-
 	if (!buyer) {
 		return next(new AppError("emailNotFound"));
 	}

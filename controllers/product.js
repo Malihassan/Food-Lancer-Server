@@ -301,6 +301,7 @@ const pendingMessage = async (req, res, next) => {
 	res.json(userEmail);
 	config.sendPendingMessage(pendingMessage, userEmail);
 };
+
 module.exports = {
 	addProduct,
 	pendingMessage,
