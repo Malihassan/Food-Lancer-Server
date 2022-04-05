@@ -18,9 +18,9 @@ router.patch(
 	productController.updateRate
 );
 router.get(
-  "/getCategory",
- // buyerAuthentication,
- categoryController.getCategories
+	"/getCategory",
+	// buyerAuthentication,
+	categoryController.getCategories
 );
 router.get("/favs", buyerAuthentication, BuyerController.getFavs);
 router.get("/allProducts", productController.getAllProducts);
