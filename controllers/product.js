@@ -179,8 +179,40 @@ const getOneProduct = function (req, res, next) {
 		});
 };
 const getProductsForSpecificSeller = async (req, res, next) => {
-	const { id } = req.params;
-	const products = await productModel.find({ sellerId: id });
+	// const { id } = req.params;
+	let sellerId = req.seller._id;
+	let { page = 1 } = req.query;
+	const pageSize = 12;
+	const options = {
+		page: page,
+		limit: pageSize,
+		populate: [
+		  {
+			path: "sellerId",
+			select: {
+			  userName: 1,
+			  firstName: 1,
+			  lastName: 1,
+			  phone: 1,
+			  email: 1,
+			  rate: 1,
+			  status: 1,
+			  gender: 1,
+			  "coverage-area": 1,
+			},
+		  },
+		  {
+			path: "categoryId",
+			select: "name",
+		  },
+		],
+	  };
+	  const products = await productModel.paginate(
+		{
+		 sellerId
+		},
+		options
+	  );
 	if (!products) {
 		return next(new AppError("accountNotFound"));
 	}

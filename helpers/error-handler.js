@@ -22,7 +22,7 @@ function errorHandler(err, req, res, next) {
     return res.status(400).json({ error: "All fields are required !" });
   }
   if (err.name === 'reviewAlreadyAdded') {
-    return res.status(304).json({ error: "this product already have review !" });
+    return res.status(400).json({ error: "this product already have review !" });
   }
   if (err.name === 'categoryNotFound') {
     return res.status(404).json({ error: "Category not available !" });

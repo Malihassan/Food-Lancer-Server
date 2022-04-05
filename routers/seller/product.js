@@ -35,7 +35,7 @@ router.get(
 router.get(
   "/myProducts",
   sellerAuthentication,
-  productController.getAllProducts
+  productController.getProductsForSpecificSeller
 );
 router.patch(
 	"/:id",
