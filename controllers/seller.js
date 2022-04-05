@@ -73,7 +73,6 @@ const resetPassword = async (req, res, next) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 async function updateSeller(req, res, next) {
 	const { id } = req.seller;
 	const { phone, firstName, lastName, coverageArea, imageId, imageUrl } =
@@ -153,6 +152,7 @@ const _create = async function (userDetails) {
 		email,
 		token,
 		_id,
+    "seller",
 		process.env.USER,
 		process.env.PASS
 	);
@@ -173,7 +173,7 @@ const confirm = function (req, res, next) {
 		.then((user) => {
 			// res.send(`hello ${user}`);
 			return res.render("welcomePage", {
-				userNamr: user.userName,
+				userName: user,
 			});
 		})
 		.catch((e) => {

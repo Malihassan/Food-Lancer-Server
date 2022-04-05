@@ -113,11 +113,14 @@ const getAllProducts = async (req, res, next) => {
 	if (req.seller) {
 		sellerId = req.seller._id;
 	}
-
-	let { page = 1, status, categoryId } = req.query;
+	let { page = 1, status, categoryId ,min,max,rate} = req.query;
 	sellerId = sellerId ? { sellerId } : {};
 	status = status ? { status } : {};
 	categoryId = categoryId ? { categoryId } : {};
+  const minPriceQuery = min ? { price: { $gte: min } } : {};
+	const maxPriceQuery = max ? { price: { $lte: max } } : {};
+  const minRate = rate ? { avgRate: { $gte: rate } } : {};
+  console.log(min,max,"rate=>",rate);
 	const pageSize = 12;
 	const options = {
 		page: page,
@@ -145,7 +148,7 @@ const getAllProducts = async (req, res, next) => {
 	};
 	const products = await productModel.paginate(
 		{
-			$and: [status, categoryId, sellerId],
+			$and: [status, categoryId, sellerId,minPriceQuery,maxPriceQuery,minRate],
 		},
 		options
 	);

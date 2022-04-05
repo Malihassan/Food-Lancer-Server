@@ -14,8 +14,10 @@ const login = async (req, res, next) => {
 		return next(new AppError("allFieldsRequired"));
 	}
 	const buyer = await buyerModel.findOne({ email });
-	if (!buyer) {
-		return next(new AppError("InvalidPassword"));
+	if (!buyer) return next(new AppError("emailNotFound"));
+
+  if (buyer.status === "pending") {
+		return next(new AppError("pendindStatusEmail"));
 	}
 	if (!(await buyer.comparePassword(password))) {
 		return next(new AppError("InvalidPassword"));
@@ -31,7 +33,24 @@ const _tokenCreator = async function (userName, _id) {
 	await buyerModel.findOneAndUpdate({ _id }, { token });
 	return token;
 };
-
+const confirm = function (req, res, next) {
+	const { id } = req.params;
+	_changeStatus(id)
+		.then((user) => {
+			return res.render("welcomePage", {
+				userName: user,
+			});
+		})
+		.catch((e) => {
+			console.log(e);
+			next();
+		});
+};
+const _changeStatus = async function (id) {
+	const user = await buyerModel.findByIdAndUpdate(id, { status: "active" });
+	const { userName } = user;
+	return userName;
+};
 const signup = async (req, res, next) => {
 	const buyerData = req.body;
 	const result = await cloudinary.uploader.upload(req.file.path);
@@ -94,6 +113,7 @@ const _create = async function (buyerData) {
 		email,
 		token,
 		_id,
+    "buyer",
 		process.env.USER,
 		process.env.PASS
 	);
@@ -294,4 +314,5 @@ module.exports = {
 	addFav,
 	deleteFav,
   checkBuyerAcountBeforeSignup,
+  confirm,
 };
