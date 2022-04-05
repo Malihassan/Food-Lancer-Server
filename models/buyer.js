@@ -35,6 +35,10 @@ const buyerSchema = mongoose.Schema(
 				"Please fill a valid password",
 			],
 		},
+		socketId:{
+			type:String,
+			default: ""
+		},
 		image: {
 			_id: String,
 			url: String,

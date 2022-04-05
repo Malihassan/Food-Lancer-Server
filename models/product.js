@@ -45,7 +45,6 @@ const productSchema = mongoose.Schema(
     },
     reviews: [
       {
-        _id: mongoose.SchemaTypes.ObjectId,
         buyerId: {
           type: mongoose.SchemaTypes.ObjectId,
           ref: "buyer",
@@ -56,21 +55,39 @@ const productSchema = mongoose.Schema(
           ref: "seller",
           required: true,
         },
-        comments: { type: "String", required: true, trim: true },
+        orderId: {
+          type: mongoose.SchemaTypes.ObjectId,
+          ref: "order",
+          required: true,
+        },
+        comments: {
+          type: String,
+          required: true,
+          trim: true,
+        },
         createdAt: {
           type: Date,
           default: new Date(),
         },
-        rate: Number,
+        rate: { type: Number, default: 0 },
       },
     ],
-    avgRate: Number,
+    avgRate: {type:Number},
   },
   { timestamps: true }
 );
 productSchema.plugin(mongoosePaginate);
 productSchema.plugin(uniqueValidator, { message: 'expected {PATH} to be unique.' });
 const ProductModel = mongoose.model("product", productSchema);
+// findByIdAndUpdate
+// productSchema.pre('findOneAndUpdate', function (next, done) {
+  // var self = this;
+  // console.log('exercise:', self); // returns Query object instead of exercise object
+  // some validations here
+//  const avg=db.productSchema.aggregate({$avg:"$reviews.rate"})
+//  console.log(avg,"avgaaa");
+//  next();
+// });
 productSchema
   .path("image")
   .validate((img) => img.length < 5, "Must have maxmum 5 images");

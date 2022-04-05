@@ -6,24 +6,24 @@ const categoryController = require("../../controllers/category");
 
 // router.get("/", buyerAuthentication, productController.getAllProducts);
 
-// todo: add this route to "/" route
 // router.get(
-// 	"/product/:id",
-// 	// buyerAuthentication,
+// 	"product/:id",
+// 	buyerAuthentication,
 // 	productController.getOneProduct
-// );
-
-router.get("/favs", buyerAuthentication, BuyerController.getFavs);
-router.get(
-  "/allProducts",
- // buyerAuthentication,
-  productController.getAllProducts
+// )
+router.patch(
+	"/updatedReview/:productId",
+	// buyerAuthentication,
+	productController.updateReview,
+	productController.updateRate
 );
 router.get(
   "/getCategory",
  // buyerAuthentication,
  categoryController.getCategories
 );
+router.get("/favs", buyerAuthentication, BuyerController.getFavs);
+router.get("/allProducts", productController.getAllProducts);
 
 router.post("/favs", buyerAuthentication, BuyerController.addFav);
 router.delete("/favs", buyerAuthentication, BuyerController.deleteFav);
