@@ -4,7 +4,6 @@ const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
 const addOrder = (req, res, next) => {
-	const {id} = req.buyer
 	const orderDetails = req.body
 	orderModel.create(orderDetails)
 	.then((data)=>{
@@ -12,7 +11,7 @@ const addOrder = (req, res, next) => {
 			return next(new AppError("accountNotFound"));
 		}
 		
-		res.json(data);
+		res.send("Order Submitted Successfully!");
 	})
 	
 }
@@ -170,6 +169,7 @@ const getSpecificOrderForSpecificSeller = (req, res, nex) => {
 		});
 };
 module.exports = {
+	addOrder,
 	getOrders,
 	getOrdersForSpecificBuyer,
 	getOrdersForSpecificSeller,
