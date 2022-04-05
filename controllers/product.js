@@ -94,12 +94,11 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 				// if (!data) {
 				// 	return next(new AppError("accountNotFound"));
 				// }
-				console.log(data, "------------------------ data")
+				console.log(data, "------------------------ data");
 				res.json(data);
 			})
 			.catch((e) => res.status(401).json(e.message));
-	} catch (e) {
-	}
+	} catch (e) {}
 };
 const getProductsForSpecifcSeller = async (req, res, next) => {
 	const { _id } = req.seller;
@@ -110,15 +109,14 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
 	res.json(data);
 };
 const getAllProducts = async (req, res, next) => {
-
-	let { page = 1, status, categoryId ,min,max,rate} = req.query;
-	sellerId = sellerId ? { sellerId } : {};
+	let { page = 1, status, categoryId, min, max, rate } = req.query;
+	// sellerId = sellerId ? { sellerId } : {};
 	status = status ? { status } : {};
 	categoryId = categoryId ? { categoryId } : {};
-  const minPriceQuery = min ? { price: { $gte: min } } : {};
+	const minPriceQuery = min ? { price: { $gte: min } } : {};
 	const maxPriceQuery = max ? { price: { $lte: max } } : {};
-  const minRate = rate ? { avgRate: { $gte: rate } } : {};
-  console.log(min,max,"rate=>",rate);
+	const minRate = rate ? { avgRate: { $gte: rate } } : {};
+	console.log(min, max, "rate=>", rate);
 	const pageSize = 12;
 	const options = {
 		page: page,
@@ -146,7 +144,7 @@ const getAllProducts = async (req, res, next) => {
 	};
 	const products = await productModel.paginate(
 		{
-			$and: [status, categoryId, sellerId,minPriceQuery,maxPriceQuery,minRate],
+			$and: [status, categoryId, minPriceQuery, maxPriceQuery, minRate],
 		},
 		options
 	);
@@ -190,32 +188,32 @@ const getProductsForSpecificSeller = async (req, res, next) => {
 		page: page,
 		limit: pageSize,
 		populate: [
-		  {
-			path: "sellerId",
-			select: {
-			  userName: 1,
-			  firstName: 1,
-			  lastName: 1,
-			  phone: 1,
-			  email: 1,
-			  rate: 1,
-			  status: 1,
-			  gender: 1,
-			  "coverage-area": 1,
+			{
+				path: "sellerId",
+				select: {
+					userName: 1,
+					firstName: 1,
+					lastName: 1,
+					phone: 1,
+					email: 1,
+					rate: 1,
+					status: 1,
+					gender: 1,
+					"coverage-area": 1,
+				},
 			},
-		  },
-		  {
-			path: "categoryId",
-			select: "name",
-		  },
+			{
+				path: "categoryId",
+				select: "name",
+			},
 		],
-	  };
-	  const products = await productModel.paginate(
+	};
+	const products = await productModel.paginate(
 		{
-		 sellerId
+			sellerId,
 		},
 		options
-	  );
+	);
 	if (!products) {
 		return next(new AppError("accountNotFound"));
 	}
