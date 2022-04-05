@@ -33,9 +33,9 @@ router.get(
 	productController.getSpecifcProductForSpecificSeller
 );
 router.get(
-	"/myProducts",
-	sellerAuthentication,
-	productController.getProductsForSpecifcSeller
+  "/myProducts",
+  sellerAuthentication,
+  productController.getProductsForSpecificSeller
 );
 router.patch(
 	"/:id",

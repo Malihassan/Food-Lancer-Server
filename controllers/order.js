@@ -3,6 +3,20 @@ const AppError = require("../helpers/ErrorClass");
 const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
+const addOrder = (req, res, next) => {
+	const orderDetails = req.body
+	orderModel.create(orderDetails)
+	.then((data)=>{
+		if(!data){
+			return next(new AppError("accountNotFound"));
+		}
+		
+		res.send("Order Submitted Successfully!");
+	})
+	
+}
+
+
 const getOrdersForSpecificBuyer = (req, res, next) => {
   // const { id } = req.query;
 //   const { id } = req.params;
@@ -175,6 +189,7 @@ const updateOrderStatusForSeller = async (req, res, next) => {
   res.json(order);
 };
 module.exports = {
+  addOrder,
   getOrders,
   getOrdersForSpecificBuyer,
   getOrdersForSpecificSeller,

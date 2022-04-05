@@ -83,6 +83,7 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 			let result = await cloudinary.uploader.upload(img.path);
 			imgs.push({ url: result.secure_url, _id: result.public_id });
 		}
+		console.log(idSeller);
 		productModel
 			.findOneAndUpdate(
 				{ _id: id, sellerId: idSeller },
@@ -90,15 +91,14 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 				{ new: true, runValidators: true }
 			)
 			.then((data) => {
-				if (!data) {
-					return next(new AppError("accountNotFound"));
-				}
+				// if (!data) {
+				// 	return next(new AppError("accountNotFound"));
+				// }
+				console.log(data, "------------------------ data")
 				res.json(data);
 			})
 			.catch((e) => res.status(401).json(e.message));
 	} catch (e) {
-		console.log(e);
-		console.log("hello");
 	}
 };
 const getProductsForSpecifcSeller = async (req, res, next) => {
@@ -182,8 +182,40 @@ const getOneProduct = function (req, res, next) {
 		});
 };
 const getProductsForSpecificSeller = async (req, res, next) => {
-	const { id } = req.params;
-	const products = await productModel.find({ sellerId: id });
+	// const { id } = req.params;
+	let sellerId = req.seller._id;
+	let { page = 1 } = req.query;
+	const pageSize = 12;
+	const options = {
+		page: page,
+		limit: pageSize,
+		populate: [
+		  {
+			path: "sellerId",
+			select: {
+			  userName: 1,
+			  firstName: 1,
+			  lastName: 1,
+			  phone: 1,
+			  email: 1,
+			  rate: 1,
+			  status: 1,
+			  gender: 1,
+			  "coverage-area": 1,
+			},
+		  },
+		  {
+			path: "categoryId",
+			select: "name",
+		  },
+		],
+	  };
+	  const products = await productModel.paginate(
+		{
+		 sellerId
+		},
+		options
+	  );
 	if (!products) {
 		return next(new AppError("accountNotFound"));
 	}
