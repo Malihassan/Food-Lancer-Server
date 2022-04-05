@@ -6,7 +6,8 @@ const coverageController = require("../../controllers/coverageArea");
 const upload = require("../../middleware/multer");
 
 router.post("/login", sellerController.login);
-router.post("/signup", multer.single("image"),sellerController.checkSellerAcountBeforeSignup ,sellerController.signup);
+// router.get("/socket",sellerController.updateSocketId);
+router.post("/signup",multer.single("image"),sellerController.checkSellerAcountBeforeSignup,sellerController.signup);
 router.get("/signup/confirm/:token/:id", sellerController.confirm);
 router.get("/info", sellerAuthentication, sellerController.getSpecificSeller);
 

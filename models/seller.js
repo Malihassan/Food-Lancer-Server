@@ -35,6 +35,10 @@ const sellerSchema = mongoose.Schema(
 			required: true,
 			trim: true,
 		},
+		socketId:{
+			type:String,
+			default: ""
+		},
 		image: {
 			_id: String,
 			url: String,
