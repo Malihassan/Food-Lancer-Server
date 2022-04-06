@@ -21,5 +21,7 @@ router.patch(
 	multer.single("image"),
 	BuyerController.updateBuyer
 );
+router.get("/logout", buyerAuthentication, BuyerController.logout);
+
 
 module.exports = router;

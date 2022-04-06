@@ -110,7 +110,6 @@ const getProductsForSpecifcSeller = async (req, res, next) => {
 };
 const getAllProducts = async (req, res, next) => {
 	let { page = 1, status, categoryId, min, max, rate } = req.query;
-	// sellerId = sellerId ? { sellerId } : {};
 	status = status ? { status } : {};
 	categoryId = categoryId ? { categoryId } : {};
 	const minPriceQuery = min ? { price: { $gte: min } } : {};
