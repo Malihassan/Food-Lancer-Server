@@ -13,7 +13,46 @@ const addBuyer = async (buyerId, socketId) => {
   }
 };
 
+const addMessage = async (req, res, next) => {
+  const { sellerId, buyerId, orderId, message } = req.body;
+  const from = req?.seller ? "seller" : "buyer";
+
+  const result = await chatModel
+    .findOneAndUpdate(
+      { sellerId, buyerId, orderId },
+      {
+        $push: {
+          messages: {
+            content: message,
+            from,
+          },
+        },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    )
+    .populate("sellerId buyerId");
+  const io = req.app.get("socketio");
+  console.log(result.sellerId.socketId, result.buyerId.socketId);
+  switch (from) {
+    case "seller":
+      io.to(result.buyerId.socketId).emit("receiveMessage", result);
+      break;
+    case "buyer":
+      io.to(result.sellerId.socketId).emit("receiveMessage", result);
+      break;
+  }
+  res.json();
+};
+
+const getChatForSpecificOrder = async (req, res, next) => {
+  const { sellerId, buyerId, orderId } = req.params;
+  const result = await chatModel.findOne({ sellerId, buyerId, orderId });
+  res.json(result);
+};
+
 module.exports = {
   addSeller,
   addBuyer,
+  addMessage,
+  getChatForSpecificOrder,
 };
