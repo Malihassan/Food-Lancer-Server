@@ -115,7 +115,6 @@ const getAllProducts = async (req, res, next) => {
   const minPriceQuery = min ? { price: { $gte: min } } : {};
   const maxPriceQuery = max ? { price: { $lte: max } } : {};
   const minRate = rate ? { avgRate: { $gte: rate } } : {};
-  console.log(min, max, "rate=>", rate);
   const pageSize = 12;
   const options = {
     page: page,
