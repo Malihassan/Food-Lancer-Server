@@ -3,16 +3,16 @@ const AppError = require("../helpers/ErrorClass");
 const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 
-const addOrder = (req, res, next) => {
-	const orderDetails = req.body
-	orderModel.create(orderDetails)
-	.then((data)=>{
-		if(!data){
-			return next(new AppError("accountNotFound"));
-		}
-		
-		res.send("Order Submitted Successfully!");
-	})
+const addOrder = async(req, res, next) => {
+	const orderDetails = req.body;
+	const newOrder = await orderModel.create(orderDetails);
+  const {_id} = newOrder;
+  const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
+	
+  const io = req.app.get("socketio");
+  io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
+  console.log(selectedOrder.sellerId.socketId);
+  res.send("Order Submitted Successfully!");
 	
 }
 

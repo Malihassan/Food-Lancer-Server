@@ -7,7 +7,7 @@ const categoryController = require("../../controllers/category");
 // router.get("/", buyerAuthentication, productController.getAllProducts);
 
 router.get(
-	"details/:id",
+	"/details/:id",
 	buyerAuthentication,
 	productController.getOneProduct
 )

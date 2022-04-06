@@ -6,7 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const http = require("http");
-const socketio = require("socket.io");
+const socketio = require("socket.io")
 require("dotenv").config();
 const routers = require("./routers/index");
 const errorHandler = require("./helpers/error-handler");
@@ -14,7 +14,11 @@ const { addSeller, addBuyer } = require("./controllers/chat");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketio(server, {
+  cors: {
+    origin: '*',
+  }
+});
 
 mongoose.connect(process.env.ATLS_URL, () => {
   console.log("connected to database");
