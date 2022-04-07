@@ -31,7 +31,6 @@ const addMessage = async (req, res, next) => {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     )
     .populate("sellerId buyerId");
-  console.log(result.sellerId.socketId, result.buyerId.socketId);
   const socketIds = [result.sellerId.socketId, result.buyerId.socketId];
   const io = req.app.get("io");
   socketIds.forEach((socketId) => {
