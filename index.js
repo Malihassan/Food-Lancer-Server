@@ -27,6 +27,7 @@ mongoose.connect(process.env.ATLS_URL, () => {
 const viewsPath = path.join(__dirname, "/views");
 app.set("view engine", "hbs");
 app.set("views", viewsPath);
+app.set("io", io);
 
 app.use(cors());
 app.use(express.json());
@@ -39,12 +40,23 @@ app.use(routers);
 app.use(errorHandler);
 
 io.on("connection", (socket) => {
-  let { type, id } = socket.handshake.query;
-  console.log(type, id, socket.id);
-  type === "seller" ? addSeller(id, socket.id) : addBuyer(id, socket.id);
+  // let { type, id } = socket.handshake.query;
+  // console.log(type, id, socket.id);
+  // type === "seller" ? addSeller(id, socket.id) : addBuyer(id, socket.id);
+
+  socket.on('addSeller',(id)=>{
+    console.log(id);
+    addSeller(id, socket.id)
+  })
+  socket.on('addBuyer',(id)=>{
+    console.log(id);
+    addBuyer(id, socket.id)
+  })
+  socket.on('disconnect', function() {
+    console.log('Got disconnect!');
+ });
 });
 
-app.set("io", io);
 
 const port = process.env.PORT || 3300;
 server.listen(port, () => {
