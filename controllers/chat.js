@@ -35,10 +35,10 @@ const addMessage = async (req, res, next) => {
   console.log(result.sellerId.socketId, result.buyerId.socketId);
   switch (from) {
     case "seller":
-      io.to(result.buyerId.socketId).emit("receiveMessage", result);
+      io.broadcast.to(result.buyerId.socketId).emit("receiveMessage", result);
       break;
     case "buyer":
-      io.to(result.sellerId.socketId).emit("receiveMessage", result);
+      io.broadcast.to(result.sellerId.socketId).emit("receiveMessage", result);
       break;
   }
   res.json();
