@@ -6,7 +6,11 @@ const categoryController = require("../../controllers/category");
 
 // router.get("/", buyerAuthentication, productController.getAllProducts);
 
-router.get("details/:id", buyerAuthentication, productController.getOneProduct);
+router.get(
+	"/details/:id",
+	buyerAuthentication,
+	productController.getOneProduct
+);
 router.patch(
 	"/updatedReview/:productId",
 	// buyerAuthentication,
