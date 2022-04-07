@@ -181,7 +181,7 @@ const updateOrderStatusForSeller = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-  
+  console.log(order);
   
   const io = req.app.get("socketio");
   io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
