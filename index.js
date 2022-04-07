@@ -19,6 +19,7 @@ const io = socketio(server, {
     origin: "*",
   },
 });
+app.set("io", io);
 
 mongoose.connect(process.env.ATLS_URL, () => {
   console.log("connected to database");

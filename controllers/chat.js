@@ -33,16 +33,21 @@ const addMessage = async (req, res, next) => {
     .populate("sellerId buyerId");
   const socket = req.app.get("socketio");
   console.log(result.sellerId.socketId, result.buyerId.socketId);
-  socket.broadcast.to([result.sellerId.socketId,result.buyerId.socketId]).emit("receiveMessage", result);
+  const io = req.app.get("io");
+  switch (from) {
+    case "seller":
+      // socket.broadcast.to([result.sellerId.socketId,result.buyerId.socketId]).emit("receiveMessage", result);
 
-  // switch (from) {
-  //   case "seller":
-  //     io.broadcast.to([result.buyerId.socketId,]).emit("receiveMessage", result);
-  //     break;
-  //   case "buyer":
-  //     io.broadcast.to(result.sellerId.socketId).emit("receiveMessage", result);
-  //     break;
-  // }
+      //     io.broadcast.to([result.buyerId.socketId,]).emit("receiveMessage", result);
+      io.sockets.to(result.buyerId.socketId).emit("receiveMessage", result);
+
+      break;
+    case "buyer":
+      // io.broadcast.to(result.sellerId.socketId).emit("receiveMessage", result);
+      io.sockets.to(result.sellerId.socketId).emit("receiveMessage", result);
+
+      break;
+  }
   res.json();
 };
 
