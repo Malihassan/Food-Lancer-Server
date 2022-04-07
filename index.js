@@ -19,7 +19,6 @@ const io = socketio(server, {
     origin: "*",
   },
 });
-app.set("io", io);
 
 mongoose.connect(process.env.ATLS_URL, () => {
   console.log("connected to database");
@@ -40,12 +39,12 @@ app.use(routers);
 app.use(errorHandler);
 
 io.on("connection", (socket) => {
-  app.set("socketio", socket);
-
   let { type, id } = socket.handshake.query;
   console.log(type, id, socket.id);
   type === "seller" ? addSeller(id, socket.id) : addBuyer(id, socket.id);
 });
+
+app.set("io", io);
 
 const port = process.env.PORT || 3300;
 server.listen(port, () => {
