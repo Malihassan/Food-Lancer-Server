@@ -31,16 +31,18 @@ const addMessage = async (req, res, next) => {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     )
     .populate("sellerId buyerId");
-  const io = req.app.get("socketio");
+  const socket = req.app.get("socketio");
   console.log(result.sellerId.socketId, result.buyerId.socketId);
-  switch (from) {
-    case "seller":
-      io.broadcast.to(result.buyerId.socketId).emit("receiveMessage", result);
-      break;
-    case "buyer":
-      io.broadcast.to(result.sellerId.socketId).emit("receiveMessage", result);
-      break;
-  }
+  socket.broadcast.to([result.buyerId.socketId,result.sellerId.socketId]).emit("receiveMessage", result);
+
+  // switch (from) {
+  //   case "seller":
+  //     io.broadcast.to([result.buyerId.socketId,]).emit("receiveMessage", result);
+  //     break;
+  //   case "buyer":
+  //     io.broadcast.to(result.sellerId.socketId).emit("receiveMessage", result);
+  //     break;
+  // }
   res.json();
 };
 

@@ -6,7 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const http = require("http");
-const socketio = require("socket.io")
+const socketio = require("socket.io");
 require("dotenv").config();
 const routers = require("./routers/index");
 const errorHandler = require("./helpers/error-handler");
@@ -16,8 +16,8 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
   cors: {
-    origin: '*',
-  }
+    origin: "*",
+  },
 });
 
 mongoose.connect(process.env.ATLS_URL, () => {
@@ -27,7 +27,6 @@ mongoose.connect(process.env.ATLS_URL, () => {
 const viewsPath = path.join(__dirname, "/views");
 app.set("view engine", "hbs");
 app.set("views", viewsPath);
-app.set("socketio", io);
 
 app.use(cors());
 app.use(express.json());
@@ -40,8 +39,10 @@ app.use(routers);
 app.use(errorHandler);
 
 io.on("connection", (socket) => {
+  app.set("socketio", socket);
+
   let { type, id } = socket.handshake.query;
-  console.log(type,id ,socket.id);
+  console.log(type, id, socket.id);
   type === "seller" ? addSeller(id, socket.id) : addBuyer(id, socket.id);
 });
 
