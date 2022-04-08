@@ -116,14 +116,16 @@ async function updateSeller(req, res, next) {
 }
 
 const checkSellerAcountBeforeSignup = async (req, res, next) => {
-	console.log(req.body);
-	const {email,userName,phone} = req.body
-	const accountExist =await sellerModel.findOne({$or:[{email},{userName},{phone}]})
-	console.log(accountExist);
-	if (accountExist) {
-		return next(new AppError('userUniqueFileds'))
-	}
-	next()
+  console.log(req.body);
+  const { email, userName, phone } = req.body;
+  const accountExist = await sellerModel.findOne({
+    $or: [{ email }, { userName }, { phone }],
+  });
+  console.log(accountExist);
+  if (accountExist) {
+    return next(new AppError("userUniqueFileds"));
+  }
+  next();
 };
 const signup = async function (req, res, next) {
   const userDetails = req.body;
@@ -148,16 +150,16 @@ const _create = async function (userDetails) {
 
   const token = await _tokenCreator(userName, _id);
 
-	config._mailConfirmation(
-		userName,
-		email,
-		token,
-		_id,
+  config._mailConfirmation(
+    userName,
+    email,
+    token,
+    _id,
     "seller",
-		process.env.USER,
-		process.env.PASS
-	);
-	return token;
+    process.env.USER,
+    process.env.PASS
+  );
+  return token;
 };
 
 const _tokenCreator = async function (userName, _id) {
@@ -169,18 +171,18 @@ const _tokenCreator = async function (userName, _id) {
 };
 
 const confirm = function (req, res, next) {
-	const { id } = req.params;
-	_changeStatus(id)
-		.then((user) => {
-			// res.send(`hello ${user}`);
-			return res.render("welcomePage", {
-				userName: user,
-			});
-		})
-		.catch((e) => {
-			console.log(e);
-			next();
-		});
+  const { id } = req.params;
+  _changeStatus(id)
+    .then((user) => {
+      // res.send(`hello ${user}`);
+      return res.render("welcomePage", {
+        userName: user,
+      });
+    })
+    .catch((e) => {
+      console.log(e);
+      next();
+    });
 };
 
 const _changeStatus = async function (id) {
@@ -270,6 +272,13 @@ const getSellersByStatus = async (req, res, next) => {
   res.json(data);
 };
 
+const addNotificationToSellerForAddOrder = async (sellerId, orderId) => {
+  return await sellerModel.findOneAndUpdate(
+    { _id: sellerId },
+    { $set: { "notification.order": orderId } }
+  );
+};
+
 module.exports = {
   checkSellerAcountBeforeSignup,
   signup,
@@ -282,5 +291,6 @@ module.exports = {
   getSpecificSeller,
   updateSeller,
   updateSellerStatus,
+  addNotificationToSellerForAddOrder,
   logout,
 };

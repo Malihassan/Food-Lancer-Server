@@ -2,6 +2,7 @@ const orderModel = require("../models/order");
 const AppError = require("../helpers/ErrorClass");
 const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
+const sellerController = require("./seller");
 
 const addOrder = async(req, res, next) => {
 	const orderDetails = req.body;
@@ -9,6 +10,9 @@ const addOrder = async(req, res, next) => {
   const {_id} = newOrder;
   const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
 	
+  // const addNotif = await sellerController.addSellerNotificationForOrder(selectedOrder.sellerId._id,_id)
+  // console.log(addNotif);
+
   const io = req.app.get("socketio");
   io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
   console.log(selectedOrder.sellerId.socketId);
