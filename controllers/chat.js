@@ -1,7 +1,7 @@
 const chatModel = require("../models/chat");
 const sellerModel = require("../models/seller");
 const buyerModel = require("../models/buyer");
-
+const sellerController= require ("../controllers/seller");
 const addSeller = async (sellerId, socketId) => {
   if (sellerId) {
     await sellerModel.findByIdAndUpdate(sellerId, { $set: { socketId } });
@@ -16,7 +16,6 @@ const addBuyer = async (buyerId, socketId) => {
 const addMessage = async (req, res, next) => {
   const { sellerId, buyerId, orderId, message } = req.body;
   const from = req?.seller ? "seller" : "buyer";
-
   const result = await chatModel
     .findOneAndUpdate(
       { sellerId, buyerId, orderId },
@@ -31,12 +30,16 @@ const addMessage = async (req, res, next) => {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     )
     .populate("sellerId buyerId");
-  const socketIds = [result.sellerId.socketId, result.buyerId.socketId];
-  const io = req.app.get("io");
-  socketIds.forEach((socketId) => {
-    io.to(socketId).emit("receiveMessage", result);
-  });
-  res.json();
+  // const socketIds = [result.sellerId.socketId, result.buyerId.socketId];
+  // const io = req.app.get("io");
+  // socketIds.forEach((socketId) => {
+    // io.to(socketId).emit("receiveMessage", result);
+  // });
+  if (from==="buyer")
+  {
+    next();
+  }
+  // res.json();
 };
 
 const getChatForSpecificOrder = async (req, res, next) => {

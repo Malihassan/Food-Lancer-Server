@@ -3,6 +3,7 @@ const sellerModel = require("../models/seller");
 const config = require("../config/emailsConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
+var mongoose = require("mongoose");
 const orderController = require("../controllers/order");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
@@ -272,14 +273,37 @@ const getSellersByStatus = async (req, res, next) => {
   res.json(data);
 };
 
-const addNotificationToSellerForAddOrder = async (sellerId, orderId) => {
-  return await sellerModel.findOneAndUpdate(
+const addNotificationToSellerForAddOrder = async (req, res, next) => {
+  const { sellerId, orderId } = req.body;
+  const updatedSeller=await sellerModel.findOneAndUpdate(
     { _id: sellerId },
-    { $set: { "notification.order": orderId } }
+    {
+      $push: {
+        notification: {
+          order: mongoose.Types.ObjectId(orderId)
+        },
+      },
+    },
+    { new: true, runValidators: true }
   );
+  res.json(updatedSeller);
+};
+const addNotificationToSellerForRecieveMesseageFromBuyer = async (req, res, next) => {
+  console.log("Welcome from recieve message");
+  console.log(req.body.sellerId,"sellerId");
+  console.log(req.body.orderId,"orderId");
+  const { sellerId, orderId } = req.body;
+const test=await sellerModel.findOne({ _id: sellerId,"$notification.order":orderId });
+console.log(test,"tesssssst");
+  const updatedSeller=await sellerModel.findOneAndUpdate(
+    { _id: sellerId,"$notification.order":orderId },
+    { $set: {"$notification.test":"asd"} }
+  );
+  res.json(updatedSeller);
 };
 
 module.exports = {
+  addNotificationToSellerForAddOrder,
   checkSellerAcountBeforeSignup,
   signup,
   confirm,
@@ -291,6 +315,6 @@ module.exports = {
   getSpecificSeller,
   updateSeller,
   updateSellerStatus,
-  addNotificationToSellerForAddOrder,
   logout,
+  addNotificationToSellerForRecieveMesseageFromBuyer
 };

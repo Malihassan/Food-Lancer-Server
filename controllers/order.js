@@ -8,15 +8,13 @@ const addOrder = async(req, res, next) => {
 	const orderDetails = req.body;
 	const newOrder = await orderModel.create(orderDetails);
   const {_id} = newOrder;
+  console.log(_id,"orderId");
+  req.body.orderId=_id;
   const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
-	
-  // const addNotif = await sellerController.addSellerNotificationForOrder(selectedOrder.sellerId._id,_id)
-  // console.log(addNotif);
-
-  const io = req.app.get("socketio");
-  io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
+  // const io = req.app.get("socketio");
+  // io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
   console.log(selectedOrder.sellerId.socketId);
-  res.send("Order Submitted Successfully!");
+  next()
 	
 }
 

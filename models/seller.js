@@ -91,14 +91,15 @@ const sellerSchema = mongoose.Schema(
     },
     notification: [
       {
+        test:String,
         order: {
           type: mongoose.SchemaTypes.ObjectId,
           ref: "order",
           required: true,
         },
         chat: {
-          messageCount: Number,
-		  read: Boolean,
+          messageCount: { type: Number, default: 0 },
+          read: { type: Boolean, default: true },
         },
       },
     ],
