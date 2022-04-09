@@ -340,7 +340,7 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
 };
 const setNotificationMessageAsReaded = async (req, res, next) => {
   const { orderId } = req.body;
-  await buyerModel.findOneAndUpdate(
+  const buyerData=await buyerModel.findOneAndUpdate(
     {
       _id: req.buyer._id,
       "notification.order.orderId": orderId,
@@ -350,8 +350,15 @@ const setNotificationMessageAsReaded = async (req, res, next) => {
     },
     { new: true, runValidators: true }
   );
-
-  res.json();
+  res.json(buyerData.notification);
+};
+const getNotificationsForBuyer = async (req, res, next) => {
+const buyerData=  await buyerModel.findById({_id: req.buyer._id});
+if (!buyerData)
+{
+  return next(new AppError("accountNotFound"));
+}
+  res.json(buyerData.notification);
 };
 // const setNotificationOrderAsReaded =async (req,res,next) =>{
 //   const {seller , order}  = req
@@ -381,6 +388,7 @@ module.exports = {
   addNotificationToBuyerForChangeOrderStatus,
   addNotificationToBuyerForRecieveMesseageFromSeller,
   setNotificationMessageAsReaded,
+  getNotificationsForBuyer,
   // setNotificationOrderAsReaded,
   login,
   signup,
