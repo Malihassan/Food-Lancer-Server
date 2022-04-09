@@ -380,7 +380,7 @@ module.exports = {
   // setMessageAsReaded,
   addNotificationToBuyerForChangeOrderStatus,
   addNotificationToBuyerForRecieveMesseageFromSeller,
-  setNotificationMessageAsReaded,
+  setNotificationMessageAsReaded, 
   // setNotificationOrderAsReaded,
   login,
   signup,
