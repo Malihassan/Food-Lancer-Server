@@ -89,19 +89,25 @@ const buyerSchema = mongoose.Schema(
         ref: "product",
       },
     ],
-    notification: [
-      {
-        order: {
-          type: mongoose.SchemaTypes.ObjectId,
-          ref: "order",
-          required: true,
-        },
-        chat: {
-          messageCount: Number,
-		  read: Boolean,
-        },
-      },
-    ],
+	notification: [
+		{
+		  order: {
+			orderId: {
+			  type: mongoose.SchemaTypes.ObjectId,
+			  ref: "order",
+			  required: true,
+			},
+			read: {
+			  type: Boolean,
+			  default: false,
+			},
+		  },
+		  chatMessageCount: {
+			type: Number,
+			default: 0,
+		  },
+		},
+	  ],
   },
   { timestamps: true }
 );

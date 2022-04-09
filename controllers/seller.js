@@ -275,12 +275,12 @@ const getSellersByStatus = async (req, res, next) => {
 
 const addNotificationToSellerForAddOrder = async (req, res, next) => {
   const { sellerId, orderId } = req.body;
-  const updatedSeller=await sellerModel.findOneAndUpdate(
+  const updatedSeller = await sellerModel.findOneAndUpdate(
     { _id: sellerId },
     {
       $push: {
         notification: {
-          order: mongoose.Types.ObjectId(orderId)
+          "order.orderId": mongoose.Types.ObjectId(orderId),
         },
       },
     },
@@ -288,22 +288,59 @@ const addNotificationToSellerForAddOrder = async (req, res, next) => {
   );
   res.json(updatedSeller);
 };
-const addNotificationToSellerForRecieveMesseageFromBuyer = async (req, res, next) => {
-  console.log("Welcome from recieve message");
-  console.log(req.body.sellerId,"sellerId");
-  console.log(req.body.orderId,"orderId");
+const addNotificationToSellerForRecieveMesseageFromBuyer = async (
+  req,
+  res,
+  next
+) => {
   const { sellerId, orderId } = req.body;
-const test=await sellerModel.findOne({ _id: sellerId,"$notification.order":orderId });
-console.log(test,"tesssssst");
-  const updatedSeller=await sellerModel.findOneAndUpdate(
-    { _id: sellerId,"$notification.order":orderId },
-    { $set: {"$notification.test":"asd"} }
+  const updatedSeller = await sellerModel.findOneAndUpdate(
+    {
+      _id: sellerId,
+      "notification.order.orderId":orderId,
+    },
+    {
+      $inc: { "notification.$.chatMessageCount": 1 },
+    },
+    { new: true, runValidators: true }
   );
   res.json(updatedSeller);
 };
+const setNotificationOrderAsReaded  =async (req,res,next) =>{
+  const {seller , order}  = req
+   await sellerModel.findOneAndUpdate(
+    {
+      _id: seller._id,
+      "notification.order.orderId":order._id,
+    },
+    {
+      $set:{"notification.$.order.read":true}
+    },
+    { new: true, runValidators: true }
+  );
+    next()
+}
 
+const setMessageAsReaded = async (req,res,next) =>{
+  const { orderId}  = req.body
+   await sellerModel.findOneAndUpdate(
+    {
+      _id: req.seller._id,
+      "notification.order.orderId":orderId,
+    },
+    {
+      $set:{"notification.$.chatMessageCount":0}
+    },
+    { new: true, runValidators: true }
+  );
+
+  res.json();
+}
 module.exports = {
   addNotificationToSellerForAddOrder,
+  addNotificationToSellerForRecieveMesseageFromBuyer,
+  setNotificationOrderAsReaded,
+  setMessageAsReaded,
   checkSellerAcountBeforeSignup,
   signup,
   confirm,
@@ -316,5 +353,4 @@ module.exports = {
   updateSeller,
   updateSellerStatus,
   logout,
-  addNotificationToSellerForRecieveMesseageFromBuyer
 };

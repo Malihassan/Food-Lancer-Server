@@ -304,7 +304,84 @@ const logout = async (req, res, next) => {
   );
   res.status(200).json({ Message: "logout" });
 };
+const addNotificationToBuyerForChangeOrderStatus = async (req, res, next) => {
+  const { _id } = req.order;
+  const buyerId = req.order.buyerId._id;
+  await buyerModel.findOneAndUpdate(
+    { _id: buyerId },
+    {
+      $push: {
+        notification: {
+          "order.orderId": mongoose.Types.ObjectId(_id),
+        },
+      },
+    },
+    { new: true, runValidators: true }
+  );
+  res.json(req.order);
+};
+const addNotificationToBuyerForRecieveMesseageFromSeller = async (
+  req,
+  res,
+  next
+) => {
+  const { buyerId, orderId } = req.body;
+  const updatedSeller = await buyerModel.findOneAndUpdate(
+    {
+      _id: buyerId,
+      "notification.order.orderId": orderId,
+    },
+    {
+      $inc: { "notification.$.chatMessageCount": 1 },
+    },
+    { new: true, runValidators: true }
+  );
+  res.json(updatedSeller);
+};
+const setNotificationMessageAsReaded = async (req, res, next) => {
+  const { orderId } = req.body;
+  await buyerModel.findOneAndUpdate(
+    {
+      _id: req.buyer._id,
+      "notification.order.orderId": orderId,
+    },
+    {
+      $set: { "notification.$.chatMessageCount": 0 },
+    },
+    { new: true, runValidators: true }
+  );
+
+  res.json();
+};
+// const setNotificationOrderAsReaded =async (req,res,next) =>{
+//   const {seller , order}  = req
+//    await sellerModel.findOneAndUpdate(
+//     {
+//       _id: seller._id,
+//       "notification.order.orderId":order._id,
+//     },
+//     {
+//       $set:{"notification.$.order.read":true}
+//     },
+//     { new: true, runValidators: true }
+//   );
+// }
+
+/**
+ *   addNotificationToSellerForAddOrder,
+  addNotificationToSellerForRecieveMesseageFromBuyer,
+  setNotificationOrderAsReaded,
+  setMessageAsReaded,
+ */
 module.exports = {
+  // addNotificationToBuyerForChangeOrderStatus,
+  // addNotificationToBuyerForRecieveMesseageFromSeller,
+  // setNotificationOrderAsReaded
+  // setMessageAsReaded,
+  addNotificationToBuyerForChangeOrderStatus,
+  addNotificationToBuyerForRecieveMesseageFromSeller,
+  setNotificationMessageAsReaded,
+  // setNotificationOrderAsReaded,
   login,
   signup,
   forgetPassword,
@@ -319,5 +396,5 @@ module.exports = {
   deleteFav,
   checkBuyerAcountBeforeSignup,
   confirm,
-  logout
+  logout,
 };

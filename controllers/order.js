@@ -185,8 +185,10 @@ const updateOrderStatusForSeller = async (req, res, next) => {
   }  
   const io = req.app.get("io");
   io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
-  res.json(order);
+  req.order = order
+  next()
 };
+
 module.exports = {
   addOrder,
   getOrders,
