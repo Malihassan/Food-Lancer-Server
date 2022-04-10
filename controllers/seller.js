@@ -337,26 +337,8 @@ const setMessageAsReaded = async (req, res, next) => {
   res.json();
 };
 const getNotification = async (req, res, next) => {
-  // const seller = await sellerModel.findById(req.seller._id)
-  const seller = await sellerModel.aggregate([
-    {
-      $project: {
-        notification: {
-          $filter: {
-            input: "$notification",
-            as: "notification",
-            cond: { $eq: ["$$notification.order.read", false] },
-          },
-        },
-      },
-    },
-    {
-      $match: {
-        _id: req.seller._id,
-      },
-    },
-  ]);
-  res.json(seller[0]);
+  const seller = await sellerModel.findById(req.seller._id)
+  res.json(seller.notification);
 };
 module.exports = {
   addNotificationToSellerForAddOrder,
