@@ -345,15 +345,28 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
 };
 const setNotificationMessageAsReaded = async (req, res, next) => {
   const { orderId } = req.body;
+  console.log(orderId,"orderId",req.buyer._id.toString(),"buyerId");
+  // await buyerModel.findOneAndUpdate(
+  //   { _id: req.buyer._id},
+  //   {
+  //     $push: {
+  //       notification: {
+  //         "order.orderId": mongoose.Types.ObjectId(orderId),
+  //       },
+  //     },
+  //   },
+  //   { new: true, runValidators: true }
+  // );
+  // res.json();
   const buyerData=await buyerModel.findOneAndUpdate(
     {
       _id: req.buyer._id,
-      "notification.order.orderId": orderId,
+      "notification.order.orderId": mongoose.Types.ObjectId(orderId),
     },
     {
       $set: { "notification.$.chatMessageCount": 0 },
     },
-    { new: true, runValidators: true }
+    {new: true, setDefaultsOnInsert: true }
   );
   res.json(buyerData.notification);
 };
