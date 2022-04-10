@@ -13,7 +13,7 @@ const addOrder = async(req, res, next) => {
   const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
   // const io = req.app.get("socketio");
   // io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
-  console.log(selectedOrder.sellerId.socketId);
+  // console.log(selectedOrder.sellerId.socketId);
   next()
 	
 }
@@ -62,7 +62,7 @@ const getOrders = async (req, res, next) => {
 
   const option = {
     page: page,
-    // sort:{status:'canceled'},
+    sort:{createdAt:-1},
     limit: pageSize,
     populate: [
       {

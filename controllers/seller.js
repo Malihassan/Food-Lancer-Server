@@ -297,50 +297,57 @@ const addNotificationToSellerForRecieveMesseageFromBuyer = async (
   const updatedSeller = await sellerModel.findOneAndUpdate(
     {
       _id: sellerId,
-      "notification.order.orderId":orderId,
+      "notification.order.orderId": orderId,
     },
     {
       $inc: { "notification.$.chatMessageCount": 1 },
     },
     { new: true, runValidators: true }
   );
+  const io = req.app.get("io");
+  io.to(updatedSeller.socketId).emit("receiveNotification", updatedSeller.notification);
   res.json(updatedSeller);
 };
-const setNotificationOrderAsReaded  =async (req,res,next) =>{
-  const {seller , order}  = req
-   await sellerModel.findOneAndUpdate(
+const setNotificationOrderAsReaded = async (req, res, next) => {
+  const { seller, order } = req;
+  await sellerModel.findOneAndUpdate(
     {
       _id: seller._id,
-      "notification.order.orderId":order._id,
+      "notification.order.orderId": order._id,
     },
     {
-      $set:{"notification.$.order.read":true}
+      $set: { "notification.$.order.read": true },
     },
     { new: true, runValidators: true }
   );
-    next()
-}
+  next();
+};
 
-const setMessageAsReaded = async (req,res,next) =>{
-  const { orderId}  = req.body
-   await sellerModel.findOneAndUpdate(
+const setMessageAsReaded = async (req, res, next) => {
+  const { orderId } = req.body;
+  await sellerModel.findOneAndUpdate(
     {
       _id: req.seller._id,
-      "notification.order.orderId":orderId,
+      "notification.order.orderId": orderId,
     },
     {
-      $set:{"notification.$.chatMessageCount":0}
+      $set: { "notification.$.chatMessageCount": 0 },
     },
     { new: true, runValidators: true }
   );
 
   res.json();
-}
+};
+const getNotification = async (req, res, next) => {
+  const seller = await sellerModel.findById(req.seller._id)
+  res.json(seller.notification);
+};
 module.exports = {
   addNotificationToSellerForAddOrder,
   addNotificationToSellerForRecieveMesseageFromBuyer,
   setNotificationOrderAsReaded,
   setMessageAsReaded,
+  getNotification,
   checkSellerAcountBeforeSignup,
   signup,
   confirm,

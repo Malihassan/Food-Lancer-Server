@@ -312,7 +312,7 @@ const addNotificationToBuyerForChangeOrderStatus = async (req, res, next) => {
     {
       $push: {
         notification: {
-          "order.orderId": mongoose.Types.ObjectId(_id),
+          "order.orderId": _id,
         },
       },
     },
@@ -345,19 +345,17 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
 };
 const setNotificationMessageAsReaded = async (req, res, next) => {
   const { orderId } = req.body;
-  console.log(orderId,"orderId",req.buyer._id.toString(),"buyerId");
-  // await buyerModel.findOneAndUpdate(
-  //   { _id: req.buyer._id},
-  //   {
-  //     $push: {
-  //       notification: {
-  //         "order.orderId": mongoose.Types.ObjectId(orderId),
-  //       },
-  //     },
-  //   },
-  //   { new: true, runValidators: true }
-  // );
-  // res.json();
+  await buyerModel.findOneAndUpdate(
+    { _id: req.buyer._id },
+    {
+      $push: {
+        notification: {
+          "order.orderId": orderId,
+        },
+      },
+    },
+    { new: true, runValidators: true }
+  );
   const buyerData=await buyerModel.findOneAndUpdate(
     {
       _id: req.buyer._id,
@@ -366,7 +364,7 @@ const setNotificationMessageAsReaded = async (req, res, next) => {
     {
       $set: { "notification.$.chatMessageCount": 0 },
     },
-    {new: true, setDefaultsOnInsert: true }
+    {upsert: true, new: true, runValidators: true }
   );
   res.json(buyerData.notification);
 };
