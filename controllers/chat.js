@@ -33,7 +33,7 @@ const addMessage = async (req, res, next) => {
   const socketIds = [result.sellerId.socketId, result.buyerId.socketId];
   const io = req.app.get("io");
   socketIds.forEach((socketId) => {
-    io.to(socketId).emit("receiveMessage", result);
+    io.to(socketId).emit("receiveMessage", result.messages);
   });
   // const buyerData = await buyerModel.find({ _id: buyerId });
   // io.to(result.buyerId.socketId).emit(
