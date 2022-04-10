@@ -339,7 +339,7 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
   const io = req.app.get("io");
   io.to(updatedBuyer.socketId).emit(
     "receiveNotification",
-    updateBuyer.notification
+    updatedBuyer.notification
   );
   res.json(updatedBuyer);
 };
