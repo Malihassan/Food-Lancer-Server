@@ -326,7 +326,7 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
   next
 ) => {
   const { buyerId, orderId } = req.body;
-  const updatedSeller = await buyerModel.findOneAndUpdate(
+  const updatedBuyer = await buyerModel.findOneAndUpdate(
     {
       _id: buyerId,
       "notification.order.orderId": orderId,
@@ -336,7 +336,12 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
     },
     { new: true, runValidators: true }
   );
-  res.json(updatedSeller);
+  const io = req.app.get("io");
+  io.to(updatedBuyer.socketId).emit(
+    "receiveNotification",
+    updatedBuyer.notification
+  );
+  res.json(updatedBuyer);
 };
 const setNotificationMessageAsReaded = async (req, res, next) => {
   const { orderId } = req.body;

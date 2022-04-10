@@ -35,8 +35,12 @@ const addMessage = async (req, res, next) => {
   socketIds.forEach((socketId) => {
     io.to(socketId).emit("receiveMessage", result);
   });
+  // const buyerData = await buyerModel.find({ _id: buyerId });
+  // io.to(result.buyerId.socketId).emit(
+  //   "receiveNotification",
+  //   buyerData.notification
+  // );
   next();
-  // res.json()
 };
 
 const getChatForSpecificOrder = async (req, res, next) => {
