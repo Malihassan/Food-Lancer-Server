@@ -337,7 +337,7 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
     { new: true, runValidators: true }
   );
   const io = req.app.get("io");
-  io.to(buyerId.socketId).emit(
+  io.to(updatedBuyer.socketId).emit(
     "receiveNotification",
     updateBuyer.notification
   );
