@@ -20,11 +20,9 @@ const addOrder = async(req, res, next) => {
 
 
 const getOrdersForSpecificBuyer = (req, res, next) => {
-  // const { id } = req.query;
-//   const { id } = req.params;
 const { id } = req.buyer;
   orderModel
-    .find({ buyerId: id })
+    .find({ buyerId: id }).sort({"createdAt":-1})
     .populate({
       path: "sellerId",
       select: "userName firstName lastName phone email status gender rate",
