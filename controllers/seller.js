@@ -356,8 +356,7 @@ const getNotification = async (req, res, next) => {
       },
     },
   ]);
-  console.log(seller);
-  res.json(seller);
+  res.json(seller[0]);
 };
 module.exports = {
   addNotificationToSellerForAddOrder,
