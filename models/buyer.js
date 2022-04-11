@@ -96,7 +96,6 @@ const buyerSchema = mongoose.Schema(
 			  type: mongoose.SchemaTypes.ObjectId,
 			  ref: "order",
 			  required: true,
-        default:""
 			},
 			read: {
 			  type: Boolean,
