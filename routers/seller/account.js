@@ -10,7 +10,7 @@ router.post("/login", sellerController.login);
 router.post("/signup",multer.single("image"),sellerController.checkSellerAcountBeforeSignup,sellerController.signup);
 router.get("/signup/confirm/:token/:id", sellerController.confirm);
 router.get("/info", sellerAuthentication, sellerController.getSpecificSeller);
-
+router.get('/notification',sellerAuthentication,sellerController.getNotification)
 router.post("/forgetPassword", sellerController.forgetPassword);
 router.get("/logout", sellerAuthentication, sellerController.logout);
 

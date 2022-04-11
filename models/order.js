@@ -45,5 +45,4 @@ const orderSchema = mongoose.Schema(
 );
 orderSchema.plugin(mongoosePaginate);
 const OrderModel = mongoose.model("order", orderSchema);
-
 module.exports = OrderModel;

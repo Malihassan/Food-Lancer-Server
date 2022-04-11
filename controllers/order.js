@@ -2,13 +2,27 @@ const orderModel = require("../models/order");
 const AppError = require("../helpers/ErrorClass");
 const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
+const sellerController = require("./seller");
+
+const addOrder = async(req, res, next) => {
+	const orderDetails = req.body;
+	const newOrder = await orderModel.create(orderDetails);
+  const {_id} = newOrder;
+  console.log(_id,"orderId");
+  req.body.orderId=_id;
+  const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
+  // const io = req.app.get("socketio");
+  // io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
+  // console.log(selectedOrder.sellerId.socketId);
+  next()
+	
+}
+
 
 const getOrdersForSpecificBuyer = (req, res, next) => {
-  // const { id } = req.query;
-//   const { id } = req.params;
 const { id } = req.buyer;
   orderModel
-    .find({ buyerId: id })
+    .find({ buyerId: id }).sort({"createdAt":-1})
     .populate({
       path: "sellerId",
       select: "userName firstName lastName phone email status gender rate",
@@ -48,7 +62,7 @@ const getOrders = async (req, res, next) => {
 
   const option = {
     page: page,
-    // sort:{status:'canceled'},
+    sort:{createdAt:-1},
     limit: pageSize,
     populate: [
       {
@@ -166,15 +180,15 @@ const updateOrderStatusForSeller = async (req, res, next) => {
       .populate("buyerId");
   } catch (error) {
     res.status(400).json({ error: error.message });
-  }
-  
-  
-  const io = req.app.get("socketio");
+  }  
+  const io = req.app.get("io");
   io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
-  console.log(order.buyerId.socketId);
-  res.json(order);
+  req.order = order
+  next()
 };
+
 module.exports = {
+  addOrder,
   getOrders,
   getOrdersForSpecificBuyer,
   getOrdersForSpecificSeller,

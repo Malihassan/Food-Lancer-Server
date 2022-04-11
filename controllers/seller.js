@@ -3,6 +3,7 @@ const sellerModel = require("../models/seller");
 const config = require("../config/emailsConfig");
 const orderModel = require("../models/order");
 const productModel = require("../models/product");
+var mongoose = require("mongoose");
 const orderController = require("../controllers/order");
 const cloudinary = require("../config/cloudinaryConfig");
 const jwt = require("jsonwebtoken");
@@ -116,14 +117,16 @@ async function updateSeller(req, res, next) {
 }
 
 const checkSellerAcountBeforeSignup = async (req, res, next) => {
-	console.log(req.body);
-	const {email,userName,phone} = req.body
-	const accountExist =await sellerModel.findOne({$or:[{email},{userName},{phone}]})
-	console.log(accountExist);
-	if (accountExist) {
-		return next(new AppError('userUniqueFileds'))
-	}
-	next()
+  console.log(req.body);
+  const { email, userName, phone } = req.body;
+  const accountExist = await sellerModel.findOne({
+    $or: [{ email }, { userName }, { phone }],
+  });
+  console.log(accountExist);
+  if (accountExist) {
+    return next(new AppError("userUniqueFileds"));
+  }
+  next();
 };
 const signup = async function (req, res, next) {
   const userDetails = req.body;
@@ -148,16 +151,16 @@ const _create = async function (userDetails) {
 
   const token = await _tokenCreator(userName, _id);
 
-	config._mailConfirmation(
-		userName,
-		email,
-		token,
-		_id,
+  config._mailConfirmation(
+    userName,
+    email,
+    token,
+    _id,
     "seller",
-		process.env.USER,
-		process.env.PASS
-	);
-	return token;
+    process.env.USER,
+    process.env.PASS
+  );
+  return token;
 };
 
 const _tokenCreator = async function (userName, _id) {
@@ -169,18 +172,18 @@ const _tokenCreator = async function (userName, _id) {
 };
 
 const confirm = function (req, res, next) {
-	const { id } = req.params;
-	_changeStatus(id)
-		.then((user) => {
-			// res.send(`hello ${user}`);
-			return res.render("welcomePage", {
-				userName: user,
-			});
-		})
-		.catch((e) => {
-			console.log(e);
-			next();
-		});
+  const { id } = req.params;
+  _changeStatus(id)
+    .then((user) => {
+      // res.send(`hello ${user}`);
+      return res.render("welcomePage", {
+        userName: user,
+      });
+    })
+    .catch((e) => {
+      console.log(e);
+      next();
+    });
 };
 
 const _changeStatus = async function (id) {
@@ -270,7 +273,81 @@ const getSellersByStatus = async (req, res, next) => {
   res.json(data);
 };
 
+const addNotificationToSellerForAddOrder = async (req, res, next) => {
+  const { sellerId, orderId } = req.body;
+  const updatedSeller = await sellerModel.findOneAndUpdate(
+    { _id: sellerId },
+    {
+      $push: {
+        notification: {
+          "order.orderId": mongoose.Types.ObjectId(orderId),
+        },
+      },
+    },
+    { new: true, runValidators: true }
+  );
+  res.json(updatedSeller);
+};
+const addNotificationToSellerForRecieveMesseageFromBuyer = async (
+  req,
+  res,
+  next
+) => {
+  const { sellerId, orderId } = req.body;
+  const updatedSeller = await sellerModel.findOneAndUpdate(
+    {
+      _id: sellerId,
+      "notification.order.orderId": orderId,
+    },
+    {
+      $inc: { "notification.$.chatMessageCount": 1 },
+    },
+    { new: true, runValidators: true }
+  );
+  const io = req.app.get("io");
+  io.to(updatedSeller.socketId).emit("receiveNotification", updatedSeller.notification);
+  res.json(updatedSeller);
+};
+const setNotificationOrderAsReaded = async (req, res, next) => {
+  const { seller, order } = req;
+  await sellerModel.findOneAndUpdate(
+    {
+      _id: seller._id,
+      "notification.order.orderId": order._id,
+    },
+    {
+      $set: { "notification.$.order.read": true },
+    },
+    { new: true, runValidators: true }
+  );
+  next();
+};
+
+const setMessageAsReaded = async (req, res, next) => {
+  const { orderId } = req.body;
+  await sellerModel.findOneAndUpdate(
+    {
+      _id: req.seller._id,
+      "notification.order.orderId": orderId,
+    },
+    {
+      $set: { "notification.$.chatMessageCount": 0 },
+    },
+    { new: true, runValidators: true }
+  );
+
+  res.json();
+};
+const getNotification = async (req, res, next) => {
+  const seller = await sellerModel.findById(req.seller._id)
+  res.json(seller.notification);
+};
 module.exports = {
+  addNotificationToSellerForAddOrder,
+  addNotificationToSellerForRecieveMesseageFromBuyer,
+  setNotificationOrderAsReaded,
+  setMessageAsReaded,
+  getNotification,
   checkSellerAcountBeforeSignup,
   signup,
   confirm,
