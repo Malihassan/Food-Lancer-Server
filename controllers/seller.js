@@ -280,7 +280,9 @@ const addNotificationToSellerForAddOrder = async (req, res, next) => {
     },
     { new: true, runValidators: true }
   );
-  res.json(updatedSeller);
+  // res.json(updatedSeller);
+  req.updatedSeller = updatedSeller
+  next()
 };
 const addNotificationToSellerForRecieveMesseageFromBuyer = async (
   req,
@@ -314,7 +316,9 @@ const setNotificationOrderAsReaded = async (req, res, next) => {
     },
     { new: true, runValidators: true }
   );
-  next();
+  // res.json(req.order);
+
+  next()
 };
 
 const setMessageAsReaded = async (req, res, next) => {

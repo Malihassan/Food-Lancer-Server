@@ -306,16 +306,14 @@ const logout = async (req, res, next) => {
 const addNotificationToBuyerForChangeOrderStatus = async (req, res, next) => {
   const { _id } = req.order;
   const buyerId = req.order.buyerId._id;
-  console.log(_id, "orderId");
-  console.log(buyerId, "buyer");
+
   await buyerModel.findOneAndUpdate(
-    { _id: buyerId },
+    { _id: buyerId, 
+      "notification.order.orderId":_id
+    },
     {
-      $push: {
-        notification: {
-          "order.orderId": _id,
-        },
-      },
+      $set: { "notification.$.order.read": false },
+
     },
     { new: true, runValidators: true }
   );
@@ -347,17 +345,6 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
 };
 const setNotificationMessageAsReaded = async (req, res, next) => {
   const { orderId } = req.body;
-  await buyerModel.findOneAndUpdate(
-    { _id: req.buyer._id },
-    {
-      $push: {
-        notification: {
-          "order.orderId": orderId,
-        },
-      },
-    },
-    { new: true, runValidators: true }
-  );
   const buyerData = await buyerModel.findOneAndUpdate(
     {
       _id: req.buyer._id,
@@ -392,8 +379,26 @@ const setNotificationForOrdersAsReaded = async (req, res, next) => {
   );
   res.json();
 };
+const addNotificationToBuyer = async (req,res,next)=>{
+  const { orderId } = req.body;
+  await buyerModel.findOneAndUpdate(
+    { _id: req.buyer._id },
+    {
+      $push: {
+        notification: {
+          "order.orderId": orderId,
+          "order.read": true,
+          
+        },
+      },
+    },
+    { new: true, runValidators: true }
+  );
+  res.json(req.updatedSeller)
+}
 
 module.exports = {
+  addNotificationToBuyer,
   addNotificationToBuyerForChangeOrderStatus,
   addNotificationToBuyerForRecieveMesseageFromSeller,
   setNotificationMessageAsReaded,
