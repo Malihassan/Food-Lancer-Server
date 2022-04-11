@@ -4,6 +4,7 @@ const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 const sellerController = require("./seller");
 
+
 const addOrder = async(req, res, next) => {
 	const orderDetails = req.body;
 	const newOrder = await orderModel.create(orderDetails);
@@ -11,9 +12,9 @@ const addOrder = async(req, res, next) => {
   console.log(_id,"orderId");
   req.body.orderId=_id;
   const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
-  // const io = req.app.get("socketio");
-  // io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
-  // console.log(selectedOrder.sellerId.socketId);
+  const io = req.app.get("io");
+  io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
+  console.log(selectedOrder.sellerId.socketId);
   next()
 	
 }
