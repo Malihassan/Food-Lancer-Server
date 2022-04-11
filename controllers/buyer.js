@@ -318,6 +318,7 @@ const addNotificationToBuyerForChangeOrderStatus = async (req, res, next) => {
     },
     { new: true, runValidators: true }
   );
+
   res.json(req.order);
 };
 const addNotificationToBuyerForRecieveMesseageFromSeller = async (
@@ -376,6 +377,10 @@ if (!buyerData)
 }
   res.json(buyerData.notification);
 };
+const getNotification = async (req, res, next) => {
+  const buyer = await buyerModel.findById(req.buyer._id)
+  res.json(buyer.notification);
+};
 // const setNotificationOrderAsReaded =async (req,res,next) =>{
 //   const {seller , order}  = req
 //    await sellerModel.findOneAndUpdate(
@@ -397,15 +402,12 @@ if (!buyerData)
   setMessageAsReaded,
  */
 module.exports = {
-  // addNotificationToBuyerForChangeOrderStatus,
-  // addNotificationToBuyerForRecieveMesseageFromSeller,
-  // setNotificationOrderAsReaded
-  // setMessageAsReaded,
   addNotificationToBuyerForChangeOrderStatus,
   addNotificationToBuyerForRecieveMesseageFromSeller,
   setNotificationMessageAsReaded,
   getNotificationsForBuyer,
   // setNotificationOrderAsReaded,
+  getNotification,
   login,
   signup,
   forgetPassword,
