@@ -235,7 +235,6 @@ const addFav = async (req, res, next) => {
 const deleteFav = async (req, res, next) => {
   const { _id } = req.buyer;
   const deleteId = mongoose.Types.ObjectId(req.body.id);
-  console.log(req.body);
 
   const buyer = await buyerModel.findById({ _id });
   if (!buyer) {
@@ -394,32 +393,27 @@ const setNotificationForOrdersAsReaded = async (req, res, next) => {
   );
   res.json(buyer.notification);
 };
-// const setNotificationOrderAsReaded =async (req,res,next) =>{
-//   const {seller , order}  = req
-//    await sellerModel.findOneAndUpdate(
-//     {
-//       _id: seller._id,
-//       "notification.order.orderId":order._id,
-//     },
-//     {
-//       $set:{"notification.$.order.read":true}
-//     },
-//     { new: true, runValidators: true }
-//   );
-// }
+const setNotificationForOrdersAsReaded = async (req, res, next) => {
+  const buyerId = req.buyer._id;
+  const buyer = await buyerModel.findByIdAndUpdate(
+    { _id: buyerId },
+    {
+      $set: { "notification.$[].order.read": true },
+    },
+    { new: true }
+  );
+  res.json();
+};
 
-/**
- *   addNotificationToSellerForAddOrder,
-  addNotificationToSellerForRecieveMesseageFromBuyer,
-  setNotificationOrderAsReaded,
-  setMessageAsReaded,
- */
 module.exports = {
   addNotificationToBuyerForChangeOrderStatus,
   addNotificationToBuyerForRecieveMesseageFromSeller,
   setNotificationMessageAsReaded,
   getNotificationsForBuyer,
+<<<<<<< HEAD
   // setNotificationOrderAsReaded,
+=======
+>>>>>>> 10f382e120ed512ddba2d9b7231f07936f58b1d7
   setNotificationForOrdersAsReaded,
   getNotification,
   login,
