@@ -9,7 +9,6 @@ const addOrder = async(req, res, next) => {
 	const orderDetails = req.body;
 	const newOrder = await orderModel.create(orderDetails);
   const {_id} = newOrder;
-  console.log(_id,"orderId");
   req.body.orderId=_id;
   const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
   const io = req.app.get("io");
@@ -182,8 +181,8 @@ const updateOrderStatusForSeller = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }  
-  const io = req.app.get("io");
-  io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
+  // const io = req.app.get("io");
+  // io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
   req.order = order
   next()
 };

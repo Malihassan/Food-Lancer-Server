@@ -8,7 +8,6 @@ async function buyerAuth(req, res, next) {
 		const { token } = req.headers;
 		const payload = jwt.verify(token, process.env.SECRETKEY);
 		const buyer = await buyerModel.findById(payload.id);
-		console.log(buyer);
 		if (!buyer) {
 			return next(new AppError("accountNotFound"));
 		}

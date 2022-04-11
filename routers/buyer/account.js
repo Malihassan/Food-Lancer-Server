@@ -2,26 +2,29 @@ const router = require("express").Router();
 const buyerAuthentication = require("../../middleware/buyerAuth");
 const multer = require("../../middleware/multer");
 
-const BuyerController = require("../../controllers/buyer");
+const buyerController = require("../../controllers/buyer");
 
-router.get("/info", buyerAuthentication, BuyerController.buyerById);
-router.get("/signup/confirm/:token/:id", BuyerController.confirm);
-router.post("/login", BuyerController.login);
-router.post("/signup", multer.single("image"),BuyerController.checkBuyerAcountBeforeSignup , BuyerController.signup);
-router.post("/forgetPassword", BuyerController.forgetPassword);
+router.get("/info", buyerAuthentication, buyerController.buyerById);
+router.get("/signup/confirm/:token/:id", buyerController.confirm);
+router.post("/login", buyerController.login);
+router.get('/notification',buyerAuthentication,buyerController.getNotification)
+// router.get('/setOrderNotificationAsReaded',buyerAuthentication,buyerController.setNotificationForOrdersAsReaded);
+
+router.post("/signup", multer.single("image"),buyerController.checkBuyerAcountBeforeSignup , buyerController.signup);
+router.post("/forgetPassword", buyerController.forgetPassword);
 router.patch(
 	"/resetPassword",
 	buyerAuthentication,
-	BuyerController.resetPassword
+	buyerController.resetPassword
 );
 
 router.patch(
 	"/update",
 	buyerAuthentication,
 	multer.single("image"),
-	BuyerController.updateBuyer
+	buyerController.updateBuyer
 );
-router.get("/logout", buyerAuthentication, BuyerController.logout);
+router.get("/logout", buyerAuthentication, buyerController.logout);
 
 
 module.exports = router;
