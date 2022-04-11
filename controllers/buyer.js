@@ -382,18 +382,6 @@ const getNotification = async (req, res, next) => {
   res.json(buyer.notification);
 };
 const setNotificationForOrdersAsReaded = async (req, res, next) => {
-  console.log("tesssssssssssst for ordder notification");
-  const buyerId = req.buyer._id;
-  const buyer = await buyerModel.findOneAndUpdate(
-    { _id: buyerId },
-    {
-      $set: { "notification.$.order.read": true },
-    },
-    { new: true, runValidators: true }
-  );
-  res.json(buyer.notification);
-};
-const setNotificationForOrdersAsReaded = async (req, res, next) => {
   const buyerId = req.buyer._id;
   const buyer = await buyerModel.findByIdAndUpdate(
     { _id: buyerId },
@@ -410,10 +398,6 @@ module.exports = {
   addNotificationToBuyerForRecieveMesseageFromSeller,
   setNotificationMessageAsReaded,
   getNotificationsForBuyer,
-<<<<<<< HEAD
-  // setNotificationOrderAsReaded,
-=======
->>>>>>> 10f382e120ed512ddba2d9b7231f07936f58b1d7
   setNotificationForOrdersAsReaded,
   getNotification,
   login,
