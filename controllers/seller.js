@@ -117,12 +117,10 @@ async function updateSeller(req, res, next) {
 }
 
 const checkSellerAcountBeforeSignup = async (req, res, next) => {
-  console.log(req.body);
   const { email, userName, phone } = req.body;
   const accountExist = await sellerModel.findOne({
     $or: [{ email }, { userName }, { phone }],
   });
-  console.log(accountExist);
   if (accountExist) {
     return next(new AppError("userUniqueFileds"));
   }
@@ -130,7 +128,6 @@ const checkSellerAcountBeforeSignup = async (req, res, next) => {
 };
 const signup = async function (req, res, next) {
   const userDetails = req.body;
-  console.log(req.body);
   const result = await cloudinary.uploader.upload(req.file.path);
   _create({
     image: [{ url: result.secure_url, _id: result.public_id }],
@@ -140,7 +137,6 @@ const signup = async function (req, res, next) {
       res.json({ message: "Please Cofirm Your Email" });
     })
     .catch((e) => {
-      console.log(e.message);
       res.status(400).json(e.message);
     });
 };
@@ -194,7 +190,6 @@ const _changeStatus = async function (id) {
 const updateSellerStatus = function (req, res, next) {
   const { id } = req.params;
   const { status } = req.body;
-  console.log(id, status);
   _editSeller(id, status)
     .then((result) => {
       res.status(200).json({ updatedStatus: result.status });
@@ -231,7 +226,6 @@ const getSellers = async (req, res, next) => {
   rate = rate ? { rate } : [];
   if (rate.length !== 0) {
     rate = rate.map((item, index) => {
-      console.log("===>", item);
       switch (item) {
         case ">=2":
           return (item = { $lte: 2 });

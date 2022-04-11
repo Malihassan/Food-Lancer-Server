@@ -8,7 +8,6 @@ const addOrder = async(req, res, next) => {
 	const orderDetails = req.body;
 	const newOrder = await orderModel.create(orderDetails);
   const {_id} = newOrder;
-  console.log(_id,"orderId");
   req.body.orderId=_id;
   const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
   // const io = req.app.get("socketio");
