@@ -129,8 +129,9 @@ const checkSellerAcountBeforeSignup = async (req, res, next) => {
 const signup = async function (req, res, next) {
   const userDetails = req.body;
   const result = await cloudinary.uploader.upload(req.file.path);
+  console.log(result);
   _create({
-    image: [{ url: result.secure_url, _id: result.public_id }],
+    image: { url: result.secure_url, _id: result.public_id },
     ...userDetails,
   })
     .then((data) => {
