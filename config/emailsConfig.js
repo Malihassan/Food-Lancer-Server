@@ -1,22 +1,37 @@
 const nodemailer = require("nodemailer");
+const nodemailerSendgrid = require('nodemailer-sendgrid');
+
 require("dotenv").config();
-const transportConfig ={
-  service: 'gmail',
-  auth: {
-    user: `${process.env.USER}`,
-    pass: `${process.env.PASS}`
-  }
-}
+/**
+ * 
+ * const transport = nodemailer.createTransport(
+    nodemailerSendgrid({
+        apiKey: process.env.SENDGRID_API_KEY
+    })
+);
+ */
+// const transportConfig ={
+//   service: 'gmail',
+//   auth: {
+//     user: `${process.env.USER}`,
+//     pass: `${process.env.PASS}`
+//   }
+// }
+const transport = nodemailer.createTransport(
+  nodemailerSendgrid({
+      apiKey: process.env.FOOD_LANCER_SENDGRID_KEY
+  })
+);
 const _mailConfirmation = function(username, email, token, id,type){
-    const transport = nodemailer.createTransport(transportConfig)
+    // const transport = nodemailer.createTransport(transportConfig)
     transport.sendMail({
-        from: process.env.USER,
+        from: process.env.ADMAIN_EMAIL,
         to: email,
         subject: "Please confirm your email",
         html: `<h1>Email Confirmation</h1>
             <h2>Hello, ${username}!</h2>
             <p>we received a request for a password change on Food-lancer.com you can reset your password</p>
-            <a href="http://localhost:3000/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
+            <a href="${process.env.SERVER_URL}/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
             <br> <br>
             <small>this link will expire 24 hours</small>`
     });
