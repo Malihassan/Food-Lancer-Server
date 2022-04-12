@@ -106,7 +106,7 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 }; */
 const getAllProducts = async (req, res, next) => {
   let { page = 1, status, categoryId, min, max, rate } = req.query;
-  status = status ? { status } : {status:"active"};
+  status = status ? { status } : { status: "active" };
   categoryId = categoryId ? { categoryId } : {};
   const minPriceQuery = min ? { price: { $gte: min } } : {};
   const maxPriceQuery = max ? { price: { $lte: max } } : {};
@@ -138,13 +138,7 @@ const getAllProducts = async (req, res, next) => {
   };
   const products = await productModel.paginate(
     {
-      $and: [
-        status,
-        categoryId,
-        minPriceQuery,
-        maxPriceQuery,
-        minRate,
-      ],
+      $and: [status, categoryId, minPriceQuery, maxPriceQuery, minRate],
     },
     options
   );
@@ -177,14 +171,14 @@ const getOneProduct = function (req, res, next) {
     });
 };
 const getProductsForSpecificSeller = async (req, res, next) => {
-  let sellerId
+  let sellerId;
   console.log(req.params);
-  const {id}=req.params
+  const { id } = req.params;
+  sellerId = id;
   if (req.seller) {
-    sellerId=req.seller._id 
-    return
+    sellerId = req.seller._id;
   }
-  sellerId=id
+
   let { page = 1 } = req.query;
   const pageSize = 12;
   const options = {
