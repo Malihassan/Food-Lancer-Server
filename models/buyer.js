@@ -99,7 +99,7 @@ const buyerSchema = mongoose.Schema(
 			},
 			read: {
 			  type: Boolean,
-			  default: false,
+			  default: true,
 			},
 		  },
 		  chatMessageCount: {

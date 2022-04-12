@@ -235,7 +235,6 @@ const addFav = async (req, res, next) => {
 const deleteFav = async (req, res, next) => {
   const { _id } = req.buyer;
   const deleteId = mongoose.Types.ObjectId(req.body.id);
-  console.log(req.body);
 
   const buyer = await buyerModel.findById({ _id });
   if (!buyer) {
@@ -307,17 +306,18 @@ const logout = async (req, res, next) => {
 const addNotificationToBuyerForChangeOrderStatus = async (req, res, next) => {
   const { _id } = req.order;
   const buyerId = req.order.buyerId._id;
+
   await buyerModel.findOneAndUpdate(
-    { _id: buyerId },
+    { _id: buyerId, 
+      "notification.order.orderId":_id
+    },
     {
-      $push: {
-        notification: {
-          "order.orderId": _id,
-        },
-      },
+      $set: { "notification.$.order.read": false },
+
     },
     { new: true, runValidators: true }
   );
+
   res.json(req.order);
 };
 const addNotificationToBuyerForRecieveMesseageFromSeller = async (
@@ -345,18 +345,7 @@ const addNotificationToBuyerForRecieveMesseageFromSeller = async (
 };
 const setNotificationMessageAsReaded = async (req, res, next) => {
   const { orderId } = req.body;
-  await buyerModel.findOneAndUpdate(
-    { _id: req.buyer._id },
-    {
-      $push: {
-        notification: {
-          "order.orderId": orderId,
-        },
-      },
-    },
-    { new: true, runValidators: true }
-  );
-  const buyerData=await buyerModel.findOneAndUpdate(
+  const buyerData = await buyerModel.findOneAndUpdate(
     {
       _id: req.buyer._id,
       "notification.order.orderId": mongoose.Types.ObjectId(orderId),
@@ -364,48 +353,58 @@ const setNotificationMessageAsReaded = async (req, res, next) => {
     {
       $set: { "notification.$.chatMessageCount": 0 },
     },
-    {upsert: true, new: true, runValidators: true }
+    { upsert: true, new: true, runValidators: true }
   );
   res.json(buyerData.notification);
 };
 const getNotificationsForBuyer = async (req, res, next) => {
-const buyerData=  await buyerModel.findById({_id: req.buyer._id});
-if (!buyerData)
-{
-  return next(new AppError("accountNotFound"));
-}
+  const buyerData = await buyerModel.findById({ _id: req.buyer._id });
+  if (!buyerData) {
+    return next(new AppError("accountNotFound"));
+  }
   res.json(buyerData.notification);
 };
-// const setNotificationOrderAsReaded =async (req,res,next) =>{
-//   const {seller , order}  = req
-//    await sellerModel.findOneAndUpdate(
-//     {
-//       _id: seller._id,
-//       "notification.order.orderId":order._id,
-//     },
-//     {
-//       $set:{"notification.$.order.read":true}
-//     },
-//     { new: true, runValidators: true }
-//   );
-// }
+const getNotification = async (req, res, next) => {
+  const buyer = await buyerModel.findById(req.buyer._id);
+  res.json(buyer.notification);
+};
+const setNotificationForOrdersAsReaded = async (req, res, next) => {
+  const buyerId = req.buyer._id;
+  const buyer = await buyerModel.findByIdAndUpdate(
+    { _id: buyerId },
+    {
+      $set: { "notification.$[].order.read": true },
+    },
+    { new: true }
+  );
+  res.json();
+};
+const addNotificationToBuyer = async (req,res,next)=>{
+  const { orderId } = req.body;
+  await buyerModel.findOneAndUpdate(
+    { _id: req.buyer._id },
+    {
+      $push: {
+        notification: {
+          "order.orderId": orderId,
+          "order.read": true,
+          
+        },
+      },
+    },
+    { new: true, runValidators: true }
+  );
+  res.json(req.updatedSeller)
+}
 
-/**
- *   addNotificationToSellerForAddOrder,
-  addNotificationToSellerForRecieveMesseageFromBuyer,
-  setNotificationOrderAsReaded,
-  setMessageAsReaded,
- */
 module.exports = {
-  // addNotificationToBuyerForChangeOrderStatus,
-  // addNotificationToBuyerForRecieveMesseageFromSeller,
-  // setNotificationOrderAsReaded
-  // setMessageAsReaded,
+  addNotificationToBuyer,
   addNotificationToBuyerForChangeOrderStatus,
   addNotificationToBuyerForRecieveMesseageFromSeller,
   setNotificationMessageAsReaded,
   getNotificationsForBuyer,
-  // setNotificationOrderAsReaded,
+  setNotificationForOrdersAsReaded,
+  getNotification,
   login,
   signup,
   forgetPassword,

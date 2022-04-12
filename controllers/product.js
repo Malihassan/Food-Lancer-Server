@@ -49,10 +49,8 @@ const addProduct = async (req, res, next) => {
   }
 };
 const checkSellerProductBeforeSignup = async (req, res, next) => {
-  console.log(req.body);
   const { name } = req.body;
   const productNameExist = await productModel.findOne({ name });
-  console.log(productNameExist);
   if (productNameExist) {
     return next(new AppError("productUniqueName"));
   }
@@ -60,7 +58,6 @@ const checkSellerProductBeforeSignup = async (req, res, next) => {
 };
 const deleteProduct = (req, res, next) => {
   const seller = req.seller;
-  console.log(seller._id);
   productModel
     .findOneAndDelete({ _id: req.params.id, sellerId: seller._id })
     .then((deleted) => {
@@ -78,12 +75,10 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
   const { name, description, image, price, addOns } = req.body;
   try {
     const images = await req.files;
-    console.log(images, "Images <----");
     for (let img of images) {
       let result = await cloudinary.uploader.upload(img.path);
       imgs.push({ url: result.secure_url, _id: result.public_id });
     }
-    console.log(idSeller);
     productModel
       .findOneAndUpdate(
         { _id: id, sellerId: idSeller },
@@ -94,7 +89,6 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
         // if (!data) {
         // 	return next(new AppError("accountNotFound"));
         // }
-        console.log(data, "------------------------ data");
         res.json(data);
       })
       .catch((e) => res.status(401).json(e.message));
@@ -276,7 +270,6 @@ const updateReview = async (req, res, next) => {
   const { productId } = req.params;
 
   try {
-    console.log(orderId, "order id");
     const checked = await productModel.findOne({
       _id: productId,
       "reviews.buyerId": buyerId,
@@ -284,7 +277,6 @@ const updateReview = async (req, res, next) => {
       "reviews.orderId": orderId,
     });
     if (checked) {
-      console.log(checked, "inside checked");
       return next(new AppError("reviewAlreadyAdded"));
     }
     const updated = await productModel.findOneAndUpdate(
