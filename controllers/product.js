@@ -1,9 +1,11 @@
 const productModel = require("../models/product");
+const orderModel = require("../models/order");
 const categoryModel = require("../models/category");
 const AppError = require("../helpers/ErrorClass");
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 var mongoose = require("mongoose");
+const sellerModel = require("../models/seller");
 
 //const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
@@ -106,7 +108,7 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 }; */
 const getAllProducts = async (req, res, next) => {
   let { page = 1, status, categoryId, min, max, rate } = req.query;
-  status = status ? { status } : {status:"active"};
+  status = status ? { status } : { status: "active" };
   categoryId = categoryId ? { categoryId } : {};
   const minPriceQuery = min ? { price: { $gte: min } } : {};
   const maxPriceQuery = max ? { price: { $lte: max } } : {};
@@ -138,13 +140,7 @@ const getAllProducts = async (req, res, next) => {
   };
   const products = await productModel.paginate(
     {
-      $and: [
-        status,
-        categoryId,
-        minPriceQuery,
-        maxPriceQuery,
-        minRate,
-      ],
+      $and: [status, categoryId, minPriceQuery, maxPriceQuery, minRate],
     },
     options
   );
@@ -177,14 +173,14 @@ const getOneProduct = function (req, res, next) {
     });
 };
 const getProductsForSpecificSeller = async (req, res, next) => {
-  let sellerId
+  let sellerId;
   console.log(req.params);
-  const {id}=req.params
+  const { id } = req.params;
   if (req.seller) {
-    sellerId=req.seller._id 
-    return
+    sellerId = req.seller._id;
+    return;
   }
-  sellerId=id
+  sellerId = id;
   let { page = 1 } = req.query;
   const pageSize = 12;
   const options = {
@@ -266,7 +262,8 @@ const updateStatus = async (req, res, next) => {
   }
 };
 const updateReview = async (req, res, next) => {
-  const { comments, rate, buyerId, sellerId, orderId } = req.body;
+  const { comments, rate, sellerId, orderId } = req.body;
+  const buyerId = req.buyer._id;
   const { productId } = req.params;
 
   try {
@@ -304,11 +301,42 @@ const updateReview = async (req, res, next) => {
   }
 };
 const updateRate = async (req, res, next) => {
+  const buyer = req.buyer;
   const { productId } = req.params;
   await productModel.findOneAndUpdate({ _id: productId }, [
     { $set: { avgRate: { $avg: "$reviews.rate" } } },
   ]);
-  res.status(200).json({});
+  const { sellerId } = req.body;
+  let rateSeller = 0;
+  const products = await productModel.find({ sellerId });
+  for (const product of products) {
+    rateSeller = rateSeller + product.avgRate;
+  }
+  rateSeller = rateSeller / products.length;
+  const sellerDetailes = await sellerModel.findOneAndUpdate(
+    { _id: sellerId },
+    [{ $set: { rate: rateSeller } }],
+    { new: true, runValidators: true }
+  );
+
+  const orders = await orderModel
+    .find({ buyerId: buyer._id })
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "sellerId",
+      select: "userName firstName lastName phone email status gender rate",
+    })
+    .populate({
+      path: "products",
+      populate: {
+        path: "_id",
+        select: "name description image price addOns reviews avgRate status ",
+      },
+    });
+
+  // const io = req.app.get("io");
+  // io.to(buyer.socketId).emit("updateRateOfSeller", orders);
+  res.status(200).json(orders);
 };
 
 const pendingMessage = async (req, res, next) => {
