@@ -16,7 +16,7 @@ const _mailConfirmation = function(username, email, token, id,type){
         html: `<h1>Email Confirmation</h1>
             <h2>Hello, ${username}!</h2>
             <p>we received a request for a password change on Food-lancer.com you can reset your password</p>
-            <a href="http://localhost:3000/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
+            <a href="${process.env.SERVER_URL}/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
             <br> <br>
             <small>this link will expire 24 hours</small>`
     });

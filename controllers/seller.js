@@ -323,7 +323,7 @@ const setNotificationOrderAsReaded = async (req, res, next) => {
 
 const setMessageAsReaded = async (req, res, next) => {
   const { orderId } = req.body;
-  await sellerModel.findOneAndUpdate(
+  const seller  = await sellerModel.findOneAndUpdate(
     {
       _id: req.seller._id,
       "notification.order.orderId": orderId,
@@ -334,7 +334,7 @@ const setMessageAsReaded = async (req, res, next) => {
     { new: true, runValidators: true }
   );
 
-  res.json();
+  res.json(seller.notification);
 };
 const getNotification = async (req, res, next) => {
   const seller = await sellerModel.findById(req.seller._id)
