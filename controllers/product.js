@@ -100,17 +100,19 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
       .catch((e) => res.status(401).json(e.message));
   } catch (e) {}
 };
-const getProductsForSpecifcSeller = async (req, res, next) => {
-  const { _id } = req.seller;
-  const data = await productModel.find({ sellerId: _id });
+/* const getProductsForSpecifcSeller = async (req, res, next) => {
+  console.log(req.params);
+  const {id}=req.params
+  //const { _id } = req.seller;
+  const data = await productModel.find({ sellerId: id });
   if (!data) {
     return next(new AppError("accountNotFound"));
   }
-  res.json(data);
-};
+  res.json(data); 
+}; */
 const getAllProducts = async (req, res, next) => {
   let { page = 1, status, categoryId, min, max, rate } = req.query;
-  status = status ? { status } : {};
+  status = status ? { status } : {status:"active"};
   categoryId = categoryId ? { categoryId } : {};
   const minPriceQuery = min ? { price: { $gte: min } } : {};
   const maxPriceQuery = max ? { price: { $lte: max } } : {};
@@ -159,7 +161,6 @@ const getAllProducts = async (req, res, next) => {
 };
 const getOneProduct = function (req, res, next) {
   const { id } = req.params;
-  console.log(id);
   productModel
     .findOne({ _id: id })
     .populate({
@@ -175,17 +176,21 @@ const getOneProduct = function (req, res, next) {
       select: "email userName",
     })
     .then((data) => {
-      console.log(data);
       res.json(data);
     })
     .catch((e) => {
-      console.log(e);
       next(new AppError("noProductFound"));
     });
 };
 const getProductsForSpecificSeller = async (req, res, next) => {
-  // const { id } = req.params;
-  let sellerId = req.seller._id;
+  let sellerId
+  console.log(req.params);
+  const {id}=req.params
+  if (req.seller) {
+    sellerId=req.seller._id 
+    return
+  }
+  sellerId=id
   let { page = 1 } = req.query;
   const pageSize = 12;
   const options = {
@@ -336,7 +341,7 @@ module.exports = {
   addProduct,
   pendingMessage,
   getAllProducts,
-  getProductsForSpecifcSeller,
+  //getProductsForSpecifcSeller,
   getOneProduct,
   getProductsForSpecificSeller,
   getSpecifcProductForSpecificSeller,
