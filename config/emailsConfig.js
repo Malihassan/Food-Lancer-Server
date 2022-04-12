@@ -19,7 +19,7 @@ require("dotenv").config();
 // }
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
-      apiKey: process.env.Food_Lancer
+      apiKey: process.env.FOOD_LANCER_SENDGRID_KEY
   })
 );
 const _mailConfirmation = function(username, email, token, id,type){
