@@ -38,11 +38,7 @@ router.get("/logout", buyerAuthentication, buyerController.logout);
 router.get("/paymentSuccess", buyerController.paymentSuccess);
 router.get("/paymentCancel", buyerController.paymentCancel);
 
-router.post(
-	"/webhook",
-	express.raw({ type: "application/json" }),
-	buyerController.webhook
-);
+router.post("/webhook", buyerController.webhook);
 
 router.post(
 	"/sendToPayment",

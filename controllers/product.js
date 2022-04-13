@@ -175,6 +175,49 @@ const getSpecifcProductForSpecificSeller = async (req, res, next) => {
 	// }
 	res.json(products);
 };
+//buyer==>all product
+const getAllProductsForBuyer = async (req, res, next) => {
+	let { page = 1, min, max, rate, status } = req.query;
+	status = status ? { status } : { status: "active" };
+	const minPriceQuery = min ? { price: { $gte: min } } : {};
+	const maxPriceQuery = max ? { price: { $lte: max } } : {};
+	const minRate = rate ? { avgRate: { $gte: rate } } : {};
+	const pageSize = 12;
+	const options = {
+		page: page,
+		limit: pageSize,
+		populate: [
+			{
+				path: "sellerId",
+				select: {
+					userName: 1,
+					firstName: 1,
+					lastName: 1,
+					phone: 1,
+					email: 1,
+					rate: 1,
+					status: 1,
+					gender: 1,
+					"coverage-area": 1,
+				},
+			},
+			{
+				path: "categoryId",
+				select: "name",
+			},
+		],
+	};
+	const products = await productModel.paginate(
+		{
+			$and: [status, minPriceQuery, maxPriceQuery, minRate],
+		},
+		options
+	);
+	if (products.docs.length === 0) {
+		return next(new AppError("noProductFound"));
+	}
+	res.json(products);
+};
 //buyer==>seller products
 const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
 	console.log("inside");
