@@ -13,7 +13,7 @@ router.get(
 );
 router.patch(
 	"/updatedReview/:productId",
-	// buyerAuthentication,
+	buyerAuthentication,
 	productController.updateReview,
 	productController.updateRate
 );
@@ -24,7 +24,7 @@ router.get(
 );
 router.get("/favs", buyerAuthentication, BuyerController.getFavs);
 router.get("/allProducts", productController.getAllProducts);
-
+router.get("/:id/sellerProducts", productController.getProductsForSpecificSeller);
 router.post("/favs", buyerAuthentication, BuyerController.addFav);
 router.delete("/favs", buyerAuthentication, BuyerController.deleteFav);
 //getAllProducts

@@ -1,9 +1,11 @@
 const productModel = require("../models/product");
+const orderModel = require("../models/order");
 const categoryModel = require("../models/category");
 const AppError = require("../helpers/ErrorClass");
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 var mongoose = require("mongoose");
+const sellerModel = require("../models/seller");
 
 //const { path } = require("express/lib/application");
 const addProduct = async (req, res, next) => {
@@ -49,10 +51,8 @@ const addProduct = async (req, res, next) => {
 	}
 };
 const checkSellerProductBeforeSignup = async (req, res, next) => {
-	console.log(req.body);
 	const { name } = req.body;
 	const productNameExist = await productModel.findOne({ name });
-	console.log(productNameExist);
 	if (productNameExist) {
 		return next(new AppError("productUniqueName"));
 	}
@@ -60,7 +60,6 @@ const checkSellerProductBeforeSignup = async (req, res, next) => {
 };
 const deleteProduct = (req, res, next) => {
 	const seller = req.seller;
-	console.log(seller._id);
 	productModel
 		.findOneAndDelete({ _id: req.params.id, sellerId: seller._id })
 		.then((deleted) => {
@@ -78,12 +77,10 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 	const { name, description, image, price, addOns } = req.body;
 	try {
 		const images = await req.files;
-		console.log(images, "Images <----");
 		for (let img of images) {
 			let result = await cloudinary.uploader.upload(img.path);
 			imgs.push({ url: result.secure_url, _id: result.public_id });
 		}
-		console.log(idSeller);
 		productModel
 			.findOneAndUpdate(
 				{ _id: id, sellerId: idSeller },
@@ -94,28 +91,28 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 				// if (!data) {
 				// 	return next(new AppError("accountNotFound"));
 				// }
-				console.log(data, "------------------------ data");
 				res.json(data);
 			})
 			.catch((e) => res.status(401).json(e.message));
 	} catch (e) {}
 };
-const getProductsForSpecifcSeller = async (req, res, next) => {
-	const { _id } = req.seller;
-	const data = await productModel.find({ sellerId: _id });
-	if (!data) {
-		return next(new AppError("accountNotFound"));
-	}
-	res.json(data);
-};
+/* const getProductsForSpecifcSeller = async (req, res, next) => {
+  console.log(req.params);
+  const {id}=req.params
+  //const { _id } = req.seller;
+  const data = await productModel.find({ sellerId: id });
+  if (!data) {
+    return next(new AppError("accountNotFound"));
+  }
+  res.json(data); 
+}; */
 const getAllProducts = async (req, res, next) => {
 	let { page = 1, status, categoryId, min, max, rate } = req.query;
-	status = status ? { status } : {};
+	status = status ? { status } : { status: "active" };
 	categoryId = categoryId ? { categoryId } : {};
 	const minPriceQuery = min ? { price: { $gte: min } } : {};
 	const maxPriceQuery = max ? { price: { $lte: max } } : {};
 	const minRate = rate ? { avgRate: { $gte: rate } } : {};
-	console.log(min, max, "rate=>", rate);
 	const pageSize = 12;
 	const options = {
 		page: page,
@@ -154,7 +151,6 @@ const getAllProducts = async (req, res, next) => {
 };
 const getOneProduct = function (req, res, next) {
 	const { id } = req.params;
-	console.log(id);
 	productModel
 		.findOne({ _id: id })
 		.populate({
@@ -170,17 +166,21 @@ const getOneProduct = function (req, res, next) {
 			select: "email userName",
 		})
 		.then((data) => {
-			console.log(data);
 			res.json(data);
 		})
 		.catch((e) => {
-			console.log(e);
 			next(new AppError("noProductFound"));
 		});
 };
 const getProductsForSpecificSeller = async (req, res, next) => {
-	// const { id } = req.params;
-	let sellerId = req.seller._id;
+	let sellerId;
+	console.log(req.params);
+	const { id } = req.params;
+	sellerId = id;
+	if (req.seller) {
+		sellerId = req.seller._id;
+	}
+
 	let { page = 1 } = req.query;
 	const pageSize = 12;
 	const options = {
@@ -262,11 +262,11 @@ const updateStatus = async (req, res, next) => {
 	}
 };
 const updateReview = async (req, res, next) => {
-	const { comments, rate, buyerId, sellerId, orderId } = req.body;
+	const { comments, rate, sellerId, orderId } = req.body;
+	const buyerId = req.buyer._id;
 	const { productId } = req.params;
 
 	try {
-		console.log(orderId, "order id");
 		const checked = await productModel.findOne({
 			_id: productId,
 			"reviews.buyerId": buyerId,
@@ -274,7 +274,6 @@ const updateReview = async (req, res, next) => {
 			"reviews.orderId": orderId,
 		});
 		if (checked) {
-			console.log(checked, "inside checked");
 			return next(new AppError("reviewAlreadyAdded"));
 		}
 		const updated = await productModel.findOneAndUpdate(
@@ -302,11 +301,43 @@ const updateReview = async (req, res, next) => {
 	}
 };
 const updateRate = async (req, res, next) => {
+	const buyer = req.buyer;
 	const { productId } = req.params;
 	await productModel.findOneAndUpdate({ _id: productId }, [
 		{ $set: { avgRate: { $avg: "$reviews.rate" } } },
 	]);
-	res.status(200).json({});
+	const { sellerId } = req.body;
+	let rateSeller = 0;
+	const products = await productModel.find({ sellerId });
+	for (const product of products) {
+		rateSeller = rateSeller + product.avgRate;
+	}
+	rateSeller = rateSeller / products.length;
+	const sellerDetailes = await sellerModel.findOneAndUpdate(
+		{ _id: sellerId },
+		[{ $set: { rate: rateSeller } }],
+		{ new: true, runValidators: true }
+	);
+
+	const orders = await orderModel
+		.find({ buyerId: buyer._id })
+		.sort({ createdAt: -1 })
+		.populate({
+			path: "sellerId",
+			select: "userName firstName lastName phone email status gender rate",
+		})
+		.populate({
+			path: "products",
+			populate: {
+				path: "_id",
+				select:
+					"name description image price addOns reviews avgRate status ",
+			},
+		});
+
+	// const io = req.app.get("io");
+	// io.to(buyer.socketId).emit("updateRateOfSeller", orders);
+	res.status(200).json(orders);
 };
 
 const pendingMessage = async (req, res, next) => {
@@ -331,7 +362,7 @@ module.exports = {
 	addProduct,
 	pendingMessage,
 	getAllProducts,
-	getProductsForSpecifcSeller,
+	//getProductsForSpecifcSeller,
 	getOneProduct,
 	getProductsForSpecificSeller,
 	getSpecifcProductForSpecificSeller,

@@ -235,7 +235,6 @@ const addFav = async (req, res, next) => {
 const deleteFav = async (req, res, next) => {
 	const { _id } = req.buyer;
 	const deleteId = mongoose.Types.ObjectId(req.body.id);
-	console.log(req.body);
 
 	const buyer = await buyerModel.findById({ _id });
 	if (!buyer) {
@@ -304,7 +303,104 @@ const logout = async (req, res, next) => {
 	);
 	res.status(200).json({ Message: "logout" });
 };
+const addNotificationToBuyerForChangeOrderStatus = async (req, res, next) => {
+	const { _id } = req.order;
+	const buyerId = req.order.buyerId._id;
+
+	await buyerModel.findOneAndUpdate(
+		{ _id: buyerId, "notification.order.orderId": _id },
+		{
+			$set: { "notification.$.order.read": false },
+		},
+		{ new: true, runValidators: true }
+	);
+
+	res.json(req.order);
+};
+const addNotificationToBuyerForRecieveMesseageFromSeller = async (
+	req,
+	res,
+	next
+) => {
+	const { buyerId, orderId } = req.body;
+	const updatedBuyer = await buyerModel.findOneAndUpdate(
+		{
+			_id: buyerId,
+			"notification.order.orderId": orderId,
+		},
+		{
+			$inc: { "notification.$.chatMessageCount": 1 },
+		},
+		{ new: true, runValidators: true }
+	);
+	const io = req.app.get("io");
+	io.to(updatedBuyer.socketId).emit(
+		"receiveNotification",
+		updatedBuyer.notification
+	);
+	res.json(updatedBuyer);
+};
+const setNotificationMessageAsReaded = async (req, res, next) => {
+	const { orderId } = req.body;
+	const buyerData = await buyerModel.findOneAndUpdate(
+		{
+			_id: req.buyer._id,
+			"notification.order.orderId": mongoose.Types.ObjectId(orderId),
+		},
+		{
+			$set: { "notification.$.chatMessageCount": 0 },
+		},
+		{ upsert: true, new: true, runValidators: true }
+	);
+	res.json(buyerData.notification);
+};
+const getNotificationsForBuyer = async (req, res, next) => {
+	const buyerData = await buyerModel.findById({ _id: req.buyer._id });
+	if (!buyerData) {
+		return next(new AppError("accountNotFound"));
+	}
+	res.json(buyerData.notification);
+};
+const getNotification = async (req, res, next) => {
+	const buyer = await buyerModel.findById(req.buyer._id);
+	res.json(buyer.notification);
+};
+const setNotificationForOrdersAsReaded = async (req, res, next) => {
+	const buyerId = req.buyer._id;
+	const buyer = await buyerModel.findByIdAndUpdate(
+		{ _id: buyerId },
+		{
+			$set: { "notification.$[].order.read": true },
+		},
+		{ new: true }
+	);
+	res.json();
+};
+const addNotificationToBuyer = async (req, res, next) => {
+	const { orderId } = req.body;
+	await buyerModel.findOneAndUpdate(
+		{ _id: req.buyer._id },
+		{
+			$push: {
+				notification: {
+					"order.orderId": orderId,
+					"order.read": true,
+				},
+			},
+		},
+		{ new: true, runValidators: true }
+	);
+	res.json(req.updatedSeller);
+};
+
 module.exports = {
+	addNotificationToBuyer,
+	addNotificationToBuyerForChangeOrderStatus,
+	addNotificationToBuyerForRecieveMesseageFromSeller,
+	setNotificationMessageAsReaded,
+	getNotificationsForBuyer,
+	setNotificationForOrdersAsReaded,
+	getNotification,
 	login,
 	signup,
 	forgetPassword,
