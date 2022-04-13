@@ -4,25 +4,45 @@ const { path } = require("express/lib/application");
 const { json } = require("express/lib/response");
 const sellerController = require("./seller");
 
-
-const addOrder = async(req, res, next) => {
-	const orderDetails = req.body;
-	const newOrder = await orderModel.create(orderDetails);
-  const {_id} = newOrder;
-  req.body.orderId=_id;
-  const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
+const addOrder = async (req, res, next) => {
+  const orderDetails = req.body;
+  const newOrder = await orderModel.create(orderDetails);
+  const { _id } = newOrder;
+  req.body.orderId = _id;
+  const selectedOrder = await orderModel
+    .findOne({ _id })
+    .populate({
+      path: "sellerId",
+      select: "userName firstName lastName phone email status rate gender _id",
+      populate: {
+        path: "coverageArea",
+        select: "governorateName regionName",
+      },
+    })
+    .populate({
+      path: "buyerId",
+      select:
+        "userName firstName lastName phone email status address gender _id",
+    })
+    .populate({
+      path: "products",
+      populate: {
+        path: "_id",
+        select:
+          "name description image price addOns reviews avgRate status _id",
+      },
+    });
   const io = req.app.get("io");
   io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
   console.log(selectedOrder.sellerId.socketId);
-  next()
-	
-}
-
+  next();
+};
 
 const getOrdersForSpecificBuyer = (req, res, next) => {
-const { id } = req.buyer;
+  const { id } = req.buyer;
   orderModel
-    .find({ buyerId: id }).sort({"createdAt":-1})
+    .find({ buyerId: id })
+    .sort({ createdAt: -1 })
     .populate({
       path: "sellerId",
       select: "userName firstName lastName phone email status gender rate",
@@ -31,8 +51,7 @@ const { id } = req.buyer;
       path: "products",
       populate: {
         path: "_id",
-        select:
-          "name description image price addOns reviews avgRate status ",
+        select: "name description image price addOns reviews avgRate status ",
       },
     })
     .then((data) => {
@@ -44,14 +63,14 @@ const { id } = req.buyer;
 };
 
 const getOrders = async (req, res, next) => {
-	let sellerId;
-	if (req.seller) {
-		sellerId = req.seller._id;
-	} else {
-		sellerId = req.query.sellerId;
-	}
-	const { minPrice, maxPrice, orderStatus, id, buyerId, page = 1 } = req.query;
-	const pageSize = 6;
+  let sellerId;
+  if (req.seller) {
+    sellerId = req.seller._id;
+  } else {
+    sellerId = req.query.sellerId;
+  }
+  const { minPrice, maxPrice, orderStatus, id, buyerId, page = 1 } = req.query;
+  const pageSize = 6;
 
   const minPriceQuery = minPrice ? { totalPrice: { $gte: minPrice } } : {};
   const maxPriceQuery = maxPrice ? { totalPrice: { $lte: maxPrice } } : {};
@@ -62,7 +81,7 @@ const getOrders = async (req, res, next) => {
 
   const option = {
     page: page,
-    sort:{createdAt:-1},
+    sort: { createdAt: -1 },
     limit: pageSize,
     populate: [
       {
@@ -169,7 +188,7 @@ const getSpecificOrderForSpecificSeller = (req, res, nex) => {
 const updateOrderStatusForSeller = async (req, res, next) => {
   const seller = req.seller;
   const { orderId, status } = req.body;
-  let order ;
+  let order;
   try {
     order = await orderModel
       .findOneAndUpdate(
@@ -180,11 +199,11 @@ const updateOrderStatusForSeller = async (req, res, next) => {
       .populate("buyerId");
   } catch (error) {
     res.status(400).json({ error: error.message });
-  }  
+  }
   const io = req.app.get("io");
   io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
-  req.order = order
-  next()
+  req.order = order;
+  next();
 };
 
 module.exports = {
