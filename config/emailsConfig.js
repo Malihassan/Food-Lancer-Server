@@ -34,7 +34,14 @@ const _mailConfirmation = function(username, email, token, id,type){
             <a href="${process.env.SERVER_URL}/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
             <br> <br>
             <small>this link will expire 24 hours</small>`
-    });
+    },(error,info)=>{
+      if (error) {
+          console.log(error);
+      } else {
+          console.log('Email Sent Successfully')
+      }
+  });
+    
 }
 const forgetPassword = function (username,userEmail, token,type){
   const transporter = nodemailer.createTransport(transportConfig);

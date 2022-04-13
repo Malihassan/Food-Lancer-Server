@@ -180,7 +180,7 @@ const getProductsForSpecificSeller = async (req, res, next) => {
   if (req.seller) {
     sellerId = req.seller._id;
   }
-
+h
   let { page = 1 } = req.query;
   const pageSize = 12;
   const options = {
