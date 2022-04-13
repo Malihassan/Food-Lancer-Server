@@ -176,11 +176,11 @@ const getProductsForSpecificSeller = async (req, res, next) => {
   let sellerId;
   console.log(req.params);
   const { id } = req.params;
+  sellerId = id;
   if (req.seller) {
     sellerId = req.seller._id;
-    return;
   }
-  sellerId = id;
+
   let { page = 1 } = req.query;
   const pageSize = 12;
   const options = {
