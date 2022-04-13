@@ -34,6 +34,7 @@ const _tokenCreator = async function (userName, _id) {
 };
 const confirm = function (req, res, next) {
   const { id } = req.params;
+  console.log(id,"==<");
   _changeStatus(id)
     .then((user) => {
       return res.render("welcomePage", {
