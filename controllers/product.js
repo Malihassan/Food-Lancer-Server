@@ -72,14 +72,16 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
   const { id } = req.params;
   const idSeller = req.seller;
   let imgs = [];
-  const { name, description, image, price, addOns } = req.body;
+  const { name, description, price, addOns } = req.body;
   try {
-    const images = await req.files;
-    for (let img of images) {
-      let result = await cloudinary.uploader.upload(img.path);
-      imgs.push({ url: result.secure_url, _id: result.public_id });
-    }
-    productModel
+    if(req.files[0]){
+      const images = await req.files;
+      for (let img of images) {
+        let result = await cloudinary.uploader.upload(img.path);
+        imgs.push({ url: result.secure_url, _id: result.public_id });
+      }
+
+      productModel
       .findOneAndUpdate(
         { _id: id, sellerId: idSeller },
         { name, description, image: imgs, price, addOns },
@@ -92,6 +94,22 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
         res.json(data);
       })
       .catch((e) => res.status(401).json(e.message));
+    } else {
+      productModel
+      .findOneAndUpdate(
+        { _id: id, sellerId: idSeller },
+        { name, description, price, addOns },
+        { new: true, runValidators: true }
+      )
+      .then((data) => {
+        // if (!data) {
+        // 	return next(new AppError("accountNotFound"));
+        // }
+        res.json(data);
+      })
+      .catch((e) => res.status(401).json(e.message));
+    }
+
   } catch (e) {}
 };
 /* const getProductsForSpecifcSeller = async (req, res, next) => {
