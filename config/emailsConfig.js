@@ -23,7 +23,6 @@ const transport = nodemailer.createTransport(
   })
 );
 const _mailConfirmation = function(username, email, token, id,type){
-    // const transport = nodemailer.createTransport(transportConfig)
     transport.sendMail({
         from: process.env.ADMAIN_EMAIL,
         to: email,
@@ -34,44 +33,49 @@ const _mailConfirmation = function(username, email, token, id,type){
             <a href="${process.env.SERVER_URL}/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
             <br> <br>
             <small>this link will expire 24 hours</small>`
-    });
+    },(error,info)=>{
+      if (error) {
+          console.log(error);
+      } else {
+          console.log('Email Sent Successfully')
+      }
+  });
+    
 }
 const forgetPassword = function (username,userEmail, token,type){
-  const transporter = nodemailer.createTransport(transportConfig);
   const mailOptions = {
-    from: `${process.env.USER}`,
+    from: `${process.env.ADMAIN_EMAIL}`,
     to: `${userEmail}`,
     subject: 'Reset Password',
     html: `
             <h2>Hello, ${username} </h2>
             <p>we received a request for a password change on Food-lancer.com you can reset your password
-            <a href="http://localhost:3000/${type}/account/resetPassword/${token}">Click here!!!</a> 
+            <a href="${process.env.CLIENT_URL}/${type}/account/resetPassword/${token}">Click here!!!</a> 
             </p>
             <br>
             <small>this link will expire 24 hours</small>`
   };
-  transporter.sendMail(mailOptions, function(error, info){
+  transport.sendMail(mailOptions, function(error, info){
     if (error) {
       console.log(error);
     } else {
-      console.log('Email sent: ' + info.response);
+      console.log('Email sent: ');
     }
   });
 }
 const sendPendingMessage = function(pendingMessage,userEmail){
-    const transporter = nodemailer.createTransport(transportConfig);
     const mailOptions = {
-      from: `${process.env.USER}`,
+      from: `${process.env.ADMAIN_EMAIL}`,
       to: `${userEmail}`,
       subject: 'Pending Message',
       text: `${pendingMessage}`
     };
     
-    transporter.sendMail(mailOptions, function(error, info){
+    transport.sendMail(mailOptions, function(error, info){
       if (error) {
         console.log(error);
       } else {
-        console.log('Email sent: ' + info.response);
+        console.log('Email sent: ');
       }
     });
   }
