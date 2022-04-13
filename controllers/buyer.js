@@ -1,11 +1,13 @@
 const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
 const OrderModel = require("../models/order");
+const productModel = require("../models/product");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 const mongoose = require("mongoose");
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
 const login = async (req, res, next) => {
 	const { email, password } = req.body;
@@ -394,6 +396,114 @@ const addNotificationToBuyer = async (req, res, next) => {
 	res.json(req.updatedSeller);
 };
 
+const sendToPayment = async (req, res) => {
+	const queryArr = [];
+	for (let item of req.body.items) {
+		queryArr.push(item._id);
+	}
+	productModel.find(
+		{
+			_id: { $in: queryArr },
+		},
+		async function (err, docs) {
+			if (err) {
+				res.json(err);
+			}
+			// a way to avoid nested loop when mixing two arrays, called frequency counter
+			const lockup = {};
+			for (let item of req.body.items) {
+				lockup[item._id] = item.quantity;
+			}
+			const orderProducts = docs.map((product) => {
+				let quantity = lockup[product._id];
+				product["quantity"] = quantity;
+				return product;
+			});
+
+			try {
+				const session = await stripe.checkout.sessions.create({
+					payment_method_types: ["card"],
+					mode: "payment",
+					line_items: orderProducts.map((product) => {
+						return {
+							price_data: {
+								currency: "EGP",
+								product_data: {
+									name: product.name,
+								},
+								unit_amount: product.price * 100, // price must be in cents
+							},
+							quantity: product.quantity,
+						};
+					}),
+					success_url: `${process.env.SERVER_URL}/buyer/account/paymentSuccess`,
+					cancel_url: `${process.env.SERVER_URL}/buyer/account/paymentCancel`,
+				});
+				res.json({ url: session.url, newRes: session });
+			} catch (e) {
+				res.status(500).json({ error: e.message });
+			}
+		}
+	);
+};
+
+const paymentSuccess = (req, res) => {
+	return res.render("paymentSuccess");
+};
+const paymentCancel = (req, res) => {
+	return res.render("paymentCancel");
+};
+
+const endpointSecret =
+	"whsec_2c3c924ce26b22132e011e1c7965c70816ad89571dc3a090cd9ddfd4aadc8edf";
+const webhook = async (request, response) => {
+	const sig = request.headers["stripe-signature"];
+
+	let event;
+	// console.log(request.body);
+	try {
+		event = await stripe.webhooks.constructEvent(
+			request.rawBody,
+			sig,
+			endpointSecret
+		);
+		// console.log(event);
+	} catch (err) {
+		response.status(400).send(`Webhook Error: ${err.message}`);
+		return;
+	}
+
+	// Handle the event
+	switch (event.type) {
+		case "checkout.session.async_payment_failed":
+			const failedSession = event.data.object;
+			console.log("failedSession");
+			// Then define and call a function to handle the event checkout.session.async_payment_failed
+			break;
+		case "checkout.session.async_payment_succeeded":
+			const succeededSession = event.data.object;
+			console.log("succeededSession");
+			// Then define and call a function to handle the event checkout.session.async_payment_succeeded
+			break;
+		case "checkout.session.expired":
+			const expiredSession = event.data.object;
+			console.log("expiredSession");
+			// Then define and call a function to handle the event checkout.session.expired
+			break;
+		case "payment_intent.succeeded":
+			const paymentIntent = event.data.object;
+			console.log("paymentIntent");
+			// Then define and call a function to handle the event payment_intent.succeeded
+			break;
+		// ... handle other event types
+		default:
+			console.log(`Unhandled event type ${event.type}`);
+	}
+
+	// Return a 200 response to acknowledge receipt of the event
+	response.send();
+};
+
 module.exports = {
 	addNotificationToBuyer,
 	addNotificationToBuyerForChangeOrderStatus,
@@ -417,4 +527,8 @@ module.exports = {
 	checkBuyerAcountBeforeSignup,
 	confirm,
 	logout,
+	sendToPayment,
+	paymentSuccess,
+	paymentCancel,
+	webhook,
 };
