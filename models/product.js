@@ -29,7 +29,7 @@ const productSchema = mongoose.Schema(
     },
     description: {
       type: String,
-      required: tgi true,
+      required: true,
       trim: true,
     },
     image: [
