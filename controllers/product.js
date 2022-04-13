@@ -5,13 +5,11 @@ const AppError = require("../helpers/ErrorClass");
 const config = require("../config/emailsConfig");
 const cloudinary = require("../config/cloudinaryConfig");
 var mongoose = require("mongoose");
-<<<<<<< HEAD
-//seller==>add product
-=======
 const sellerModel = require("../models/seller");
 
 //const { path } = require("express/lib/application");
->>>>>>> bae2f7f5748fdbce27d9f6824a0ee2da2ad6f3ae
+//seller==>add product
+
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
   let arr3 = [];
