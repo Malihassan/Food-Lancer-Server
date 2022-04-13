@@ -13,7 +13,7 @@ const addOrder = async (req, res, next) => {
     .findOne({ _id })
     .populate({
       path: "sellerId",
-      select: "userName firstName lastName phone email status rate gender _id",
+      select: "userName firstName socketId lastName phone email status rate gender _id",
       populate: {
         path: "coverageArea",
         select: "governorateName regionName",
@@ -34,7 +34,7 @@ const addOrder = async (req, res, next) => {
     });
   const io = req.app.get("io");
   io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
-  console.log(selectedOrder.sellerId.socketId);
+  console.log(selectedOrder);
   next();
 };
 
