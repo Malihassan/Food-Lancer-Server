@@ -5,26 +5,26 @@ const BuyerController = require("../../controllers/buyer");
 const categoryController = require("../../controllers/category");
 
 router.get(
-  "/details/:id",
-  buyerAuthentication,
-  productController.getOneProduct
+	"/details/:id",
+	buyerAuthentication,
+	productController.getOneProduct
 );
 router.patch(
-  "/updatedReview/:productId",
-   buyerAuthentication,
-  productController.updateReview,
-  productController.updateRate
+	"/updatedReview/:productId",
+	// buyerAuthentication,
+	productController.updateReview,
+	productController.updateRate
 );
 router.get(
-  "/get,Category",
-  // buyerAuthentication
-  categoryController.getCategories
+	"/getCategory",
+	// buyerAuthentication,
+	categoryController.getCategories
 );
 router.get("/favs", buyerAuthentication, BuyerController.getFavs);
 router.get("/allProducts",productController.getAllProductsForBuyer);
 router.get(
-  "/:id/sellerProducts",
-  productController.getProductsForSpecifcSellerForBuyer
+	"/:id/sellerProducts",
+	productController.getProductsForSpecifcSellerForBuyer
 );
 router.post("/favs", buyerAuthentication, BuyerController.addFav);
 router.delete("/favs", buyerAuthentication, BuyerController.deleteFav);
