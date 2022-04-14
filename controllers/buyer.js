@@ -162,11 +162,9 @@ const buyerById = async (req, res, next) => {
 const buyerByIdForAdmin = async (req, res, next) => {
 	const { id } = req.params;
 	console.log(id);
-	const buyer = await buyerModel
-		.findById(id)
-		.catch((error) => {
-			res.status(400).json(error.message);
-		});
+	const buyer = await buyerModel.findById(id).catch((error) => {
+		res.status(400).json(error.message);
+	});
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
@@ -481,6 +479,7 @@ const webhook = async (request, response) => {
 	const endpointSecret = process.env.WEBHOOK_SECRET;
 
 	let event;
+	console.log(request.rawBody);
 	try {
 		event = await stripe.webhooks.constructEvent(
 			request.rawBody,
