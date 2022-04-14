@@ -4,12 +4,10 @@ const sellerController = require("../../controllers/seller");
 const productController = require("../../controllers/product");
 const orderController = require('../../controllers/order')
 const adminAuthentication = require("../../middleware/adminAuth");
-
 router.get("/allSellers", adminAuthentication, sellerController.getSellers);
 router.patch("/sellerStatus/:id",adminAuthentication,sellerController.updateSellerStatus);
 //we adding query for filter by status
 // router.get("/:status", adminAuthentication, sellerController.getSellers);
-
 /* updateProductForSpecifcSeller */
 router.get(
   "/all/:status",
@@ -20,7 +18,7 @@ router.get("/:id", adminAuthentication, sellerController.getSpecificSeller);
 router.get(
   "/:id/products",
   adminAuthentication,
-  productController.getProductsForSpecificSeller
+  productController.getProductsForSpecifcSellerForAdmin
 );
 router.get(
   "/:id/products/:productId",

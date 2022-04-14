@@ -9,14 +9,12 @@ const sellerModel = require("../models/seller");
 
 //const { path } = require("express/lib/application");
 //seller==>add product
-
 const addProduct = async (req, res, next) => {
 	const { id } = req.seller;
 	let arr3 = [];
 	const body = req.body;
-	const { name, description, price, addOns /* , image, reviews */ } = body;
-	categoryName = "Pizza";
-	const category = await categoryModel.findOne({ name: categoryName }).exec();
+	const { name, description, price, addOns, categoryId } = body;
+	const category = await categoryModel.findOne({ _id: categoryId }).exec();
 	if (!category) {
 		return next(new AppError("categoryNotFound"));
 	}
@@ -125,7 +123,6 @@ const getProductsForSpecificSeller = async (req, res, next) => {
 	sellerId = id;
 	if (req.seller) {
 		sellerId = req.seller._id;
-		return;
 	}
 
 	let { page = 1 } = req.query;
@@ -177,8 +174,12 @@ const getSpecifcProductForSpecificSeller = async (req, res, next) => {
 };
 //buyer==>all product
 const getAllProductsForBuyer = async (req, res, next) => {
-	let { page = 1, min, max, rate, status } = req.query;
+	let { page = 1, min, max, rate, status, categoryId = [] } = req.query;
 	status = status ? { status } : { status: "active" };
+	console.log("1", categoryId);
+	const categoryIdQuery =
+		categoryId.length !== 0 ? { categoryId: { $in: categoryId } } : {};
+	console.log("2", categoryIdQuery);
 	const minPriceQuery = min ? { price: { $gte: min } } : {};
 	const maxPriceQuery = max ? { price: { $lte: max } } : {};
 	const minRate = rate ? { avgRate: { $gte: rate } } : {};
@@ -209,13 +210,14 @@ const getAllProductsForBuyer = async (req, res, next) => {
 	};
 	const products = await productModel.paginate(
 		{
-			$and: [status, minPriceQuery, maxPriceQuery, minRate],
+			$and: [status, categoryIdQuery, minPriceQuery, maxPriceQuery, minRate],
 		},
 		options
 	);
 	if (products.docs.length === 0) {
 		return next(new AppError("noProductFound"));
 	}
+	console.log(products);
 	res.json(products);
 };
 //buyer==>seller products
@@ -227,6 +229,20 @@ const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
 	if (!data) {
 		return next(new AppError("accountNotFound"));
 	}
+	res.json(data);
+	console.log("data===>", data);
+};
+
+const getProductsForSpecifcSellerForAdmin = async (req, res, next) => {
+	console.log("admin");
+	const { id } = req.params;
+	console.log(id);
+	const data = await productModel.find({ sellerId: id });
+	if (!data) {
+		return next(new AppError("accountNotFound"));
+	}
+	console.log(data);
+	res.json(data);
 };
 //admin==>all products
 const getAllProducts = async (req, res, next) => {
@@ -348,7 +364,6 @@ const updateSpecificProductForSpecificSeller = (req, res, next) => {
 		})
 		.catch((e) => res.status(400).json(e.message));
 };
-
 //who
 const updateReview = async (req, res, next) => {
 	const { comments, rate, sellerId, orderId } = req.body;
@@ -429,12 +444,12 @@ const updateRate = async (req, res, next) => {
 	// io.to(buyer.socketId).emit("updateRateOfSeller", orders);
 	res.status(200).json(orders);
 };
-
 module.exports = {
 	addProduct,
 	pendingMessage,
 	getAllProducts,
 	getProductsForSpecifcSellerForBuyer,
+	getProductsForSpecifcSellerForAdmin,
 	getAllProductsForBuyer,
 	getOneProduct,
 	getProductsForSpecificSeller,

@@ -159,6 +159,21 @@ const buyerById = async (req, res, next) => {
 	res.json(buyer);
 };
 
+const buyerByIdForAdmin = async (req, res, next) => {
+	const { id } = req.params;
+	console.log(id);
+	const buyer = await buyerModel
+		.findById(id)
+		.catch((error) => {
+			res.status(400).json(error.message);
+		});
+	if (!buyer) {
+		return next(new AppError("accountNotFound"));
+	}
+	console.log(buyer);
+	res.json(buyer);
+};
+
 const updateStatus = async (req, res, next) => {
 	const { id } = req.params;
 	const { status } = req.body;
@@ -554,6 +569,7 @@ module.exports = {
 	updateStatus,
 	allBuyers,
 	buyerById,
+	buyerByIdForAdmin,
 	getOrdersForSpecifcBuyer,
 	getFavs,
 	addFav,
