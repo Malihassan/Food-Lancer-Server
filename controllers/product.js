@@ -120,14 +120,14 @@ const updateProductForSpecifcSeller = async (req, res, next) => {
 };
 //seller==>all products
 const getProductsForSpecificSeller = async (req, res, next) => {
-	let sellerId = req.seller._id;
-	/*   console.log(req.params);
-  const {id}=req.params
-  if (req.seller) {
-    sellerId=req.seller._id 
-    return
-  }
-  sellerId=id */
+	let sellerId;
+	const { id } = req.params;
+	sellerId = id;
+	if (req.seller) {
+		sellerId = req.seller._id;
+		return;
+	}
+
 	let { page = 1 } = req.query;
 	const pageSize = 12;
 	const options = {

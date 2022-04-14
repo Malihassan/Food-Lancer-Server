@@ -2,6 +2,8 @@ const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
 const OrderModel = require("../models/order");
 const productModel = require("../models/product");
+const sellerModel = require("../models/seller");
+const orderModel = require("../models/order");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const config = require("../config/emailsConfig");
@@ -399,7 +401,7 @@ const addNotificationToBuyer = async (req, res, next) => {
 const sendToPayment = async (req, res) => {
 	const queryArr = [];
 	for (let item of req.body.items) {
-		queryArr.push(item._id);
+		queryArr.push(item._id._id);
 	}
 	productModel.find(
 		{
@@ -412,7 +414,7 @@ const sendToPayment = async (req, res) => {
 			// a way to avoid nested loop when mixing two arrays, called frequency counter
 			const lockup = {};
 			for (let item of req.body.items) {
-				lockup[item._id] = item.quantity;
+				lockup[item._id._id] = item.quantity;
 			}
 			const orderProducts = docs.map((product) => {
 				let quantity = lockup[product._id];
@@ -439,14 +441,8 @@ const sendToPayment = async (req, res) => {
 					}),
 					metadata: {
 						sellerId: orderProducts[0].sellerId.toString(),
+						orderId: req.body.orderId.toString(),
 					},
-					// metadata: orderProducts.map((product) => {
-					// 	return {
-					// 		productId: product._id.toString(),
-					// 		productQ: product.quantity.toString(),
-					// 		sellerId: product.sellerId.toString(),
-					// 	};
-					// }),
 					success_url: `${process.env.SERVER_URL}/buyer/account/paymentSuccess`,
 					cancel_url: `${process.env.SERVER_URL}/buyer/account/paymentCancel`,
 				});
@@ -470,21 +466,19 @@ const webhook = async (request, response) => {
 	const endpointSecret = process.env.WEBHOOK_SECRET;
 
 	let event;
-	// console.log(request.body);
-	// console.log(request.body);
 	try {
 		event = await stripe.webhooks.constructEvent(
 			request.rawBody,
 			sig,
 			endpointSecret
 		);
-		// console.log(event);
 	} catch (err) {
 		response.status(400).send(`Webhook Error: ${err.message}`);
 		return;
 	}
 
 	// Handle the event
+	// console.log(event.type);
 	switch (event.type) {
 		case "checkout.session.async_payment_failed":
 			const failedSession = event.data.object;
@@ -493,7 +487,36 @@ const webhook = async (request, response) => {
 			break;
 		case "checkout.session.completed":
 			const succeededSession = event.data.object;
-			console.log(event.data.object.metadata.sellerId);
+
+			const sellerId = mongoose.Types.ObjectId(
+				event.data.object.metadata.sellerId
+			);
+			const orderId = mongoose.Types.ObjectId(
+				event.data.object.metadata.orderId
+			);
+
+			await sellerModel.findOneAndUpdate(
+				{ _id: sellerId },
+				{ $inc: { balance: succeededSession.amount_total } },
+				{
+					new: true,
+					upsert: true,
+				}
+			);
+
+			const orderData = await orderModel
+				.findOneAndUpdate({ _id: orderId }, { status: "in progress" })
+				.populate("sellerId buyerId");
+			const socketIds = [
+				orderData.sellerId.socketId,
+				orderData.buyerId.socketId,
+			];
+			const io = request.app.get("io");
+			socketIds.forEach((socketId) => {
+				console.log(socketId);
+				io.to(socketId).emit("paymentDone", "test");
+			});
+
 			// Then define and call a function to handle the event checkout.session.async_payment_succeeded
 			break;
 		// case "checkout.session.expired":
