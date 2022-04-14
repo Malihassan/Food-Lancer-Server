@@ -46,7 +46,7 @@ const getOrdersForSpecificBuyer = (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "sellerId",
-      select: "userName firstName lastName phone email status gender rate",
+      select: "userName firstName lastName phone email status gender rate image",
     })
     .populate({
       path: "products",
