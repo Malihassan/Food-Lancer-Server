@@ -425,6 +425,7 @@ const sendToPayment = async (req, res) => {
 					payment_method_types: ["card"],
 					mode: "payment",
 					line_items: orderProducts.map((product) => {
+						// console.log(product.sellerId);
 						return {
 							price_data: {
 								currency: "EGP",
@@ -436,6 +437,16 @@ const sendToPayment = async (req, res) => {
 							quantity: product.quantity,
 						};
 					}),
+					metadata: {
+						sellerId: orderProducts[0].sellerId.toString(),
+					},
+					// metadata: orderProducts.map((product) => {
+					// 	return {
+					// 		productId: product._id.toString(),
+					// 		productQ: product.quantity.toString(),
+					// 		sellerId: product.sellerId.toString(),
+					// 	};
+					// }),
 					success_url: `${process.env.SERVER_URL}/buyer/account/paymentSuccess`,
 					cancel_url: `${process.env.SERVER_URL}/buyer/account/paymentCancel`,
 				});
@@ -454,12 +465,12 @@ const paymentCancel = (req, res) => {
 	return res.render("paymentCancel");
 };
 
-const endpointSecret =
-	"whsec_2c3c924ce26b22132e011e1c7965c70816ad89571dc3a090cd9ddfd4aadc8edf";
 const webhook = async (request, response) => {
 	const sig = request.headers["stripe-signature"];
+	const endpointSecret = process.env.WEBHOOK_SECRET;
 
 	let event;
+	// console.log(request.body);
 	// console.log(request.body);
 	try {
 		event = await stripe.webhooks.constructEvent(
@@ -480,24 +491,24 @@ const webhook = async (request, response) => {
 			console.log("failedSession");
 			// Then define and call a function to handle the event checkout.session.async_payment_failed
 			break;
-		case "checkout.session.async_payment_succeeded":
+		case "checkout.session.completed":
 			const succeededSession = event.data.object;
-			console.log("succeededSession");
+			console.log(event.data.object.metadata.sellerId);
 			// Then define and call a function to handle the event checkout.session.async_payment_succeeded
 			break;
-		case "checkout.session.expired":
-			const expiredSession = event.data.object;
-			console.log("expiredSession");
-			// Then define and call a function to handle the event checkout.session.expired
-			break;
-		case "payment_intent.succeeded":
-			const paymentIntent = event.data.object;
-			console.log("paymentIntent");
-			// Then define and call a function to handle the event payment_intent.succeeded
-			break;
+		// case "checkout.session.expired":
+		// 	const expiredSession = event.data.object;
+		// 	console.log("expiredSession");
+		// 	// Then define and call a function to handle the event checkout.session.expired
+		// 	break;
+		// case "payment_intent.succeeded":
+		// 	const paymentIntent = event.data.object;
+		// 	console.log("paymentIntent");
+		// 	// Then define and call a function to handle the event payment_intent.succeeded
+		// 	break;
 		// ... handle other event types
 		default:
-			console.log(`Unhandled event type ${event.type}`);
+		// console.log(`Unhandled event type ${event.type}`);
 	}
 
 	// Return a 200 response to acknowledge receipt of the event
