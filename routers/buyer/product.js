@@ -11,7 +11,7 @@ router.get(
 );
 router.patch(
 	"/updatedReview/:productId",
-	// buyerAuthentication,
+	buyerAuthentication,
 	productController.updateReview,
 	productController.updateRate
 );
