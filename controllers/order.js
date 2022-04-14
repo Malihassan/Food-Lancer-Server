@@ -10,7 +10,7 @@ const addOrder = async(req, res, next) => {
 	const newOrder = await orderModel.create(orderDetails);
   const {_id} = newOrder;
   req.body.orderId=_id;
-  const selectedOrder = await orderModel.findOne({_id}).populate("sellerId");
+  const selectedOrder = await orderModel.findOne({_id}).populate("sellerId").populate("buyerId").populate("products");
   const io = req.app.get("io");
   io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
   console.log(selectedOrder.sellerId.socketId);
