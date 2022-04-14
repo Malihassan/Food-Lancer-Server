@@ -13,7 +13,8 @@ const addOrder = async (req, res, next) => {
     .findOne({ _id })
     .populate({
       path: "sellerId",
-      select: "userName firstName socketId lastName phone email status rate gender _id",
+      select:
+        "userName firstName socketId lastName phone email status rate gender _id",
       populate: {
         path: "coverageArea",
         select: "governorateName regionName",
@@ -34,7 +35,7 @@ const addOrder = async (req, res, next) => {
     });
   const io = req.app.get("io");
   io.to(selectedOrder.sellerId.socketId).emit("addOrder", selectedOrder);
-  console.log(selectedOrder);
+  // console.log(selectedOrder);
   next();
 };
 
@@ -186,13 +187,14 @@ const getSpecificOrderForSpecificSeller = (req, res, nex) => {
     });
 };
 const updateOrderStatusForSeller = async (req, res, next) => {
-  const seller = req.seller;
+  // const _id = req.seller._id ?req.seller._id:req.buyer._id;
+
   const { orderId, status } = req.body;
   let order;
   try {
     order = await orderModel
       .findOneAndUpdate(
-        { sellerId: seller._id, _id: orderId },
+        { _id: orderId },
         { status },
         { new: true, runValidators: true }
       )
@@ -200,10 +202,18 @@ const updateOrderStatusForSeller = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-  const io = req.app.get("io");
-  io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
-  req.order = order;
-  next();
+/**
+ * const io = req.app.get("io");
+    io.to(req.seller.socketId).emit("updateOrderStatus", order);
+ */
+  if (req.seller) {
+    const io = req.app.get("io");
+    io.to(order.buyerId.socketId).emit("updateOrderStatus", order);
+    req.order = order;
+    next();
+    return
+  }
+  res.json(order);
 };
 
 module.exports = {
