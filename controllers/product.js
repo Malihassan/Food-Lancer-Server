@@ -9,17 +9,15 @@ const sellerModel = require("../models/seller");
 
 //const { path } = require("express/lib/application");
 //seller==>add product
-
 const addProduct = async (req, res, next) => {
   const { id } = req.seller;
   let arr3 = [];
   const body = req.body;
-  const { name, description, price, addOns /* , image, reviews */ } = body;
-  categoryName = "Pizza";
-  const category = await categoryModel.findOne({ name: categoryName }).exec();
+  const { name, description, price, addOns ,categoryId} = body;
+   const category = await categoryModel.findOne({ _id: categoryId }).exec();
   if (!category) {
     return next(new AppError("categoryNotFound"));
-  }
+  } 
   try {
     const images = await req.files;
     for (let img of images) {
@@ -172,7 +170,8 @@ const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
 };
 //buyer==>all product
 const getAllProductsForBuyer = async (req, res, next) => {
-  let { page = 1, min, max, rate ,status} = req.query;
+  let { page = 1, min, max, rate ,status,categoryId} = req.query;
+  categoryId = categoryId ? { categoryId } : {}
   status = status ? { status } : {status:"active"}
   const minPriceQuery = min ? { price: { $gte: min } } : {};
   const maxPriceQuery = max ? { price: { $lte: max } } : {};
@@ -204,7 +203,7 @@ const getAllProductsForBuyer = async (req, res, next) => {
   };
   const products = await productModel.paginate(
     {
-      $and: [status, minPriceQuery, maxPriceQuery, minRate],
+      $and: [status,categoryId, minPriceQuery, maxPriceQuery, minRate],
     },
     options
   );
@@ -333,7 +332,6 @@ const updateSpecificProductForSpecificSeller = (req, res, next) => {
     })
     .catch((e) => res.status(400).json(e.message));
 };
-
 //who
 const updateReview = async (req, res, next) => {
   const { comments, rate, sellerId, orderId } = req.body;
