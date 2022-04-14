@@ -228,6 +228,18 @@ const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
 		return next(new AppError("accountNotFound"));
 	}
 };
+
+const getProductsForSpecifcSellerForAdmin = async (req, res, next) => {
+	console.log("admin");
+	const { id } = req.params;
+	console.log(id);
+	const data = await productModel.find({ sellerId: id });
+	if (!data) {
+		return next(new AppError("accountNotFound"));
+	}
+	console.log(data);
+	res.json(data);
+}
 //admin==>all products
 const getAllProducts = async (req, res, next) => {
 	let { page = 1, status, categoryId } = req.query;
@@ -435,6 +447,7 @@ module.exports = {
 	pendingMessage,
 	getAllProducts,
 	getProductsForSpecifcSellerForBuyer,
+	getProductsForSpecifcSellerForAdmin,
 	getAllProductsForBuyer,
 	getOneProduct,
 	getProductsForSpecificSeller,
