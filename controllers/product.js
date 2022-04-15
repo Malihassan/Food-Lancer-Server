@@ -225,7 +225,10 @@ const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
   console.log("inside");
   const { id } = req.params;
   console.log(id);
-  const data = await productModel.find({ sellerId: id, status: "active" });
+  const data = await productModel.find({ sellerId: id, status: "active" }).populate({
+    path: "sellerId",
+    select: "userName ",
+  });
   if (!data) {
     return next(new AppError("accountNotFound"));
   }
