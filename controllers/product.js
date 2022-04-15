@@ -301,7 +301,7 @@ const getOneProduct = function (req, res, next) {
 		})
 		.populate({
 			path: "reviews.buyerId",
-			select: "email userName",
+			select: "email userName image",
 		})
 		.then((data) => {
 			res.json(data);
