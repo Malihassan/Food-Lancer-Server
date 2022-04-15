@@ -18,7 +18,7 @@ router.get("/:id", adminAuthentication, sellerController.getSpecificSeller);
 router.get(
   "/:id/products",
   adminAuthentication,
-  productController.getProductsForSpecificSeller
+  productController.getProductsForSpecifcSellerForAdmin
 );
 router.get(
   "/:id/products/:productId",

@@ -2,6 +2,8 @@ const AppError = require("../helpers/ErrorClass");
 const buyerModel = require("../models/buyer");
 const OrderModel = require("../models/order");
 const productModel = require("../models/product");
+const sellerModel = require("../models/seller");
+const orderModel = require("../models/order");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const config = require("../config/emailsConfig");
@@ -154,6 +156,19 @@ const buyerById = async (req, res, next) => {
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
+	res.json(buyer);
+};
+
+const buyerByIdForAdmin = async (req, res, next) => {
+	const { id } = req.params;
+	console.log(id);
+	const buyer = await buyerModel.findById(id).catch((error) => {
+		res.status(400).json(error.message);
+	});
+	if (!buyer) {
+		return next(new AppError("accountNotFound"));
+	}
+	console.log(buyer);
 	res.json(buyer);
 };
 
@@ -399,7 +414,7 @@ const addNotificationToBuyer = async (req, res, next) => {
 const sendToPayment = async (req, res) => {
 	const queryArr = [];
 	for (let item of req.body.items) {
-		queryArr.push(item._id);
+		queryArr.push(item._id._id);
 	}
 	productModel.find(
 		{
@@ -412,7 +427,7 @@ const sendToPayment = async (req, res) => {
 			// a way to avoid nested loop when mixing two arrays, called frequency counter
 			const lockup = {};
 			for (let item of req.body.items) {
-				lockup[item._id] = item.quantity;
+				lockup[item._id._id] = item.quantity;
 			}
 			const orderProducts = docs.map((product) => {
 				let quantity = lockup[product._id];
@@ -425,6 +440,7 @@ const sendToPayment = async (req, res) => {
 					payment_method_types: ["card"],
 					mode: "payment",
 					line_items: orderProducts.map((product) => {
+						// console.log(product.sellerId);
 						return {
 							price_data: {
 								currency: "EGP",
@@ -436,6 +452,10 @@ const sendToPayment = async (req, res) => {
 							quantity: product.quantity,
 						};
 					}),
+					metadata: {
+						sellerId: orderProducts[0].sellerId.toString(),
+						orderId: req.body.orderId.toString(),
+					},
 					success_url: `${process.env.SERVER_URL}/buyer/account/paymentSuccess`,
 					cancel_url: `${process.env.SERVER_URL}/buyer/account/paymentCancel`,
 				});
@@ -454,50 +474,83 @@ const paymentCancel = (req, res) => {
 	return res.render("paymentCancel");
 };
 
-const endpointSecret =
-	"whsec_2c3c924ce26b22132e011e1c7965c70816ad89571dc3a090cd9ddfd4aadc8edf";
 const webhook = async (request, response) => {
 	const sig = request.headers["stripe-signature"];
+	const endpointSecret = process.env.WEBHOOK_SECRET;
 
 	let event;
-	// console.log(request.body);
 	try {
 		event = await stripe.webhooks.constructEvent(
 			request.rawBody,
 			sig,
 			endpointSecret
 		);
-		// console.log(event);
 	} catch (err) {
 		response.status(400).send(`Webhook Error: ${err.message}`);
 		return;
 	}
 
 	// Handle the event
+	// console.log(event.type);
 	switch (event.type) {
 		case "checkout.session.async_payment_failed":
 			const failedSession = event.data.object;
 			console.log("failedSession");
 			// Then define and call a function to handle the event checkout.session.async_payment_failed
 			break;
-		case "checkout.session.async_payment_succeeded":
+		case "checkout.session.completed":
 			const succeededSession = event.data.object;
-			console.log("succeededSession");
+
+			const sellerId = mongoose.Types.ObjectId(
+				event.data.object.metadata.sellerId
+			);
+			const orderId = mongoose.Types.ObjectId(
+				event.data.object.metadata.orderId
+			);
+
+			await sellerModel.findOneAndUpdate(
+				{ _id: sellerId },
+				{ $inc: { balance: succeededSession.amount_total } },
+				{
+					new: true,
+					upsert: true,
+				}
+			);
+
+			const orderData = await orderModel
+				.findOneAndUpdate(
+					{ _id: orderId },
+					{ status: "in progress" },
+					{
+						new: true,
+					}
+				)
+				.populate("sellerId buyerId");
+			const socketIds = [
+				orderData.sellerId.socketId,
+				orderData.buyerId.socketId,
+			];
+			const io = request.app.get("io");
+			socketIds.forEach((socketId) => {
+				console.log(socketId);
+				io.to(socketId).emit("paymentDone", orderData);
+			});
+
 			// Then define and call a function to handle the event checkout.session.async_payment_succeeded
 			break;
-		case "checkout.session.expired":
-			const expiredSession = event.data.object;
-			console.log("expiredSession");
-			// Then define and call a function to handle the event checkout.session.expired
-			break;
-		case "payment_intent.succeeded":
-			const paymentIntent = event.data.object;
-			console.log("paymentIntent");
-			// Then define and call a function to handle the event payment_intent.succeeded
-			break;
+		// case "checkout.session.expired":
+		// 	const expiredSession = event.data.object;
+		// 	console.log("expiredSession");
+		// 	// Then define and call a function to handle the event checkout.session.expired
+		// 	break;
+		// case "payment_intent.succeeded":
+		// 	const paymentIntent = event.data.object;
+		// 	console.log("paymentIntent");
+		// 	// Then define and call a function to handle the event payment_intent.succeeded
+		// 	break;
 		// ... handle other event types
 		default:
-			console.log(`Unhandled event type ${event.type}`);
+		// console.log(`Unhandled event type ${event.type}`);
 	}
 
 	// Return a 200 response to acknowledge receipt of the event
@@ -520,6 +573,7 @@ module.exports = {
 	updateStatus,
 	allBuyers,
 	buyerById,
+	buyerByIdForAdmin,
 	getOrdersForSpecifcBuyer,
 	getFavs,
 	addFav,
