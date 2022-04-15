@@ -134,7 +134,7 @@ const getCountInprogressOrdersForSeller = async (id) => {
 };
 const getOrdersForSpecificSeller = (req, res, next) => {
   let { id } = req.params;
-  id ? "" : (id = req.seller._id);
+  id = id ? id : req.seller._id;
   orderModel
     .find({ sellerId: id })
     .populate({

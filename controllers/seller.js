@@ -224,8 +224,9 @@ const getSellers = async (req, res, next) => {
   let { page = 1, status, email, rate } = req.query;
   status = status ? { status } : {};
   email = email ? { email } : {};
-  rate = rate ? { rate } : [];
-  if (rate.length !== 0) {
+  rate = typeof(rate) === "string" ? [rate]:rate
+ 
+  if (rate) {
     rate = rate.map((item, index) => {
       switch (item) {
         case ">=2":
@@ -257,6 +258,8 @@ const getSellers = async (req, res, next) => {
     option
   );
   res.json(allSellers);
+  // res.json();
+
 };
 
 const getSellersByStatus = async (req, res, next) => {
