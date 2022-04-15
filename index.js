@@ -34,7 +34,6 @@ app.use(
 	express.json({
 		verify: function (req, res, buf) {
 			var url = req.originalUrl;
-			console.log(url, "my URL");
 			if (url.startsWith("/buyer/account/webhook")) {
 				req.rawBody = buf.toString();
 			}

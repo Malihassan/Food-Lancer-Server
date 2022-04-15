@@ -176,10 +176,10 @@ const getSpecifcProductForSpecificSeller = async (req, res, next) => {
 const getAllProductsForBuyer = async (req, res, next) => {
 	let { page = 1, min, max, rate, status, categoryId = [] } = req.query;
 	status = status ? { status } : { status: "active" };
-	console.log("1", categoryId);
+
 	const categoryIdQuery =
 		categoryId.length !== 0 ? { categoryId: { $in: categoryId } } : {};
-	console.log("2", categoryIdQuery);
+
 	const minPriceQuery = min ? { price: { $gte: min } } : {};
 	const maxPriceQuery = max ? { price: { $lte: max } } : {};
 	const minRate = rate ? { avgRate: { $gte: rate } } : {};
@@ -217,14 +217,13 @@ const getAllProductsForBuyer = async (req, res, next) => {
 	if (products.docs.length === 0) {
 		return next(new AppError("noProductFound"));
 	}
-	console.log(products);
+
 	res.json(products);
 };
 //buyer==>seller products
 const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
-	console.log("inside");
 	const { id } = req.params;
-	console.log(id);
+
 	const data = await productModel
 		.find({ sellerId: id, status: "active" })
 		.populate({
@@ -235,7 +234,6 @@ const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
 		return next(new AppError("accountNotFound"));
 	}
 	res.json(data);
-	console.log("data===>", data);
 };
 //admin==>all products
 const getAllProducts = async (req, res, next) => {
@@ -281,7 +279,7 @@ const getAllProducts = async (req, res, next) => {
 //admin==>one product //buyer==>one product
 const getOneProduct = function (req, res, next) {
 	const { id } = req.params;
-	console.log(id);
+
 	productModel
 		.findOne({ _id: id })
 		.populate({
@@ -439,19 +437,13 @@ const updateRate = async (req, res, next) => {
 };
 
 const getProductsForSpecifcSellerForAdmin = async (req, res, next) => {
-	console.log("admin");
-
 	const { id } = req.params;
-
-	console.log(id);
 
 	const data = await productModel.find({ sellerId: id });
 
 	if (!data) {
 		return next(new AppError("accountNotFound"));
 	}
-
-	console.log(data);
 
 	res.json(data);
 };

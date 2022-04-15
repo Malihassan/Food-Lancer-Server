@@ -212,9 +212,9 @@ const getOrdersForSpecifcBuyer = async (req, res, next) => {
 const getFavs = async (req, res, next) => {
 	const { _id } = req.buyer;
 
-	const buyer = await buyerModel.findById({ _id }).populate({
-		path: "favs",
-	});
+	const buyer = await buyerModel
+		.findById({ _id })
+		.populate({ path: "favs", populate: { path: "sellerId" } });
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
