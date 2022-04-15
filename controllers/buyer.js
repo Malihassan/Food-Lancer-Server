@@ -518,7 +518,13 @@ const webhook = async (request, response) => {
 			);
 
 			const orderData = await orderModel
-				.findOneAndUpdate({ _id: orderId }, { status: "in progress" })
+				.findOneAndUpdate(
+					{ _id: orderId },
+					{ status: "in progress" },
+					{
+						new: true,
+					}
+				)
 				.populate("sellerId buyerId");
 			const socketIds = [
 				orderData.sellerId.socketId,
