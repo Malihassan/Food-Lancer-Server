@@ -479,7 +479,6 @@ const webhook = async (request, response) => {
 	const endpointSecret = process.env.WEBHOOK_SECRET;
 
 	let event;
-	console.log(sig);
 	try {
 		event = await stripe.webhooks.constructEvent(
 			request.rawBody,
