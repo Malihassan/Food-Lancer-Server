@@ -69,8 +69,7 @@ const sendPendingMessage = function (pendingMessage, userEmail, userName) {
   const mailOptions = {
     from: `${process.env.ADMAIN_EMAIL}`,
     to: `${userEmail}`,
-    subject: "Pending Message",
-    text: `${pendingMessage}`,
+    subject: "Product Is Pending ",
     html: `
             <h2>Hello, ${userName} </h2>
             <h4> you add new product , this product is pending because ${pendingMessage}
