@@ -73,8 +73,8 @@ const sendPendingMessage = function (pendingMessage, userEmail, userName) {
     text: `${pendingMessage}`,
     html: `
             <h2>Hello, ${userName} </h2>
-            <p> you add new product , this product is pending because ${pendingMessage}
-            </p>`,
+            <h4> you add new product , this product is pending because ${pendingMessage}
+            </h4>`,
   };
 
   transport.sendMail(mailOptions, function (error, info) {

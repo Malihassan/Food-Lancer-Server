@@ -4,8 +4,6 @@ const productController = require("../../controllers/product");
 const BuyerController = require("../../controllers/buyer");
 const categoryController = require("../../controllers/category");
 
-// router.get("/", buyerAuthentication, productController.getAllProducts);
-
 router.get(
 	"/details/:id",
 	buyerAuthentication,
@@ -23,13 +21,12 @@ router.get(
 	categoryController.getCategories
 );
 router.get("/favs", buyerAuthentication, BuyerController.getFavs);
-router.get("/allProducts", productController.getAllProductsForBuyer);
+router.get("/allProducts",productController.getAllProductsForBuyer);
 router.get(
 	"/:id/sellerProducts",
 	productController.getProductsForSpecifcSellerForBuyer
 );
 router.post("/favs", buyerAuthentication, BuyerController.addFav);
 router.delete("/favs", buyerAuthentication, BuyerController.deleteFav);
-//getAllProducts
 
 module.exports = router;

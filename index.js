@@ -31,7 +31,7 @@ app.set("io", io);
 
 app.use(cors());
 app.use(
-	bodyParser.json({
+	express.json({
 		verify: function (req, res, buf) {
 			var url = req.originalUrl;
 			if (url.startsWith("/buyer/account/webhook")) {

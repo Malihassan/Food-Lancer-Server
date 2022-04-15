@@ -46,7 +46,7 @@ const getOrdersForSpecificBuyer = (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "sellerId",
-      select: "userName firstName lastName phone email status gender rate",
+      select: "userName firstName lastName phone email status gender rate image",
     })
     .populate({
       path: "products",
@@ -134,24 +134,24 @@ const getCountInprogressOrdersForSeller = async (id) => {
 };
 const getOrdersForSpecificSeller = (req, res, next) => {
   let { id } = req.params;
-  id = id ? id : req.seller._id;
+  id ? id = id : (id = req.seller._id);
   orderModel
     .find({ sellerId: id })
     .populate({
       path: "buyerId",
       select:
-        "userName firstName lastName phone email status address gender -_id",
+        "userName firstName lastName phone email status address gender",
     })
     .populate({
       path: "sellerId",
-      select: "userName firstName lastName phone email status gender -_id",
+      select: "userName firstName lastName phone email status gender",
     })
     .populate({
       path: "products",
       populate: {
         path: "_id",
         select:
-          "name description image price addOns reviews avgRate status -_id",
+          "name description image price addOns reviews avgRate status",
       },
     })
     .then(async (data) => {
