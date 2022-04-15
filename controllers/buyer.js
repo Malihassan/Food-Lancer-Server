@@ -212,9 +212,9 @@ const getOrdersForSpecifcBuyer = async (req, res, next) => {
 const getFavs = async (req, res, next) => {
 	const { _id } = req.buyer;
 
-	const buyer = await buyerModel.findById({ _id }).populate({
-		path: "favs",
-	});
+	const buyer = await buyerModel
+		.findById({ _id })
+		.populate({ path: "favs", populate: { path: "sellerId" } });
 	if (!buyer) {
 		return next(new AppError("accountNotFound"));
 	}
@@ -518,7 +518,13 @@ const webhook = async (request, response) => {
 			);
 
 			const orderData = await orderModel
-				.findOneAndUpdate({ _id: orderId }, { status: "in progress" })
+				.findOneAndUpdate(
+					{ _id: orderId },
+					{ status: "in progress" },
+					{
+						new: true,
+					}
+				)
 				.populate("sellerId buyerId");
 			const socketIds = [
 				orderData.sellerId.socketId,
@@ -527,7 +533,7 @@ const webhook = async (request, response) => {
 			const io = request.app.get("io");
 			socketIds.forEach((socketId) => {
 				console.log(socketId);
-				io.to(socketId).emit("paymentDone", "test");
+				io.to(socketId).emit("paymentDone", orderData);
 			});
 
 			// Then define and call a function to handle the event checkout.session.async_payment_succeeded
