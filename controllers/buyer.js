@@ -527,7 +527,7 @@ const webhook = async (request, response) => {
 			const io = request.app.get("io");
 			socketIds.forEach((socketId) => {
 				console.log(socketId);
-				io.to(socketId).emit("paymentDone", "test");
+				io.to(socketId).emit("paymentDone", orderData);
 			});
 
 			// Then define and call a function to handle the event checkout.session.async_payment_succeeded
