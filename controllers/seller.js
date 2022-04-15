@@ -229,46 +229,45 @@ const getSpecificSeller = async (req, res, next) => {
 	res.json({ seller, countDeliverOrder, countInprogressOrder });
 };
 const getSellers = async (req, res, next) => {
-	let { page = 1, status, email, rate } = req.query;
-	console.log(rate, "1");
-	status = status ? { status } : {};
-	email = email ? { email } : {};
-	rate = rate ? { rate } : [];
-	if (rate.length !== 0) {
-		rate = rate.map((item, index) => {
-			switch (item) {
-				case ">=2":
-					return (item = { $lte: 2 });
-				case "2<=4":
-					return (item = { $gte: 2, $lte: 4 });
-				case "4<=5":
-					return (item = { $gte: 4, $lte: 5 });
-			}
-		});
-		console.log(rate, "2");
-		rate = rate.map((item) => ({ rate: item }));
-		console.log(rate, "3");
-	} else {
-		rate = [{ rate: { $gte: 0 } }];
-	}
-	const pageSize = 7;
-	const option = {
-		page: page,
-		limit: pageSize,
-		populate: {
-			path: "coverageArea",
-			select: "governorateName regionName",
-		},
-		select: "userName email rate status",
-	};
-	console.log(rate, "4");
-	const allSellers = await sellerModel.paginate(
-		{
-			$and: [status, email, { $or: rate }],
-		},
-		option
-	);
-	res.json(allSellers);
+  let { page = 1, status, email, rate } = req.query;
+  status = status ? { status } : {};
+  email = email ? { email } : {};
+  rate = typeof(rate) === "string" ? [rate]:rate
+ 
+  if (rate) {
+    rate = rate.map((item, index) => {
+      switch (item) {
+        case ">=2":
+          return (item = { $lte: 2 });
+        case "2<=4":
+          return (item = { $gte: 2, $lte: 4 });
+        case "4<=5":
+          return (item = { $gte: 4, $lte: 5 });
+      }
+    });
+    rate = rate.map((item) => ({ rate: item }));
+  } else {
+    rate = [{ rate: { $gte: 0 } }];
+  }
+  const pageSize = 7;
+  const option = {
+    page: page,
+    limit: pageSize,
+    populate: {
+      path: "coverageArea",
+      select: "governorateName regionName",
+    },
+    select: "userName email rate status",
+  };
+  const allSellers = await sellerModel.paginate(
+    {
+      $and: [status, email, { $or: rate }],
+    },
+    option
+  );
+  res.json(allSellers);
+  // res.json();
+
 };
 
 const getSellersByStatus = async (req, res, next) => {

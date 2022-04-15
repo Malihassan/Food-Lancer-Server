@@ -292,7 +292,7 @@ const getOneProduct = function (req, res, next) {
 		})
 		.populate({
 			path: "reviews.buyerId",
-			select: "email userName",
+			select: "email userName image",
 		})
 		.then((data) => {
 			res.json(data);
@@ -316,8 +316,9 @@ const pendingMessage = async (req, res, next) => {
 			select: "email userName",
 		});
 	const userEmail = product.sellerId.email;
+  const userName = product.sellerId.userName;
+	config.sendPendingMessage(pendingMessage, userEmail,userName);
 	res.json(userEmail);
-	config.sendPendingMessage(pendingMessage, userEmail);
 };
 //admin==>upadate product
 const updateStatus = async (req, res, next) => {
