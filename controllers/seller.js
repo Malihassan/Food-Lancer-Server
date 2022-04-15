@@ -191,6 +191,7 @@ const _changeStatus = async function (id) {
 const updateSellerStatus = function (req, res, next) {
 	const { id } = req.params;
 	const { status } = req.body;
+	_editProducts(id, status);
 	_editSeller(id, status)
 		.then((result) => {
 			res.status(200).json({ updatedStatus: result.status });
@@ -203,6 +204,13 @@ const _editSeller = function (id, status) {
 	const options = { runValidators: true, new: true };
 	return sellerModel.findOneAndUpdate({ _id: id }, { status }, options);
 };
+const _editProducts = async (id, status) => {
+	if(status === "blocked"){
+		await productModel.updateMany({ sellerId: id }, { status });
+	} else if(status === "active"){
+		await productModel.updateMany({ sellerId: id }, { status: "pending" });
+	}
+}
 const getSpecificSeller = async (req, res, next) => {
 	let { id } = req.params;
 	!id ? (id = req.seller._id) : "";
