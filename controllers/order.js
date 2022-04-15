@@ -97,7 +97,7 @@ const getOrders = async (req, res, next) => {
       {
         path: "buyerId",
         select:
-          "userName firstName lastName phone email status address gender _id",
+          "userName firstName lastName phone email status address gender image _id",
       },
       {
         path: "products",
