@@ -222,18 +222,20 @@ const getAllProductsForBuyer = async (req, res, next) => {
 };
 //buyer==>seller products
 const getProductsForSpecifcSellerForBuyer = async (req, res, next) => {
-  console.log("inside");
-  const { id } = req.params;
-  console.log(id);
-  const data = await productModel.find({ sellerId: id, status: "active" }).populate({
-    path: "sellerId",
-    select: "userName ",
-  });
-  if (!data) {
-    return next(new AppError("accountNotFound"));
-  }
-  res.json(data);
-  console.log("data===>",data);
+	console.log("inside");
+	const { id } = req.params;
+	console.log(id);
+	const data = await productModel
+		.find({ sellerId: id, status: "active" })
+		.populate({
+			path: "sellerId",
+			select: "userName ",
+		});
+	if (!data) {
+		return next(new AppError("accountNotFound"));
+	}
+	res.json(data);
+	console.log("data===>", data);
 };
 //admin==>all products
 const getAllProducts = async (req, res, next) => {
@@ -435,12 +437,30 @@ const updateRate = async (req, res, next) => {
 	// io.to(buyer.socketId).emit("updateRateOfSeller", orders);
 	res.status(200).json(orders);
 };
+
+const getProductsForSpecifcSellerForAdmin = async (req, res, next) => {
+	console.log("admin");
+
+	const { id } = req.params;
+
+	console.log(id);
+
+	const data = await productModel.find({ sellerId: id });
+
+	if (!data) {
+		return next(new AppError("accountNotFound"));
+	}
+
+	console.log(data);
+
+	res.json(data);
+};
 module.exports = {
 	addProduct,
 	pendingMessage,
 	getAllProducts,
 	getProductsForSpecifcSellerForBuyer,
-	//getProductsForSpecifcSellerForAdmin,
+	getProductsForSpecifcSellerForAdmin,
 	getAllProductsForBuyer,
 	getOneProduct,
 	getProductsForSpecificSeller,
