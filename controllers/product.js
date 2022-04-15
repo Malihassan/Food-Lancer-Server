@@ -439,7 +439,7 @@ const updateRate = async (req, res, next) => {
 const getProductsForSpecifcSellerForAdmin = async (req, res, next) => {
 	const { id } = req.params;
 
-	const data = await productModel.find({ sellerId: id });
+	const data = await productModel.find({ sellerId: id }).populate({path: "sellerId"});
 
 	if (!data) {
 		return next(new AppError("accountNotFound"));
