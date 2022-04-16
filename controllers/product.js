@@ -199,8 +199,12 @@ const getAllProductsForBuyer = async (req, res, next) => {
 					rate: 1,
 					status: 1,
 					gender: 1,
-					"coverage-area": 1,
+					coverageArea: 1,
 				},
+				populate: {
+					path: "coverageArea",
+					select: "governorateName regionName",
+				  },
 			},
 			{
 				path: "categoryId",
@@ -217,7 +221,7 @@ const getAllProductsForBuyer = async (req, res, next) => {
 	if (products.docs.length === 0) {
 		return next(new AppError("noProductFound"));
 	}
-
+	console.log(products);
 	res.json(products);
 };
 //buyer==>seller products
