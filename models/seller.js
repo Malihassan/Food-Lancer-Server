@@ -63,6 +63,7 @@ const sellerSchema = mongoose.Schema(
 		},
 		balance: {
 			type: Number,
+			default:0,
 			min: [0, "lowest value is 0"],
 		},
 		token: {
