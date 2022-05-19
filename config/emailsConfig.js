@@ -29,11 +29,12 @@ const _mailConfirmation = function (username, email, token, id, type) {
       to: email,
       subject: "Please confirm your email",
       html: `<h1>Email Confirmation</h1>
-            <h2>Hello, ${username}!</h2>
-            <p>we received a request for a password change on Food-lancer.com you can reset your password</p>
-            <a href="${process.env.SERVER_URL}/${type}/account/signup/confirm/${token}/${id}">Click here!!!</a> 
+            <h2>Hello, ${username} Welcome to FoodLancer</h2>
+            <p>Thank you for Joining the FoodLancer</p>
+            <a href="${process.env.SERVER_URL}/${type}/account/signup/confirm/${token}/${id}">Confirm email!!!</a> 
             <br> <br>
-            <small>this link will expire 24 hours</small>`,
+            <small>this link will expire 24 hours</small>
+            <small>Our Best</small>`,
     },
     (error, info) => {
       if (error) {
